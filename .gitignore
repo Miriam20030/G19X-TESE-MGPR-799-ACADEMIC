@@ -1,0 +1,25 @@
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# Backend
+backend/target/
+backend/.env
+
+# Java / Maven
+**/target/
+*.class
+
+# Variables de entorno
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Sistema
+.DS_Store
+Thumbs.db
