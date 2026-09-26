@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import './App.css'
@@ -9,11 +10,12 @@ import Evaluaciones from './pages/Evaluaciones'
 import NuevaEvaluacion from './pages/NuevaEvaluacion'
 import Alertas from './pages/Alertas'
 import Configuracion from './pages/Configuracion'
-import Reportes from './pages/reportes'
+import Reportes from './pages/Reportes'
+
+import Login from './components/Login'
 
 
 function Dashboard({ modoOscuro, colorPrincipal }) {
-
   const [proveedores, setProveedores] = useState([])
   const [evaluaciones, setEvaluaciones] = useState([])
 
@@ -23,7 +25,6 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
 
   const obtenerDatos = async () => {
     try {
-
       const respuestaProveedores = await fetch(
         'http://localhost:8080/api/proveedores'
       )
@@ -41,7 +42,6 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
 
       setProveedores(datosProveedores)
       setEvaluaciones(datosEvaluaciones)
-
     } catch (error) {
       console.error('Error:', error)
     }
@@ -101,7 +101,6 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
       evaluacion.clasificacion?.toLowerCase() === 'riesgo'
   ).length
 
-
   const maximoGrafica = Math.max(
     cantidadExcelente,
     cantidadBueno,
@@ -129,64 +128,55 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
 
 
   return (
-
     <div
       style={{
         color: colorTexto
       }}
     >
 
-      {/* =========================
-          TÍTULO
-      ========================= */}
+      {/* TÍTULO */}
 
       <div
-  style={{
-    marginBottom: '35px',
-    paddingBottom: '22px',
-    borderBottom: '1px solid #e1e6ea'
-  }}
->
-  <h1
-    style={{
-      margin: 0,
-      color: modoOscuro ? '#f8fafc' : '#1f2933',
-      fontSize: '34px',
-      fontWeight: '600',
-      letterSpacing: '-0.8px',
-      lineHeight: '1.2'
-    }}
-  >
-    Resumen general
-  </h1>
+        style={{
+          marginBottom: '35px',
+          paddingBottom: '22px',
+          borderBottom: '1px solid #e1e6ea'
+        }}
+      >
+        <h1
+          style={{
+            margin: 0,
+            color: modoOscuro ? '#f8fafc' : '#1f2933',
+            fontSize: '34px',
+            fontWeight: '600',
+            letterSpacing: '-0.8px',
+            lineHeight: '1.2'
+          }}
+        >
+          Resumen general
+        </h1>
 
-  <p
-    style={{
-      margin: '10px 0 0',
-      color: modoOscuro ? '#94a3b8' : '#7a8791',
-      fontSize: '15px',
-      lineHeight: '1.6'
-    }}
-  >
-    Visión general del desempeño y gestión de proveedores.
-  </p>
-</div>
+        <p
+          style={{
+            margin: '10px 0 0',
+            color: modoOscuro ? '#94a3b8' : '#7a8791',
+            fontSize: '15px',
+            lineHeight: '1.6'
+          }}
+        >
+          Visión general del desempeño y gestión de proveedores.
+        </p>
+      </div>
 
 
-      {/* =========================
-          TARJETAS PRINCIPALES
-      ========================= */}
+      {/* TARJETAS PRINCIPALES */}
 
       <div className="cards">
 
         <div className="card">
           <span>Total de proveedores</span>
 
-          <strong
-            style={{
-              color: colorPrincipal
-            }}
-          >
+          <strong style={{ color: colorPrincipal }}>
             {totalProveedores}
           </strong>
         </div>
@@ -195,11 +185,7 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
         <div className="card">
           <span>Proveedores activos</span>
 
-          <strong
-            style={{
-              color: colorPrincipal
-            }}
-          >
+          <strong style={{ color: colorPrincipal }}>
             {proveedoresActivos}
           </strong>
         </div>
@@ -208,11 +194,7 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
         <div className="card">
           <span>Proveedores en riesgo</span>
 
-          <strong
-            style={{
-              color: '#7a4b4b'
-            }}
-          >
+          <strong style={{ color: '#7a4b4b' }}>
             {evaluacionesRiesgo}
           </strong>
         </div>
@@ -221,11 +203,7 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
         <div className="card">
           <span>Evaluación promedio</span>
 
-          <strong
-            style={{
-              color: colorPrincipal
-            }}
-          >
+          <strong style={{ color: colorPrincipal }}>
             {promedioEvaluacion}%
           </strong>
         </div>
@@ -233,9 +211,7 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
       </div>
 
 
-      {/* =========================
-          GRÁFICA DE CLASIFICACIÓN
-      ========================= */}
+      {/* GRÁFICA DE CLASIFICACIÓN */}
 
       <div
         style={{
@@ -284,7 +260,6 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
           }}
         >
 
-
           {/* EXCELENTE */}
 
           <div
@@ -298,11 +273,7 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
             }}
           >
 
-            <strong
-              style={{
-                marginBottom: '8px'
-              }}
-            >
+            <strong style={{ marginBottom: '8px' }}>
               {cantidadExcelente}
             </strong>
 
@@ -345,11 +316,7 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
             }}
           >
 
-            <strong
-              style={{
-                marginBottom: '8px'
-              }}
-            >
+            <strong style={{ marginBottom: '8px' }}>
               {cantidadBueno}
             </strong>
 
@@ -392,11 +359,7 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
             }}
           >
 
-            <strong
-              style={{
-                marginBottom: '8px'
-              }}
-            >
+            <strong style={{ marginBottom: '8px' }}>
               {cantidadRegular}
             </strong>
 
@@ -439,11 +402,7 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
             }}
           >
 
-            <strong
-              style={{
-                marginBottom: '8px'
-              }}
-            >
+            <strong style={{ marginBottom: '8px' }}>
               {cantidadRiesgo}
             </strong>
 
@@ -473,13 +432,10 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
           </div>
 
         </div>
-
       </div>
 
 
-      {/* =========================
-          PROMEDIO DE INDICADORES
-      ========================= */}
+      {/* PROMEDIO DE INDICADORES */}
 
       <div
         style={{
@@ -514,346 +470,82 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
         </p>
 
 
-        {/* CUMPLIMIENTO DE ENTREGAS */}
+        {[
+          ['Cumplimiento de entregas', 'cumplimientoEntregas'],
+          ['Calidad', 'calidad'],
+          ['Costos', 'costos'],
+          ['Tiempo de respuesta', 'tiempoRespuesta'],
+          ['Incidencias', 'incidencias']
+        ].map(([nombre, campo], indice) => {
 
-        <div style={{ marginBottom: '20px' }}>
+          const promedio =
+            evaluaciones.length > 0
+              ? evaluaciones.reduce(
+                  (total, evaluacion) =>
+                    total +
+                    (Number(evaluacion[campo]) || 0),
+                  0
+                ) / evaluaciones.length
+              : 0
 
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginBottom: '7px'
-            }}
-          >
-
-            <span>
-              Cumplimiento de entregas
-            </span>
-
-            <strong>
-              {evaluaciones.length > 0
-                ? (
-                    evaluaciones.reduce(
-                      (total, evaluacion) =>
-                        total +
-                        (Number(evaluacion.cumplimientoEntregas) || 0),
-                      0
-                    ) / evaluaciones.length
-                  ).toFixed(1)
-                : 0
-              }%
-            </strong>
-
-          </div>
-
-          <div
-            style={{
-              height: '10px',
-              backgroundColor: modoOscuro ? '#334155' : '#e2e8f0',
-              borderRadius: '10px',
-              overflow: 'hidden'
-            }}
-          >
-
+          return (
             <div
+              key={campo}
               style={{
-                height: '100%',
-                width: `${
-                  evaluaciones.length > 0
-                    ? (
-                        evaluaciones.reduce(
-                          (total, evaluacion) =>
-                            total +
-                            (Number(evaluacion.cumplimientoEntregas) || 0),
-                          0
-                        ) / evaluaciones.length
-                      )
-                    : 0
-                }%`,
-                backgroundColor: colorPrincipal,
-                borderRadius: '10px',
-                transition: 'width 0.5s'
+                marginBottom:
+                  indice === 4 ? 0 : '20px'
               }}
-            />
+            >
 
-          </div>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginBottom: '7px'
+                }}
+              >
 
-        </div>
+                <span>
+                  {nombre}
+                </span>
 
+                <strong>
+                  {promedio.toFixed(1)}%
+                </strong>
 
-        {/* CALIDAD */}
-
-        <div style={{ marginBottom: '20px' }}>
-
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginBottom: '7px'
-            }}
-          >
-
-            <span>
-              Calidad
-            </span>
-
-            <strong>
-              {evaluaciones.length > 0
-                ? (
-                    evaluaciones.reduce(
-                      (total, evaluacion) =>
-                        total +
-                        (Number(evaluacion.calidad) || 0),
-                      0
-                    ) / evaluaciones.length
-                  ).toFixed(1)
-                : 0
-              }%
-            </strong>
-
-          </div>
-
-          <div
-            style={{
-              height: '10px',
-              backgroundColor: modoOscuro ? '#334155' : '#e2e8f0',
-              borderRadius: '10px',
-              overflow: 'hidden'
-            }}
-          >
-
-            <div
-              style={{
-                height: '100%',
-                width: `${
-                  evaluaciones.length > 0
-                    ? (
-                        evaluaciones.reduce(
-                          (total, evaluacion) =>
-                            total +
-                            (Number(evaluacion.calidad) || 0),
-                          0
-                        ) / evaluaciones.length
-                      )
-                    : 0
-                }%`,
-                backgroundColor: colorPrincipal,
-                borderRadius: '10px',
-                transition: 'width 0.5s'
-              }}
-            />
-
-          </div>
-
-        </div>
+              </div>
 
 
-        {/* COSTOS */}
+              <div
+                style={{
+                  height: '10px',
+                  backgroundColor:
+                    modoOscuro ? '#334155' : '#e2e8f0',
+                  borderRadius: '10px',
+                  overflow: 'hidden'
+                }}
+              >
 
-        <div style={{ marginBottom: '20px' }}>
+                <div
+                  style={{
+                    height: '100%',
+                    width: `${promedio}%`,
+                    backgroundColor: colorPrincipal,
+                    borderRadius: '10px',
+                    transition: 'width 0.5s'
+                  }}
+                />
 
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginBottom: '7px'
-            }}
-          >
+              </div>
 
-            <span>
-              Costos
-            </span>
-
-            <strong>
-              {evaluaciones.length > 0
-                ? (
-                    evaluaciones.reduce(
-                      (total, evaluacion) =>
-                        total +
-                        (Number(evaluacion.costos) || 0),
-                      0
-                    ) / evaluaciones.length
-                  ).toFixed(1)
-                : 0
-              }%
-            </strong>
-
-          </div>
-
-          <div
-            style={{
-              height: '10px',
-              backgroundColor: modoOscuro ? '#334155' : '#e2e8f0',
-              borderRadius: '10px',
-              overflow: 'hidden'
-            }}
-          >
-
-            <div
-              style={{
-                height: '100%',
-                width: `${
-                  evaluaciones.length > 0
-                    ? (
-                        evaluaciones.reduce(
-                          (total, evaluacion) =>
-                            total +
-                            (Number(evaluacion.costos) || 0),
-                          0
-                        ) / evaluaciones.length
-                      )
-                    : 0
-                }%`,
-                backgroundColor: colorPrincipal,
-                borderRadius: '10px',
-                transition: 'width 0.5s'
-              }}
-            />
-
-          </div>
-
-        </div>
-
-
-        {/* TIEMPO DE RESPUESTA */}
-
-        <div style={{ marginBottom: '20px' }}>
-
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginBottom: '7px'
-            }}
-          >
-
-            <span>
-              Tiempo de respuesta
-            </span>
-
-            <strong>
-              {evaluaciones.length > 0
-                ? (
-                    evaluaciones.reduce(
-                      (total, evaluacion) =>
-                        total +
-                        (Number(evaluacion.tiempoRespuesta) || 0),
-                      0
-                    ) / evaluaciones.length
-                  ).toFixed(1)
-                : 0
-              }%
-            </strong>
-
-          </div>
-
-          <div
-            style={{
-              height: '10px',
-              backgroundColor: modoOscuro ? '#334155' : '#e2e8f0',
-              borderRadius: '10px',
-              overflow: 'hidden'
-            }}
-          >
-
-            <div
-              style={{
-                height: '100%',
-                width: `${
-                  evaluaciones.length > 0
-                    ? (
-                        evaluaciones.reduce(
-                          (total, evaluacion) =>
-                            total +
-                            (Number(evaluacion.tiempoRespuesta) || 0),
-                          0
-                        ) / evaluaciones.length
-                      )
-                    : 0
-                }%`,
-                backgroundColor: colorPrincipal,
-                borderRadius: '10px',
-                transition: 'width 0.5s'
-              }}
-            />
-
-          </div>
-
-        </div>
-
-
-        {/* INCIDENCIAS */}
-
-        <div>
-
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginBottom: '7px'
-            }}
-          >
-
-            <span>
-              Incidencias
-            </span>
-
-            <strong>
-              {evaluaciones.length > 0
-                ? (
-                    evaluaciones.reduce(
-                      (total, evaluacion) =>
-                        total +
-                        (Number(evaluacion.incidencias) || 0),
-                      0
-                    ) / evaluaciones.length
-                  ).toFixed(1)
-                : 0
-              }%
-            </strong>
-
-          </div>
-
-          <div
-            style={{
-              height: '10px',
-              backgroundColor: modoOscuro ? '#334155' : '#e2e8f0',
-              borderRadius: '10px',
-              overflow: 'hidden'
-            }}
-          >
-
-            <div
-              style={{
-                height: '100%',
-                width: `${
-                  evaluaciones.length > 0
-                    ? (
-                        evaluaciones.reduce(
-                          (total, evaluacion) =>
-                            total +
-                            (Number(evaluacion.incidencias) || 0),
-                          0
-                        ) / evaluaciones.length
-                      )
-                    : 0
-                }%`,
-                backgroundColor: colorPrincipal,
-                borderRadius: '10px',
-                transition: 'width 0.5s'
-              }}
-            />
-
-          </div>
-
-        </div>
+            </div>
+          )
+        })}
 
       </div>
 
 
-      {/* ==========================================
-          ÚLTIMA EVALUACIÓN POR PROVEEDOR
-          ========================================== */}
+      {/* ÚLTIMA EVALUACIÓN POR PROVEEDOR */}
 
       <div
         style={{
@@ -887,6 +579,7 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
           Se muestra únicamente el registro de evaluación más reciente de cada proveedor.
         </p>
 
+
         {(() => {
 
           const ultimasEvaluaciones = Object.values(
@@ -907,11 +600,13 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
             }, {})
           )
 
+
           ultimasEvaluaciones.sort(
             (a, b) =>
               Number(b.idEvaluacion) -
               Number(a.idEvaluacion)
           )
+
 
           return ultimasEvaluaciones.length === 0 ? (
 
@@ -919,9 +614,8 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
               style={{
                 padding: '20px',
                 borderRadius: '8px',
-                backgroundColor: modoOscuro
-                  ? '#334155'
-                  : '#f8fafc',
+                backgroundColor:
+                  modoOscuro ? '#334155' : '#f8fafc',
                 color: colorSecundario,
                 textAlign: 'center'
               }}
@@ -958,19 +652,14 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                       gap: '15px',
                       padding: '16px',
                       borderRadius: '8px',
-                      backgroundColor: modoOscuro
-                        ? '#0f172a'
-                        : '#f8fafc',
+                      backgroundColor:
+                        modoOscuro ? '#0f172a' : '#f8fafc',
                       border: '1px solid #e2e8f0',
                       flexWrap: 'wrap'
                     }}
                   >
 
-                    <div
-                      style={{
-                        minWidth: '180px'
-                      }}
-                    >
+                    <div style={{ minWidth: '180px' }}>
 
                       <strong
                         style={{
@@ -1008,11 +697,7 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                     </div>
 
 
-                    <div
-                      style={{
-                        textAlign: 'center'
-                      }}
-                    >
+                    <div style={{ textAlign: 'center' }}>
 
                       <div
                         style={{
@@ -1042,6 +727,7 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                         borderRadius: '15px',
                         fontSize: '12px',
                         fontWeight: '600',
+
                         backgroundColor:
                           evaluacion.clasificacion?.toLowerCase() === 'excelente'
                             ? '#edf4ef'
@@ -1069,23 +755,17 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                     </div>
 
                   </div>
-
                 )
-
               })}
 
             </div>
-
           )
-
         })()}
 
       </div>
 
 
-      {/* ==========================================
-          MEJORES PROVEEDORES
-          ========================================== */}
+      {/* MEJORES PROVEEDORES */}
 
       <div
         style={{
@@ -1119,15 +799,15 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
           Proveedores con las calificaciones más altas en sus evaluaciones.
         </p>
 
+
         {evaluaciones.length === 0 ? (
 
           <div
             style={{
               padding: '20px',
               borderRadius: '8px',
-              backgroundColor: modoOscuro
-                ? '#334155'
-                : '#f8fafc',
+              backgroundColor:
+                modoOscuro ? '#334155' : '#f8fafc',
               color: colorSecundario,
               textAlign: 'center'
             }}
@@ -1140,7 +820,8 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gridTemplateColumns:
+                'repeat(auto-fit, minmax(220px, 1fr))',
               gap: '15px'
             }}
           >
@@ -1167,9 +848,8 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                     style={{
                       padding: '20px',
                       borderRadius: '8px',
-                      backgroundColor: modoOscuro
-                        ? '#0f172a'
-                        : '#f8fafc',
+                      backgroundColor:
+                        modoOscuro ? '#0f172a' : '#f8fafc',
                       border: '1px solid #e2e8f0',
                       textAlign: 'center'
                     }}
@@ -1184,6 +864,7 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                     >
                       {proveedor?.nombre || 'Proveedor desconocido'}
                     </h3>
+
 
                     <div
                       style={{
@@ -1206,11 +887,13 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
 
                     </div>
 
+
                     <div
                       style={{
                         display: 'inline-block',
                         padding: '5px 12px',
                         borderRadius: '15px',
+
                         backgroundColor:
                           evaluacion.clasificacion?.toLowerCase() === 'excelente'
                             ? '#edf4ef'
@@ -1233,21 +916,16 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                     </div>
 
                   </div>
-
                 )
-
               })}
 
           </div>
-
         )}
 
       </div>
 
 
-      {/* ==========================================
-          RESUMEN GENERAL DEL SISTEMA
-          ========================================== */}
+      {/* RESUMEN GENERAL DEL SISTEMA */}
 
       <div
         style={{
@@ -1286,15 +964,18 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
 
           const proveedoresEvaluados = new Set(
             evaluaciones.map(
-              (evaluacion) => Number(evaluacion.idProveedor)
+              (evaluacion) =>
+                Number(evaluacion.idProveedor)
             )
           ).size
+
 
           const proveedoresPendientes =
             Math.max(
               totalProveedores - proveedoresEvaluados,
               0
             )
+
 
           const porcentajeEvaluados =
             totalProveedores > 0
@@ -1303,12 +984,14 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                 )
               : 0
 
+
           const evaluacionesConIA =
             evaluaciones.filter(
               (evaluacion) =>
                 evaluacion.recomendacion &&
                 evaluacion.recomendacion.trim() !== ''
             ).length
+
 
           const porcentajeRiesgo =
             evaluaciones.length > 0
@@ -1317,33 +1000,37 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                 )
               : 0
 
+
           let estadoGeneral = 'Sin información'
           let colorEstado = '#687680'
           let fondoEstado = '#f1f3f4'
 
+
           if (evaluaciones.length > 0) {
 
             if (porcentajeRiesgo >= 50) {
+
               estadoGeneral = 'Requiere atención'
               colorEstado = '#7a4b4b'
               fondoEstado = '#f7eeee'
 
             } else if (porcentajeRiesgo >= 25) {
+
               estadoGeneral = 'Seguimiento recomendado'
               colorEstado = '#806c48'
               fondoEstado = '#f5f0e7'
 
             } else {
+
               estadoGeneral = 'Desempeño favorable'
               colorEstado = '#477255'
               fondoEstado = '#edf4ef'
-            }
 
+            }
           }
 
 
           return (
-
             <>
 
               {/* TARJETAS DEL RESUMEN */}
@@ -1581,11 +1268,7 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                   }}
                 >
 
-                  <strong
-                    style={{
-                      color: colorTexto
-                    }}
-                  >
+                  <strong style={{ color: colorTexto }}>
                     Proveedores evaluados
                   </strong>
 
@@ -1710,20 +1393,47 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
               </div>
 
             </>
-
           )
-
         })()}
 
       </div>
 
     </div>
-
   )
 }
 
 
+/* =====================================================
+   APLICACIÓN PRINCIPAL
+   ===================================================== */
+
 function App() {
+
+  // ==============================
+  // USUARIO LOGUEADO
+  // ==============================
+
+  const [usuario, setUsuario] = useState(() => {
+
+    const guardado = localStorage.getItem('usuario')
+
+    if (!guardado) {
+      return null
+    }
+
+    try {
+      return JSON.parse(guardado)
+    } catch (error) {
+      localStorage.removeItem('usuario')
+      return null
+    }
+
+  })
+
+
+  // ==============================
+  // MODO OSCURO
+  // ==============================
 
   const [modoOscuro, setModoOscuro] = useState(() => {
 
@@ -1735,6 +1445,10 @@ function App() {
   })
 
 
+  // ==============================
+  // COLOR PRINCIPAL
+  // ==============================
+
   const [colorPrincipal, setColorPrincipal] = useState(() => {
 
     return (
@@ -1744,6 +1458,10 @@ function App() {
 
   })
 
+
+  // ==============================
+  // GUARDAR MODO OSCURO
+  // ==============================
 
   useEffect(() => {
 
@@ -1755,6 +1473,10 @@ function App() {
   }, [modoOscuro])
 
 
+  // ==============================
+  // GUARDAR COLOR
+  // ==============================
+
   useEffect(() => {
 
     localStorage.setItem(
@@ -1763,6 +1485,35 @@ function App() {
     )
 
   }, [colorPrincipal])
+
+
+  // ==============================
+  // LOGIN
+  // ==============================
+
+  if (!usuario) {
+
+    return (
+      <Login
+        onLogin={(datosUsuario) => {
+          setUsuario(datosUsuario)
+        }}
+      />
+    )
+
+  }
+
+
+  // ==============================
+  // CERRAR SESIÓN
+  // ==============================
+
+  const cerrarSesion = () => {
+
+    localStorage.removeItem('usuario')
+    setUsuario(null)
+
+  }
 
 
   return (
@@ -1783,14 +1534,11 @@ function App() {
               : '#263238',
 
           minHeight: '100vh',
-
           transition: '0.3s'
         }}
       >
 
-        {/* ==========================================
-            MENÚ LATERAL
-            ========================================== */}
+        {/* MENÚ LATERAL */}
 
         <aside
           className="sidebar"
@@ -1811,6 +1559,47 @@ function App() {
             <span>
               Sistema inteligente
             </span>
+
+          </div>
+
+
+          {/* USUARIO */}
+
+          <div
+            style={{
+              padding: '15px 20px',
+              margin: '10px 15px 20px',
+              borderRadius: '8px',
+
+              backgroundColor:
+                modoOscuro
+                  ? '#1e293b'
+                  : '#f1f5f8',
+
+              border:
+                '1px solid ' +
+                (modoOscuro ? '#334155' : '#e2e8f0')
+            }}
+          >
+
+            <div
+              style={{
+                fontSize: '12px',
+
+                color:
+                  modoOscuro
+                    ? '#94a3b8'
+                    : '#687680',
+
+                marginBottom: '4px'
+              }}
+            >
+              Sesión iniciada como
+            </div>
+
+            <strong>
+              {usuario.nombre || usuario.usuario}
+            </strong>
 
           </div>
 
@@ -1843,12 +1632,48 @@ function App() {
 
           </nav>
 
+
+          {/* CERRAR SESIÓN */}
+
+          <div
+            style={{
+              marginTop: 'auto',
+              padding: '20px'
+            }}
+          >
+
+            <button
+              onClick={cerrarSesion}
+              style={{
+                width: '100%',
+                padding: '11px 15px',
+                border: 'none',
+                borderRadius: '7px',
+
+                backgroundColor:
+                  modoOscuro
+                    ? '#334155'
+                    : '#e9eef2',
+
+                color:
+                  modoOscuro
+                    ? '#f8fafc'
+                    : '#263238',
+
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              Cerrar sesión
+            </button>
+
+          </div>
+
         </aside>
 
 
-        {/* ==========================================
-            CONTENIDO PRINCIPAL
-            ========================================== */}
+        {/* CONTENIDO PRINCIPAL */}
 
         <main
           className="main"
@@ -1874,40 +1699,48 @@ function App() {
               }
             />
 
+
             <Route
               path="/proveedores"
               element={<Proveedores />}
             />
+
 
             <Route
               path="/alertas"
               element={<Alertas />}
             />
 
+
             <Route
               path="/evaluaciones"
               element={<Evaluaciones />}
             />
+
 
             <Route
               path="/nueva-evaluacion"
               element={<NuevaEvaluacion />}
             />
 
+
             <Route
               path="/registrar-proveedor"
               element={<RegistrarProveedor />}
             />
+
 
             <Route
               path="/editar-proveedor/:id"
               element={<EditarProveedor />}
             />
 
+
             <Route
               path="/reportes"
               element={<Reportes />}
             />
+
 
             <Route
               path="/configuracion"

@@ -1,0 +1,559 @@
+/* =====================================================
+   LOGIN PROFESIONAL — AZUL CORPORATIVO
+===================================================== */
+
+.login-page {
+  min-height: 100vh;
+  width: 100%;
+
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+
+  background: #f4f7fb;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* =====================================================
+   PANEL IZQUIERDO
+===================================================== */
+
+.welcome-panel {
+  position: relative;
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+
+  padding: 80px;
+
+  overflow: hidden;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      #041b44 0%,
+      #062b72 45%,
+      #0757d9 100%
+    );
+}
+
+/* brillo superior */
+
+.welcome-panel::before {
+  content: "";
+
+  position: absolute;
+
+  width: 650px;
+  height: 650px;
+
+  top: -350px;
+  right: -180px;
+
+  border-radius: 50%;
+
+  border: 1px solid rgba(255,255,255,0.10);
+
+  box-shadow:
+    0 0 0 80px rgba(255,255,255,0.025),
+    0 0 0 160px rgba(255,255,255,0.015);
+}
+
+/* círculo inferior */
+
+.welcome-panel::after {
+  content: "";
+
+  position: absolute;
+
+  width: 500px;
+  height: 500px;
+
+  bottom: -300px;
+  left: -220px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(37,99,235,0.30),
+      transparent 68%
+    );
+}
+
+/* =====================================================
+   CONTENIDO
+===================================================== */
+
+.welcome-content {
+  position: relative;
+
+  z-index: 5;
+
+  max-width: 610px;
+}
+
+/* =====================================================
+   MARCA
+===================================================== */
+
+.brand {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  margin-bottom: 80px;
+}
+
+.brand-mark {
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #3b82f6,
+      #60a5fa
+    );
+
+  color: white;
+
+  font-size: 15px;
+  font-weight: 800;
+
+  box-shadow:
+    0 12px 30px rgba(37,99,235,0.35);
+}
+
+.brand-name {
+  font-size: 13px;
+
+  font-weight: 700;
+
+  letter-spacing: 1px;
+}
+
+.brand-description {
+  margin-top: 4px;
+
+  color: #93c5fd;
+
+  font-size: 10px;
+
+  letter-spacing: 0.3px;
+}
+
+/* =====================================================
+   TITULO PRINCIPAL
+===================================================== */
+
+.welcome-content h1 {
+  margin: 0;
+
+  font-size: clamp(52px, 5vw, 76px);
+
+  line-height: 0.95;
+
+  letter-spacing: -4px;
+
+  font-weight: 800;
+}
+
+.welcome-content h2 {
+  max-width: 570px;
+
+  margin: 28px 0 0;
+
+  color: #dbeafe;
+
+  font-size: 26px;
+
+  line-height: 1.4;
+
+  font-weight: 400;
+}
+
+.welcome-content p {
+  max-width: 530px;
+
+  margin: 28px 0 0;
+
+  color: #93c5fd;
+
+  font-size: 14px;
+
+  line-height: 1.85;
+}
+
+/* =====================================================
+   INDICADORES
+===================================================== */
+
+.welcome-features {
+  display: flex;
+
+  gap: 45px;
+
+  margin-top: 52px;
+}
+
+.feature {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+.feature-number {
+  color: #60a5fa;
+
+  font-size: 21px;
+
+  font-weight: 800;
+}
+
+.feature-text {
+  color: #bfdbfe;
+
+  font-size: 10px;
+
+  font-weight: 600;
+
+  text-transform: uppercase;
+
+  letter-spacing: 1.2px;
+}
+
+/* =====================================================
+   PANEL DERECHO
+===================================================== */
+
+.login-panel {
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 60px;
+
+  background: #f8fafc;
+}
+
+/* =====================================================
+   TARJETA
+===================================================== */
+
+.login-card {
+  width: 100%;
+  max-width: 425px;
+
+  padding: 48px;
+
+  background: white;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 30px 70px rgba(15,23,42,0.10),
+    0 5px 15px rgba(15,23,42,0.04);
+}
+
+/* =====================================================
+   ENCABEZADO
+===================================================== */
+
+.login-header {
+  margin-bottom: 35px;
+}
+
+.login-header h2 {
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: 30px;
+
+  font-weight: 750;
+
+  letter-spacing: -0.8px;
+}
+
+.login-header p {
+  margin: 9px 0 0;
+
+  color: #64748b;
+
+  font-size: 13px;
+}
+
+.login-header::after {
+  content: "";
+
+  display: block;
+
+  width: 42px;
+  height: 3px;
+
+  margin-top: 19px;
+
+  border-radius: 10px;
+
+  background: #2563eb;
+}
+
+/* =====================================================
+   CAMPOS
+===================================================== */
+
+.input-group {
+  margin-bottom: 22px;
+}
+
+.input-group label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #334155;
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
+.input-wrapper {
+  width: 100%;
+
+  border: 1px solid #d7dee8;
+
+  border-radius: 10px;
+
+  background: #f8fafc;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.input-wrapper:hover {
+  border-color: #b8c5d6;
+}
+
+.input-wrapper:focus-within {
+  background: white;
+
+  border-color: #2563eb;
+
+  box-shadow:
+    0 0 0 4px rgba(37,99,235,0.10);
+}
+
+.input-wrapper input {
+  width: 100%;
+
+  padding: 14px 15px;
+
+  border: none;
+
+  outline: none;
+
+  background: transparent;
+
+  color: #0f172a;
+
+  font-size: 14px;
+}
+
+.input-wrapper input::placeholder {
+  color: #94a3b8;
+}
+
+/* =====================================================
+   ERROR
+===================================================== */
+
+.login-error {
+  margin-bottom: 18px;
+
+  padding: 12px 14px;
+
+  border-radius: 9px;
+
+  background: #fff7ed;
+
+  border: 1px solid #fed7aa;
+
+  color: #c2410c;
+
+  font-size: 12px;
+}
+
+/* =====================================================
+   BOTÓN
+===================================================== */
+
+.login-button {
+  width: 100%;
+
+  margin-top: 7px;
+
+  padding: 15px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #1d4ed8
+    );
+
+  color: white;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.2px;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.login-button:hover {
+  transform: translateY(-2px);
+
+  background:
+    linear-gradient(
+      135deg,
+      #1d4ed8,
+      #1e40af
+    );
+
+  box-shadow:
+    0 12px 28px rgba(37,99,235,0.30);
+}
+
+.login-button:active {
+  transform: translateY(0);
+}
+
+.login-button:disabled {
+  opacity: 0.65;
+
+  cursor: not-allowed;
+
+  transform: none;
+
+  box-shadow: none;
+}
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.login-footer {
+  margin-top: 30px;
+
+  padding-top: 20px;
+
+  border-top: 1px solid #eef2f7;
+
+  text-align: center;
+
+  color: #94a3b8;
+
+  font-size: 10px;
+
+  letter-spacing: 0.3px;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 950px) {
+
+  .login-page {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .welcome-panel {
+    padding: 50px;
+  }
+
+  .login-panel {
+    padding: 30px;
+  }
+
+  .welcome-content h1 {
+    font-size: 50px;
+  }
+
+  .welcome-content h2 {
+    font-size: 21px;
+  }
+
+  .welcome-features {
+    gap: 25px;
+  }
+}
+
+@media (max-width: 700px) {
+
+  .login-page {
+    display: block;
+  }
+
+  .welcome-panel {
+    min-height: 420px;
+
+    padding: 40px 30px;
+  }
+
+  .brand {
+    margin-bottom: 45px;
+  }
+
+  .welcome-content h1 {
+    font-size: 42px;
+  }
+
+  .welcome-content h2 {
+    font-size: 20px;
+  }
+
+  .welcome-features {
+    margin-top: 35px;
+  }
+
+  .login-panel {
+    min-height: auto;
+
+    padding: 30px 20px;
+  }
+
+  .login-card {
+    padding: 32px 26px;
+  }
+}
