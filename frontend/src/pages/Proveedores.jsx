@@ -1,21 +1,15 @@
 
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import './Proveedores.css'
 
 function Proveedores() {
 
   const [proveedores, setProveedores] = useState([])
   const [cargando, setCargando] = useState(true)
 
-
-  // ==========================================
-  // OBTENER PROVEEDORES
-  // ==========================================
-
   const obtenerProveedores = async () => {
-
     try {
-
       const respuesta = await fetch(
         'http://localhost:8080/api/proveedores'
       )
@@ -25,34 +19,20 @@ function Proveedores() {
       }
 
       const datos = await respuesta.json()
-
       setProveedores(datos)
 
     } catch (error) {
-
       console.error(error)
-
       alert('Error al cargar los proveedores')
 
     } finally {
-
       setCargando(false)
-
     }
-
   }
 
-
   useEffect(() => {
-
     obtenerProveedores()
-
   }, [])
-
-
-  // ==========================================
-  // ELIMINAR PROVEEDOR
-  // ==========================================
 
   const eliminarProveedor = async (id) => {
 
@@ -64,7 +44,6 @@ function Proveedores() {
       return
     }
 
-
     try {
 
       const respuesta = await fetch(
@@ -74,145 +53,167 @@ function Proveedores() {
         }
       )
 
-
       if (!respuesta.ok) {
         throw new Error('No se pudo eliminar el proveedor')
       }
 
-
-      setProveedores(
-        proveedoresActuales =>
-          proveedoresActuales.filter(
-            proveedor =>
-              proveedor.idProveedor !== id
-          )
+      setProveedores(proveedoresActuales =>
+        proveedoresActuales.filter(
+          proveedor =>
+            proveedor.idProveedor !== id
+        )
       )
-
 
       alert('Proveedor eliminado correctamente')
 
-
     } catch (error) {
-
       console.error(error)
-
       alert('Error al eliminar el proveedor')
-
     }
-
   }
-
-
-  // ==========================================
-  // CARGANDO
-  // ==========================================
 
   if (cargando) {
-
     return (
-
-      <div className="panel">
-
-        <p>
-          Cargando proveedores...
-        </p>
-
+      <div className="proveedores-loading">
+        <div className="proveedores-spinner"></div>
+        <span>Cargando proveedores...</span>
       </div>
-
     )
-
   }
 
-
-  // ==========================================
-  // PÁGINA
-  // ==========================================
-
   return (
-
     <div className="proveedores-page">
 
+      {/* ENCABEZADO */}
 
-      {/* ======================================
-          ENCABEZADO
-          ====================================== */}
+<div className="proveedores-header">
 
-      <div className="page-header">
+  <div className="proveedores-header-content">
 
-        <div>
+    <h1>Proveedores</h1>
 
-          <h1>
-            Proveedores
-          </h1>
+    <p>
+      Administra y consulta la información de los proveedores registrados.
+    </p>
 
-          <p>
-            Administra y consulta la información de los proveedores registrados.
-          </p>
+  </div>
+
+  <Link
+    to="/registrar-proveedor"
+    className="proveedores-btn-primary"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </svg>
+
+    Registrar proveedor
+  </Link>
+
+</div>
+
+
+
+      {/* =========================================
+          CONTADOR
+      ========================================= */}
+
+      <div className="proveedores-toolbar">
+
+        <div className="proveedores-total">
+
+          <strong>
+            {proveedores.length}
+          </strong>
+
+          <span>
+            {proveedores.length === 1
+              ? 'proveedor registrado'
+              : 'proveedores registrados'}
+          </span>
 
         </div>
 
-
-        <Link
-          to="/registrar-proveedor"
-          className="btn-primary"
-        >
-          Registrar proveedor
-        </Link>
-
       </div>
 
 
-      {/* ======================================
-          CONTENEDOR DE TARJETAS
-          ====================================== */}
+      {/* =========================================
+          LISTA DE PROVEEDORES
+      ========================================= */}
 
-      <div className="proveedores-container">
+      {proveedores.length === 0 ? (
 
+        <div className="proveedores-empty">
 
-        {proveedores.length === 0 ? (
+          <div className="empty-icon">
 
-          <div className="panel">
-
-            <p>
-              No hay proveedores registrados.
-            </p>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+            >
+              <path d="M3 21h18" />
+              <path d="M5 21V7l7-4 7 4v14" />
+              <path d="M9 21v-5h6v5" />
+              <path d="M9 10h.01" />
+              <path d="M15 10h.01" />
+            </svg>
 
           </div>
 
-        ) : (
+          <h2>
+            No hay proveedores registrados
+          </h2>
 
+          <p>
+            Registra un proveedor para comenzar a administrar tu información.
+          </p>
 
-          proveedores.map((proveedor) => (
+          <Link
+            to="/registrar-proveedor"
+            className="proveedores-btn-primary"
+          >
+            Registrar proveedor
+          </Link>
 
-            <div
+        </div>
+
+      ) : (
+
+        <div className="proveedores-grid">
+
+          {proveedores.map((proveedor) => (
+
+            <article
               className="proveedor-card"
               key={proveedor.idProveedor}
             >
 
+              {/* FOTO */}
 
-              {/* =================================
-                  FOTO
-                  ================================= */}
-
-              <div className="proveedor-foto">
+              <div className="proveedor-foto-container">
 
                 {proveedor.fotoUrl ? (
 
                   <img
                     src={`http://localhost:8080${proveedor.fotoUrl}`}
                     alt={`Fotografía de ${proveedor.nombre}`}
-                    className="proveedor-foto-imagen"
+                    className="proveedor-foto"
                   />
 
                 ) : (
 
                   <div className="proveedor-foto-placeholder">
 
-                    <span>
-                      {proveedor.nombre
-                        ?.charAt(0)
-                        ?.toUpperCase() || 'P'}
-                    </span>
+                    {proveedor.nombre
+                      ?.charAt(0)
+                      ?.toUpperCase() || 'P'}
 
                   </div>
 
@@ -221,148 +222,166 @@ function Proveedores() {
               </div>
 
 
-              {/* =================================
-                  NOMBRE
-                  ================================= */}
+              {/* INFORMACIÓN */}
 
-              <div className="proveedor-nombre">
+              <div className="proveedor-main">
 
-                <h2>
-                  {proveedor.nombre}
-                </h2>
+                <div className="proveedor-nombre-row">
 
-                <span>
-                  Proveedor registrado
-                </span>
+                  <div className="proveedor-nombre">
 
-              </div>
+                    <h2>
+                      {proveedor.nombre}
+                    </h2>
 
+                    <span>
+                      Proveedor registrado
+                    </span>
 
-              {/* =================================
-                  INFORMACIÓN
-                  ================================= */}
-
-              <div className="proveedor-datos">
-
-
-                <div className="dato-proveedor">
-
-                  <span className="dato-label">
-                    Contacto
-                  </span>
-
-                  <span className="dato-valor">
-                    {proveedor.contacto || 'No registrado'}
-                  </span>
-
-                </div>
-
-
-                <div className="dato-proveedor">
-
-                  <span className="dato-label">
-                    Correo electrónico
-                  </span>
-
-                  <span className="dato-valor">
-                    {proveedor.correo || 'No registrado'}
-                  </span>
-
-                </div>
-
-
-                <div className="dato-proveedor">
-
-                  <span className="dato-label">
-                    Teléfono
-                  </span>
-
-                  <span className="dato-valor">
-                    {proveedor.telefono || 'No registrado'}
-                  </span>
-
-                </div>
-
-
-                <div className="dato-proveedor">
-
-                  <span className="dato-label">
-                    RFC
-                  </span>
-
-                  <span className="dato-valor">
-                    {proveedor.rfc || 'No registrado'}
-                  </span>
-
-                </div>
-
-
-                <div className="dato-proveedor estado-proveedor">
-
-                  <span className="dato-label">
-                    Estado
-                  </span>
-
+                  </div>
 
                   <span
                     className={
                       proveedor.estado === 'Activo'
-                        ? 'status active'
-                        : 'status risk'
+                        ? 'proveedor-status proveedor-status-active'
+                        : 'proveedor-status proveedor-status-inactive'
                     }
                   >
+
+                    <span className="status-circle"></span>
+
                     {proveedor.estado}
+
                   </span>
 
                 </div>
 
 
+                {/* DATOS */}
+
+                <div className="proveedor-info">
+
+                  <div className="proveedor-info-item">
+
+                    <span className="info-label">
+                      Contacto
+                    </span>
+
+                    <span className="info-value">
+                      {proveedor.contacto || 'No registrado'}
+                    </span>
+
+                  </div>
+
+
+                  <div className="proveedor-info-item">
+
+                    <span className="info-label">
+                      Correo electrónico
+                    </span>
+
+                    <span
+                      className="info-value"
+                      title={proveedor.correo}
+                    >
+                      {proveedor.correo || 'No registrado'}
+                    </span>
+
+                  </div>
+
+
+                  <div className="proveedor-info-item">
+
+                    <span className="info-label">
+                      Teléfono
+                    </span>
+
+                    <span className="info-value">
+                      {proveedor.telefono || 'No registrado'}
+                    </span>
+
+                  </div>
+
+
+                  <div className="proveedor-info-item">
+
+                    <span className="info-label">
+                      RFC
+                    </span>
+
+                    <span className="info-value">
+                      {proveedor.rfc || 'No registrado'}
+                    </span>
+
+                  </div>
+
+                </div>
+
               </div>
 
 
-              {/* =================================
-                  BOTONES
-                  ================================= */}
+              {/* ACCIONES */}
 
-              <div className="proveedor-botones">
-
+              <div className="proveedor-actions">
 
                 <Link
                   to={`/editar-proveedor/${proveedor.idProveedor}`}
-                  className="btn-editar"
+                  className="proveedor-btn proveedor-btn-edit"
                 >
+
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  >
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" />
+                  </svg>
+
                   Editar
+
                 </Link>
 
 
                 <button
-                  className="btn-eliminar"
+                  className="proveedor-btn proveedor-btn-delete"
                   onClick={() =>
                     eliminarProveedor(
                       proveedor.idProveedor
                     )
                   }
                 >
-                  Eliminar
-                </button>
 
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  >
+                    <path d="M3 6h18" />
+                    <path d="M8 6V4h8v2" />
+                    <path d="M19 6l-1 15H6L5 6" />
+                    <path d="M10 11v6" />
+                    <path d="M14 11v6" />
+                  </svg>
+
+                  Eliminar
+
+                </button>
 
               </div>
 
+            </article>
 
-            </div>
+          ))}
 
-          ))
+        </div>
 
-        )}
-
-      </div>
+      )}
 
     </div>
-
   )
-
 }
 
 export default Proveedores
-

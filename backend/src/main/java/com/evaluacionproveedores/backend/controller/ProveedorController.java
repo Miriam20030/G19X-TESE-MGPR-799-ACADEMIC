@@ -1,8 +1,12 @@
+
 package com.evaluacionproveedores.backend.controller;
 
 import com.evaluacionproveedores.backend.model.Proveedor;
 import com.evaluacionproveedores.backend.repository.ProveedorRepository;
+import com.evaluacionproveedores.backend.repository.EvaluacionRepository;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,9 +24,14 @@ import java.util.UUID;
 public class ProveedorController {
 
     private final ProveedorRepository proveedorRepository;
+    private final EvaluacionRepository evaluacionRepository;
 
-    public ProveedorController(ProveedorRepository proveedorRepository) {
+    public ProveedorController(
+            ProveedorRepository proveedorRepository,
+            EvaluacionRepository evaluacionRepository
+    ) {
         this.proveedorRepository = proveedorRepository;
+        this.evaluacionRepository = evaluacionRepository;
     }
 
     // ==========================================
@@ -57,11 +66,25 @@ public class ProveedorController {
             @RequestBody Proveedor proveedor
     ) {
 
-        System.out.println("========== REGISTRANDO PROVEEDOR ==========");
-        System.out.println("Nombre: " + proveedor.getNombre());
-        System.out.println("Contacto: " + proveedor.getContacto());
-        System.out.println("Correo: " + proveedor.getCorreo());
-        System.out.println("===========================================");
+        System.out.println(
+                "========== REGISTRANDO PROVEEDOR =========="
+        );
+
+        System.out.println(
+                "Nombre: " + proveedor.getNombre()
+        );
+
+        System.out.println(
+                "Contacto: " + proveedor.getContacto()
+        );
+
+        System.out.println(
+                "Correo: " + proveedor.getCorreo()
+        );
+
+        System.out.println(
+                "==========================================="
+        );
 
         return proveedorRepository.save(proveedor);
     }
@@ -101,12 +124,30 @@ public class ProveedorController {
     ) {
 
         System.out.println();
-        System.out.println("========== FOTO RECIBIDA ==========");
-        System.out.println("ID proveedor: " + id);
-        System.out.println("Nombre foto: " + foto.getOriginalFilename());
-        System.out.println("Tipo foto: " + foto.getContentType());
-        System.out.println("Tamaño foto: " + foto.getSize());
-        System.out.println("===================================");
+        System.out.println(
+                "========== FOTO RECIBIDA =========="
+        );
+
+        System.out.println(
+                "ID proveedor: " + id
+        );
+
+        System.out.println(
+                "Nombre foto: " + foto.getOriginalFilename()
+        );
+
+        System.out.println(
+                "Tipo foto: " + foto.getContentType()
+        );
+
+        System.out.println(
+                "Tamaño foto: " + foto.getSize()
+        );
+
+        System.out.println(
+                "==================================="
+        );
+
         System.out.println();
 
         try {
@@ -118,10 +159,15 @@ public class ProveedorController {
             Proveedor proveedor = proveedorRepository
                     .findById(id)
                     .orElseThrow(() ->
-                            new RuntimeException("Proveedor no encontrado")
+                            new RuntimeException(
+                                    "Proveedor no encontrado"
+                            )
                     );
 
-            System.out.println("Proveedor encontrado: " + proveedor.getNombre());
+            System.out.println(
+                    "Proveedor encontrado: " +
+                    proveedor.getNombre()
+            );
 
             // ==========================================
             // VERIFICAR FOTO
@@ -129,10 +175,14 @@ public class ProveedorController {
 
             if (foto.isEmpty()) {
 
-                System.out.println("ERROR: La foto está vacía.");
+                System.out.println(
+                        "ERROR: La foto está vacía."
+                );
 
                 return ResponseEntity.badRequest()
-                        .body("No se seleccionó ninguna imagen");
+                        .body(
+                                "No se seleccionó ninguna imagen"
+                        );
             }
 
             // ==========================================
@@ -144,17 +194,27 @@ public class ProveedorController {
                     "proveedores"
             ).toAbsolutePath();
 
-            System.out.println("Carpeta de imágenes:");
+            System.out.println(
+                    "Carpeta de imágenes:"
+            );
+
             System.out.println(carpeta);
 
             if (!Files.exists(carpeta)) {
 
-                System.out.println("La carpeta no existe.");
-                System.out.println("Creando carpeta...");
+                System.out.println(
+                        "La carpeta no existe."
+                );
+
+                System.out.println(
+                        "Creando carpeta..."
+                );
 
                 Files.createDirectories(carpeta);
 
-                System.out.println("Carpeta creada correctamente.");
+                System.out.println(
+                        "Carpeta creada correctamente."
+                );
             }
 
             // ==========================================
@@ -249,21 +309,30 @@ public class ProveedorController {
             );
 
             System.out.println();
+
             System.out.println(
                     "========== FOTO GUARDADA =========="
             );
+
             System.out.println(
-                    "Proveedor: " + proveedor.getNombre()
+                    "Proveedor: " +
+                    proveedor.getNombre()
             );
+
             System.out.println(
-                    "ID: " + proveedor.getIdProveedor()
+                    "ID: " +
+                    proveedor.getIdProveedor()
             );
+
             System.out.println(
-                    "Foto: " + urlFoto
+                    "Foto: " +
+                    urlFoto
             );
+
             System.out.println(
                     "==================================="
             );
+
             System.out.println();
 
             return ResponseEntity.ok(proveedor);
@@ -271,6 +340,7 @@ public class ProveedorController {
         } catch (IOException e) {
 
             System.out.println();
+
             System.out.println(
                     "========== ERROR AL GUARDAR FOTO =========="
             );
@@ -280,6 +350,7 @@ public class ProveedorController {
             System.out.println(
                     "============================================"
             );
+
             System.out.println();
 
             return ResponseEntity
@@ -294,27 +365,120 @@ public class ProveedorController {
     // ==========================================
     // ELIMINAR UN PROVEEDOR
     // ==========================================
-    @DeleteMapping("/{id}")
-    public void eliminarProveedor(
-            @PathVariable Integer id
-    ) {
+    // ==========================================
+// ELIMINAR UN PROVEEDOR Y TODA SU INFORMACIÓN
+// ==========================================
+@DeleteMapping("/{id}")
+@Transactional
+public ResponseEntity<?> eliminarProveedor(
+        @PathVariable Integer id
+) {
+
+    System.out.println(
+            "========== DELETE RECIBIDO =========="
+    );
+
+    System.out.println(
+            "ID recibido: " + id
+    );
+
+    try {
+
+        // ==========================================
+        // BUSCAR PROVEEDOR
+        // ==========================================
+
+        Proveedor proveedor = proveedorRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Proveedor no encontrado"
+                        )
+                );
+
+        // ==========================================
+        // ELIMINAR FOTO DEL DISCO
+        // ==========================================
+
+        if (proveedor.getFotoUrl() != null &&
+                !proveedor.getFotoUrl().isBlank()) {
+
+            String nombreArchivo =
+                    proveedor.getFotoUrl()
+                            .substring(
+                                    proveedor.getFotoUrl()
+                                            .lastIndexOf("/") + 1
+                            );
+
+            Path rutaFoto = Paths.get(
+                    "uploads",
+                    "proveedores",
+                    nombreArchivo
+            ).toAbsolutePath();
+
+            System.out.println(
+                    "Ruta de foto: " + rutaFoto
+            );
+
+            if (Files.exists(rutaFoto)) {
+
+                Files.delete(rutaFoto);
+
+                System.out.println(
+                        "Foto eliminada correctamente."
+                );
+            }
+        }
+
+        // ==========================================
+        // ELIMINAR EVALUACIONES
+        // ==========================================
+
+        evaluacionRepository.deleteByIdProveedor(id);
 
         System.out.println(
-                "========== DELETE RECIBIDO =========="
+                "Evaluaciones eliminadas correctamente."
         );
 
-        System.out.println(
-                "ID recibido: " + id
-        );
+        // ==========================================
+        // ELIMINAR PROVEEDOR
+        // ==========================================
 
-        proveedorRepository.deleteById(id);
+        proveedorRepository.delete(proveedor);
 
         System.out.println(
-                "Proveedor eliminado: " + id
+                "Proveedor eliminado correctamente."
         );
 
         System.out.println(
                 "====================================="
         );
+
+        return ResponseEntity.ok(
+                "Proveedor y toda su información fueron eliminados correctamente"
+        );
+
+    } catch (IOException e) {
+
+        e.printStackTrace();
+
+        return ResponseEntity
+                .internalServerError()
+                .body(
+                        "No se pudo eliminar la foto: "
+                                + e.getMessage()
+                );
+
+    } catch (Exception e) {
+
+        e.printStackTrace();
+
+        return ResponseEntity
+                .internalServerError()
+                .body(
+                        "Error al eliminar el proveedor: "
+                                + e.getMessage()
+                );
     }
+}
 }
