@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import './App.css'
@@ -10,10 +9,8 @@ import Evaluaciones from './pages/Evaluaciones'
 import NuevaEvaluacion from './pages/NuevaEvaluacion'
 import Alertas from './pages/Alertas'
 import Configuracion from './pages/Configuracion'
-import Reportes from './pages/Reportes'
-
+import Reportes from './pages/reportes'
 import Login from './components/Login'
-
 
 function Dashboard({ modoOscuro, colorPrincipal }) {
   const [proveedores, setProveedores] = useState([])
@@ -47,7 +44,6 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
     }
   }
 
-
   // ==============================
   // ESTADÍSTICAS PRINCIPALES
   // ==============================
@@ -75,7 +71,6 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
           ) / evaluaciones.length
         ).toFixed(2)
       : 0
-
 
   // ==============================
   // DATOS PARA LA GRÁFICA
@@ -109,14 +104,11 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
     1
   )
 
-
   // ==============================
   // COLORES
   // ==============================
 
-  const colorTexto = modoOscuro
-    ? '#f8fafc'
-    : '#263238'
+  const colorTexto = modoOscuro ? '#f8fafc' : '#263238'
 
   const colorSecundario = modoOscuro
     ? '#cbd5e1'
@@ -126,27 +118,29 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
     ? '#1e293b'
     : '#ffffff'
 
-
   return (
     <div
       style={{
         color: colorTexto
       }}
     >
-
       {/* TÍTULO */}
 
       <div
         style={{
           marginBottom: '35px',
           paddingBottom: '22px',
-          borderBottom: '1px solid #e1e6ea'
+          borderBottom: modoOscuro
+            ? '1px solid #334155'
+            : '1px solid #e1e6ea'
         }}
       >
         <h1
           style={{
             margin: 0,
-            color: modoOscuro ? '#f8fafc' : '#1f2933',
+            color: modoOscuro
+              ? '#f8fafc'
+              : '#1f2933',
             fontSize: '34px',
             fontWeight: '600',
             letterSpacing: '-0.8px',
@@ -159,7 +153,9 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
         <p
           style={{
             margin: '10px 0 0',
-            color: modoOscuro ? '#94a3b8' : '#7a8791',
+            color: modoOscuro
+              ? '#94a3b8'
+              : '#7a8791',
             fontSize: '15px',
             lineHeight: '1.6'
           }}
@@ -168,48 +164,59 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
         </p>
       </div>
 
-
       {/* TARJETAS PRINCIPALES */}
 
       <div className="cards">
-
         <div className="card">
           <span>Total de proveedores</span>
 
-          <strong style={{ color: colorPrincipal }}>
+          <strong
+            style={{
+              color: colorPrincipal
+            }}
+          >
             {totalProveedores}
           </strong>
         </div>
 
-
         <div className="card">
           <span>Proveedores activos</span>
 
-          <strong style={{ color: colorPrincipal }}>
+          <strong
+            style={{
+              color: colorPrincipal
+            }}
+          >
             {proveedoresActivos}
           </strong>
         </div>
 
-
         <div className="card">
           <span>Proveedores en riesgo</span>
 
-          <strong style={{ color: '#7a4b4b' }}>
+          <strong
+            style={{
+              color: modoOscuro
+                ? '#fca5a5'
+                : '#7a4b4b'
+            }}
+          >
             {evaluacionesRiesgo}
           </strong>
         </div>
 
-
         <div className="card">
           <span>Evaluación promedio</span>
 
-          <strong style={{ color: colorPrincipal }}>
+          <strong
+            style={{
+              color: colorPrincipal
+            }}
+          >
             {promedioEvaluacion}%
           </strong>
         </div>
-
       </div>
-
 
       {/* GRÁFICA DE CLASIFICACIÓN */}
 
@@ -219,17 +226,21 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
           backgroundColor: colorTarjeta,
           padding: '25px',
           borderRadius: '10px',
-          border: '1px solid #e3e8ec',
-          boxShadow: '0 2px 6px rgba(24,39,52,0.04)'
+          border: modoOscuro
+            ? '1px solid #334155'
+            : '1px solid #e3e8ec',
+          boxShadow: modoOscuro
+            ? '0 2px 8px rgba(0,0,0,0.18)'
+            : '0 2px 6px rgba(24,39,52,0.04)'
         }}
       >
-
         <h2
           style={{
             marginTop: 0,
             marginBottom: '5px',
             fontSize: '18px',
-            fontWeight: '600'
+            fontWeight: '600',
+            color: colorTexto
           }}
         >
           Proveedores por clasificación
@@ -245,7 +256,6 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
           Distribución de las evaluaciones según su nivel de desempeño.
         </p>
 
-
         <div
           style={{
             height: '300px',
@@ -255,11 +265,12 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
             gap: '25px',
             padding: '0 20px',
             borderBottom: `2px solid ${
-              modoOscuro ? '#475569' : '#e2e8f0'
+              modoOscuro
+                ? '#475569'
+                : '#e2e8f0'
             }`
           }}
         >
-
           {/* EXCELENTE */}
 
           <div
@@ -272,8 +283,12 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
               alignItems: 'center'
             }}
           >
-
-            <strong style={{ marginBottom: '8px' }}>
+            <strong
+              style={{
+                marginBottom: '8px',
+                color: colorTexto
+              }}
+            >
               {cantidadExcelente}
             </strong>
 
@@ -284,7 +299,9 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                   (cantidadExcelente / maximoGrafica) * 220
                 }px`,
                 minHeight:
-                  cantidadExcelente > 0 ? '10px' : '0px',
+                  cantidadExcelente > 0
+                    ? '10px'
+                    : '0px',
                 backgroundColor: '#5f7f6a',
                 borderRadius: '5px 5px 0 0',
                 transition: 'height 0.4s'
@@ -294,14 +311,13 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
             <span
               style={{
                 marginTop: '10px',
-                fontWeight: '600'
+                fontWeight: '600',
+                color: colorTexto
               }}
             >
               Excelente
             </span>
-
           </div>
-
 
           {/* BUENO */}
 
@@ -315,8 +331,12 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
               alignItems: 'center'
             }}
           >
-
-            <strong style={{ marginBottom: '8px' }}>
+            <strong
+              style={{
+                marginBottom: '8px',
+                color: colorTexto
+              }}
+            >
               {cantidadBueno}
             </strong>
 
@@ -327,7 +347,9 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                   (cantidadBueno / maximoGrafica) * 220
                 }px`,
                 minHeight:
-                  cantidadBueno > 0 ? '10px' : '0px',
+                  cantidadBueno > 0
+                    ? '10px'
+                    : '0px',
                 backgroundColor: '#6689a5',
                 borderRadius: '5px 5px 0 0',
                 transition: 'height 0.4s'
@@ -337,14 +359,13 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
             <span
               style={{
                 marginTop: '10px',
-                fontWeight: '600'
+                fontWeight: '600',
+                color: colorTexto
               }}
             >
               Bueno
             </span>
-
           </div>
-
 
           {/* REGULAR */}
 
@@ -358,8 +379,12 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
               alignItems: 'center'
             }}
           >
-
-            <strong style={{ marginBottom: '8px' }}>
+            <strong
+              style={{
+                marginBottom: '8px',
+                color: colorTexto
+              }}
+            >
               {cantidadRegular}
             </strong>
 
@@ -370,7 +395,9 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                   (cantidadRegular / maximoGrafica) * 220
                 }px`,
                 minHeight:
-                  cantidadRegular > 0 ? '10px' : '0px',
+                  cantidadRegular > 0
+                    ? '10px'
+                    : '0px',
                 backgroundColor: '#a08b63',
                 borderRadius: '5px 5px 0 0',
                 transition: 'height 0.4s'
@@ -380,14 +407,13 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
             <span
               style={{
                 marginTop: '10px',
-                fontWeight: '600'
+                fontWeight: '600',
+                color: colorTexto
               }}
             >
               Regular
             </span>
-
           </div>
-
 
           {/* RIESGO */}
 
@@ -401,8 +427,12 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
               alignItems: 'center'
             }}
           >
-
-            <strong style={{ marginBottom: '8px' }}>
+            <strong
+              style={{
+                marginBottom: '8px',
+                color: colorTexto
+              }}
+            >
               {cantidadRiesgo}
             </strong>
 
@@ -413,7 +443,9 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                   (cantidadRiesgo / maximoGrafica) * 220
                 }px`,
                 minHeight:
-                  cantidadRiesgo > 0 ? '10px' : '0px',
+                  cantidadRiesgo > 0
+                    ? '10px'
+                    : '0px',
                 backgroundColor: '#9a6d6d',
                 borderRadius: '5px 5px 0 0',
                 transition: 'height 0.4s'
@@ -423,17 +455,15 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
             <span
               style={{
                 marginTop: '10px',
-                fontWeight: '600'
+                fontWeight: '600',
+                color: colorTexto
               }}
             >
               Riesgo
             </span>
-
           </div>
-
         </div>
       </div>
-
 
       {/* PROMEDIO DE INDICADORES */}
 
@@ -443,17 +473,21 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
           backgroundColor: colorTarjeta,
           padding: '25px',
           borderRadius: '10px',
-          border: '1px solid #e3e8ec',
-          boxShadow: '0 2px 6px rgba(24,39,52,0.04)'
+          border: modoOscuro
+            ? '1px solid #334155'
+            : '1px solid #e3e8ec',
+          boxShadow: modoOscuro
+            ? '0 2px 8px rgba(0,0,0,0.18)'
+            : '0 2px 6px rgba(24,39,52,0.04)'
         }}
       >
-
         <h2
           style={{
             marginTop: 0,
             marginBottom: '5px',
             fontSize: '18px',
-            fontWeight: '600'
+            fontWeight: '600',
+            color: colorTexto
           }}
         >
           Promedio de indicadores
@@ -469,7 +503,6 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
           Promedio general de los principales indicadores evaluados.
         </p>
 
-
         {[
           ['Cumplimiento de entregas', 'cumplimientoEntregas'],
           ['Calidad', 'calidad'],
@@ -477,7 +510,6 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
           ['Tiempo de respuesta', 'tiempoRespuesta'],
           ['Incidencias', 'incidencias']
         ].map(([nombre, campo], indice) => {
-
           const promedio =
             evaluaciones.length > 0
               ? evaluaciones.reduce(
@@ -493,10 +525,11 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
               key={campo}
               style={{
                 marginBottom:
-                  indice === 4 ? 0 : '20px'
+                  indice === 4
+                    ? 0
+                    : '20px'
               }}
             >
-
               <div
                 style={{
                   display: 'flex',
@@ -504,28 +537,25 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                   marginBottom: '7px'
                 }}
               >
-
-                <span>
+                <span style={{ color: colorTexto }}>
                   {nombre}
                 </span>
 
-                <strong>
+                <strong style={{ color: colorTexto }}>
                   {promedio.toFixed(1)}%
                 </strong>
-
               </div>
-
 
               <div
                 style={{
                   height: '10px',
-                  backgroundColor:
-                    modoOscuro ? '#334155' : '#e2e8f0',
+                  backgroundColor: modoOscuro
+                    ? '#334155'
+                    : '#e2e8f0',
                   borderRadius: '10px',
                   overflow: 'hidden'
                 }}
               >
-
                 <div
                   style={{
                     height: '100%',
@@ -535,15 +565,11 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                     transition: 'width 0.5s'
                   }}
                 />
-
               </div>
-
             </div>
           )
         })}
-
       </div>
-
 
       {/* ÚLTIMA EVALUACIÓN POR PROVEEDOR */}
 
@@ -553,11 +579,14 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
           backgroundColor: colorTarjeta,
           borderRadius: '10px',
           padding: '25px',
-          border: '1px solid #e3e8ec',
-          boxShadow: '0 2px 6px rgba(24,39,52,0.04)'
+          border: modoOscuro
+            ? '1px solid #334155'
+            : '1px solid #e3e8ec',
+          boxShadow: modoOscuro
+            ? '0 2px 8px rgba(0,0,0,0.18)'
+            : '0 2px 6px rgba(24,39,52,0.04)'
         }}
       >
-
         <h2
           style={{
             marginTop: 0,
@@ -579,27 +608,28 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
           Se muestra únicamente el registro de evaluación más reciente de cada proveedor.
         </p>
 
-
         {(() => {
-
           const ultimasEvaluaciones = Object.values(
-            evaluaciones.reduce((acumulador, evaluacion) => {
+            evaluaciones.reduce(
+              (acumulador, evaluacion) => {
+                const idProveedor =
+                  evaluacion.idProveedor
 
-              const idProveedor = evaluacion.idProveedor
+                if (
+                  !acumulador[idProveedor] ||
+                  Number(evaluacion.idEvaluacion) >
+                    Number(
+                      acumulador[idProveedor].idEvaluacion
+                    )
+                ) {
+                  acumulador[idProveedor] = evaluacion
+                }
 
-              if (
-                !acumulador[idProveedor] ||
-                Number(evaluacion.idEvaluacion) >
-                  Number(acumulador[idProveedor].idEvaluacion)
-              ) {
-                acumulador[idProveedor] = evaluacion
-              }
-
-              return acumulador
-
-            }, {})
+                return acumulador
+              },
+              {}
+            )
           )
-
 
           ultimasEvaluaciones.sort(
             (a, b) =>
@@ -607,24 +637,21 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
               Number(a.idEvaluacion)
           )
 
-
           return ultimasEvaluaciones.length === 0 ? (
-
             <div
               style={{
                 padding: '20px',
                 borderRadius: '8px',
-                backgroundColor:
-                  modoOscuro ? '#334155' : '#f8fafc',
+                backgroundColor: modoOscuro
+                  ? '#334155'
+                  : '#f8fafc',
                 color: colorSecundario,
                 textAlign: 'center'
               }}
             >
               No hay evaluaciones registradas todavía.
             </div>
-
           ) : (
-
             <div
               style={{
                 display: 'flex',
@@ -632,138 +659,170 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                 gap: '10px'
               }}
             >
+              {ultimasEvaluaciones.map(
+                (evaluacion) => {
+                  const proveedor =
+                    proveedores.find(
+                      (p) =>
+                        Number(p.idProveedor) ===
+                        Number(
+                          evaluacion.idProveedor
+                        )
+                    )
 
-              {ultimasEvaluaciones.map((evaluacion) => {
-
-                const proveedor = proveedores.find(
-                  (p) =>
-                    Number(p.idProveedor) ===
-                    Number(evaluacion.idProveedor)
-                )
-
-                return (
-
-                  <div
-                    key={evaluacion.idEvaluacion}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: '15px',
-                      padding: '16px',
-                      borderRadius: '8px',
-                      backgroundColor:
-                        modoOscuro ? '#0f172a' : '#f8fafc',
-                      border: '1px solid #e2e8f0',
-                      flexWrap: 'wrap'
-                    }}
-                  >
-
-                    <div style={{ minWidth: '180px' }}>
-
-                      <strong
-                        style={{
-                          color: colorTexto,
-                          fontSize: '15px'
-                        }}
-                      >
-                        {proveedor?.nombre || 'Proveedor desconocido'}
-                      </strong>
-
-                      <div
-                        style={{
-                          marginTop: '5px',
-                          color: colorSecundario,
-                          fontSize: '13px'
-                        }}
-                      >
-                        Evaluación #{evaluacion.idEvaluacion}
-                      </div>
-
-                      <div
-                        style={{
-                          marginTop: '3px',
-                          color: colorSecundario,
-                          fontSize: '13px'
-                        }}
-                      >
-                        {evaluacion.fechaEvaluacion
-                          ? new Date(
-                              evaluacion.fechaEvaluacion
-                            ).toLocaleDateString('es-MX')
-                          : 'Fecha no disponible'}
-                      </div>
-
-                    </div>
-
-
-                    <div style={{ textAlign: 'center' }}>
-
-                      <div
-                        style={{
-                          fontSize: '24px',
-                          fontWeight: '600',
-                          color: colorPrincipal
-                        }}
-                      >
-                        {evaluacion.calificacionFinal || 0}
-                      </div>
-
-                      <span
-                        style={{
-                          fontSize: '12px',
-                          color: colorSecundario
-                        }}
-                      >
-                        de 100 puntos
-                      </span>
-
-                    </div>
-
-
+                  return (
                     <div
+                      key={evaluacion.idEvaluacion}
                       style={{
-                        padding: '6px 13px',
-                        borderRadius: '15px',
-                        fontSize: '12px',
-                        fontWeight: '600',
-
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '15px',
+                        padding: '16px',
+                        borderRadius: '8px',
                         backgroundColor:
-                          evaluacion.clasificacion?.toLowerCase() === 'excelente'
-                            ? '#edf4ef'
-                            : evaluacion.clasificacion?.toLowerCase() === 'bueno'
-                            ? '#eef3f7'
-                            : evaluacion.clasificacion?.toLowerCase() === 'regular'
-                            ? '#f5f0e7'
-                            : evaluacion.clasificacion?.toLowerCase() === 'riesgo'
-                            ? '#f7eeee'
-                            : '#eef1f3',
-
-                        color:
-                          evaluacion.clasificacion?.toLowerCase() === 'excelente'
-                            ? '#477255'
-                            : evaluacion.clasificacion?.toLowerCase() === 'bueno'
-                            ? '#526f89'
-                            : evaluacion.clasificacion?.toLowerCase() === 'regular'
-                            ? '#806c48'
-                            : evaluacion.clasificacion?.toLowerCase() === 'riesgo'
-                            ? '#7a4b4b'
-                            : '#687680'
+                          modoOscuro
+                            ? '#0f172a'
+                            : '#f8fafc',
+                        border:
+                          modoOscuro
+                            ? '1px solid #334155'
+                            : '1px solid #e2e8f0',
+                        flexWrap: 'wrap'
                       }}
                     >
-                      {evaluacion.clasificacion || 'Sin clasificación'}
+                      <div
+                        style={{
+                          minWidth: '180px'
+                        }}
+                      >
+                        <strong
+                          style={{
+                            color: colorTexto,
+                            fontSize: '15px'
+                          }}
+                        >
+                          {proveedor?.nombre ||
+                            'Proveedor desconocido'}
+                        </strong>
+
+                        <div
+                          style={{
+                            marginTop: '5px',
+                            color: colorSecundario,
+                            fontSize: '13px'
+                          }}
+                        >
+                          Evaluación #{evaluacion.idEvaluacion}
+                        </div>
+
+                        <div
+                          style={{
+                            marginTop: '3px',
+                            color: colorSecundario,
+                            fontSize: '13px'
+                          }}
+                        >
+                          {evaluacion.fechaEvaluacion
+                            ? new Date(
+                                evaluacion.fechaEvaluacion
+                              ).toLocaleDateString(
+                                'es-MX'
+                              )
+                            : 'Fecha no disponible'}
+                        </div>
+                      </div>
+
+                      <div
+                        style={{
+                          textAlign: 'center'
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: '24px',
+                            fontWeight: '600',
+                            color: colorPrincipal
+                          }}
+                        >
+                          {evaluacion.calificacionFinal || 0}
+                        </div>
+
+                        <span
+                          style={{
+                            fontSize: '12px',
+                            color: colorSecundario
+                          }}
+                        >
+                          {' '}de 100 puntos
+                        </span>
+                      </div>
+
+                      <div
+                        style={{
+                          padding: '6px 13px',
+                          borderRadius: '15px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          backgroundColor:
+                            evaluacion.clasificacion?.toLowerCase() ===
+                            'excelente'
+                              ? modoOscuro
+                                ? '#193322'
+                                : '#edf4ef'
+                              : evaluacion.clasificacion?.toLowerCase() ===
+                                'bueno'
+                              ? modoOscuro
+                                ? '#1c2d3c'
+                                : '#eef3f7'
+                              : evaluacion.clasificacion?.toLowerCase() ===
+                                'regular'
+                              ? modoOscuro
+                                ? '#332d20'
+                                : '#f5f0e7'
+                              : evaluacion.clasificacion?.toLowerCase() ===
+                                'riesgo'
+                              ? modoOscuro
+                                ? '#3a2222'
+                                : '#f7eeee'
+                              : modoOscuro
+                              ? '#334155'
+                              : '#eef1f3',
+                          color:
+                            evaluacion.clasificacion?.toLowerCase() ===
+                            'excelente'
+                              ? modoOscuro
+                                ? '#86efac'
+                                : '#477255'
+                              : evaluacion.clasificacion?.toLowerCase() ===
+                                'bueno'
+                              ? modoOscuro
+                                ? '#93c5fd'
+                                : '#526f89'
+                              : evaluacion.clasificacion?.toLowerCase() ===
+                                'regular'
+                              ? modoOscuro
+                                ? '#fcd34d'
+                                : '#806c48'
+                              : evaluacion.clasificacion?.toLowerCase() ===
+                                'riesgo'
+                              ? modoOscuro
+                                ? '#fca5a5'
+                                : '#7a4b4b'
+                              : colorSecundario
+                        }}
+                      >
+                        {evaluacion.clasificacion ||
+                          'Sin clasificación'}
+                      </div>
                     </div>
-
-                  </div>
-                )
-              })}
-
+                  )
+                }
+              )}
             </div>
           )
         })()}
-
       </div>
-
 
       {/* MEJORES PROVEEDORES */}
 
@@ -773,11 +832,14 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
           backgroundColor: colorTarjeta,
           borderRadius: '10px',
           padding: '25px',
-          border: '1px solid #e3e8ec',
-          boxShadow: '0 2px 6px rgba(24,39,52,0.04)'
+          border: modoOscuro
+            ? '1px solid #334155'
+            : '1px solid #e3e8ec',
+          boxShadow: modoOscuro
+            ? '0 2px 8px rgba(0,0,0,0.18)'
+            : '0 2px 6px rgba(24,39,52,0.04)'
         }}
       >
-
         <h2
           style={{
             marginTop: 0,
@@ -799,24 +861,21 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
           Proveedores con las calificaciones más altas en sus evaluaciones.
         </p>
 
-
         {evaluaciones.length === 0 ? (
-
           <div
             style={{
               padding: '20px',
               borderRadius: '8px',
-              backgroundColor:
-                modoOscuro ? '#334155' : '#f8fafc',
+              backgroundColor: modoOscuro
+                ? '#334155'
+                : '#f8fafc',
               color: colorSecundario,
               textAlign: 'center'
             }}
           >
             No hay evaluaciones registradas todavía.
           </div>
-
         ) : (
-
           <div
             style={{
               display: 'grid',
@@ -825,7 +884,6 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
               gap: '15px'
             }}
           >
-
             {[...evaluaciones]
               .sort(
                 (a, b) =>
@@ -834,27 +892,30 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
               )
               .slice(0, 3)
               .map((evaluacion) => {
-
-                const proveedor = proveedores.find(
-                  (p) =>
-                    Number(p.idProveedor) ===
-                    Number(evaluacion.idProveedor)
-                )
+                const proveedor =
+                  proveedores.find(
+                    (p) =>
+                      Number(p.idProveedor) ===
+                      Number(evaluacion.idProveedor)
+                  )
 
                 return (
-
                   <div
                     key={evaluacion.idEvaluacion}
                     style={{
                       padding: '20px',
                       borderRadius: '8px',
                       backgroundColor:
-                        modoOscuro ? '#0f172a' : '#f8fafc',
-                      border: '1px solid #e2e8f0',
+                        modoOscuro
+                          ? '#0f172a'
+                          : '#f8fafc',
+                      border:
+                        modoOscuro
+                          ? '1px solid #334155'
+                          : '1px solid #e2e8f0',
                       textAlign: 'center'
                     }}
                   >
-
                     <h3
                       style={{
                         margin: '5px 0',
@@ -862,9 +923,9 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                         fontSize: '16px'
                       }}
                     >
-                      {proveedor?.nombre || 'Proveedor desconocido'}
+                      {proveedor?.nombre ||
+                        'Proveedor desconocido'}
                     </h3>
-
 
                     <div
                       style={{
@@ -884,46 +945,54 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                       >
                         {' '} / 100
                       </span>
-
                     </div>
-
 
                     <div
                       style={{
                         display: 'inline-block',
                         padding: '5px 12px',
                         borderRadius: '15px',
-
                         backgroundColor:
-                          evaluacion.clasificacion?.toLowerCase() === 'excelente'
-                            ? '#edf4ef'
-                            : evaluacion.clasificacion?.toLowerCase() === 'bueno'
-                            ? '#eef3f7'
+                          evaluacion.clasificacion?.toLowerCase() ===
+                          'excelente'
+                            ? modoOscuro
+                              ? '#193322'
+                              : '#edf4ef'
+                            : evaluacion.clasificacion?.toLowerCase() ===
+                              'bueno'
+                            ? modoOscuro
+                              ? '#1c2d3c'
+                              : '#eef3f7'
+                            : modoOscuro
+                            ? '#332d20'
                             : '#f5f0e7',
-
                         color:
-                          evaluacion.clasificacion?.toLowerCase() === 'excelente'
-                            ? '#477255'
-                            : evaluacion.clasificacion?.toLowerCase() === 'bueno'
-                            ? '#526f89'
+                          evaluacion.clasificacion?.toLowerCase() ===
+                          'excelente'
+                            ? modoOscuro
+                              ? '#86efac'
+                              : '#477255'
+                            : evaluacion.clasificacion?.toLowerCase() ===
+                              'bueno'
+                            ? modoOscuro
+                              ? '#93c5fd'
+                              : '#526f89'
+                            : modoOscuro
+                            ? '#fcd34d'
                             : '#806c48',
-
                         fontSize: '12px',
                         fontWeight: '600'
                       }}
                     >
-                      {evaluacion.clasificacion || 'Sin clasificación'}
+                      {evaluacion.clasificacion ||
+                        'Sin clasificación'}
                     </div>
-
                   </div>
                 )
               })}
-
           </div>
         )}
-
       </div>
-
 
       {/* RESUMEN GENERAL DEL SISTEMA */}
 
@@ -933,11 +1002,14 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
           backgroundColor: colorTarjeta,
           borderRadius: '10px',
           padding: '25px',
-          border: '1px solid #e3e8ec',
-          boxShadow: '0 2px 6px rgba(24,39,52,0.04)'
+          border: modoOscuro
+            ? '1px solid #334155'
+            : '1px solid #e3e8ec',
+          boxShadow: modoOscuro
+            ? '0 2px 8px rgba(0,0,0,0.18)'
+            : '0 2px 6px rgba(24,39,52,0.04)'
         }}
       >
-
         <h2
           style={{
             marginTop: 0,
@@ -959,31 +1031,28 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
           Información general sobre proveedores y evaluaciones registradas.
         </p>
 
-
         {(() => {
+          const proveedoresEvaluados =
+            new Set(
+              evaluaciones.map(
+                (evaluacion) =>
+                  Number(evaluacion.idProveedor)
+              )
+            ).size
 
-          const proveedoresEvaluados = new Set(
-            evaluaciones.map(
-              (evaluacion) =>
-                Number(evaluacion.idProveedor)
-            )
-          ).size
-
-
-          const proveedoresPendientes =
-            Math.max(
-              totalProveedores - proveedoresEvaluados,
-              0
-            )
-
+          const proveedoresPendientes = Math.max(
+            totalProveedores - proveedoresEvaluados,
+            0
+          )
 
           const porcentajeEvaluados =
             totalProveedores > 0
               ? Math.round(
-                  (proveedoresEvaluados / totalProveedores) * 100
+                  (proveedoresEvaluados /
+                    totalProveedores) *
+                    100
                 )
               : 0
-
 
           const evaluacionesConIA =
             evaluaciones.filter(
@@ -992,47 +1061,63 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                 evaluacion.recomendacion.trim() !== ''
             ).length
 
-
           const porcentajeRiesgo =
             evaluaciones.length > 0
               ? Math.round(
-                  (evaluacionesRiesgo / evaluaciones.length) * 100
+                  (evaluacionesRiesgo /
+                    evaluaciones.length) *
+                    100
                 )
               : 0
 
-
           let estadoGeneral = 'Sin información'
-          let colorEstado = '#687680'
-          let fondoEstado = '#f1f3f4'
 
+          let colorEstado = modoOscuro
+            ? '#cbd5e1'
+            : '#687680'
+
+          let fondoEstado = modoOscuro
+            ? '#1e293b'
+            : '#f1f3f4'
 
           if (evaluaciones.length > 0) {
-
             if (porcentajeRiesgo >= 50) {
-
               estadoGeneral = 'Requiere atención'
-              colorEstado = '#7a4b4b'
-              fondoEstado = '#f7eeee'
 
+              colorEstado = modoOscuro
+                ? '#fca5a5'
+                : '#7a4b4b'
+
+              fondoEstado = modoOscuro
+                ? '#2b1e1e'
+                : '#f7eeee'
             } else if (porcentajeRiesgo >= 25) {
+              estadoGeneral =
+                'Seguimiento recomendado'
 
-              estadoGeneral = 'Seguimiento recomendado'
-              colorEstado = '#806c48'
-              fondoEstado = '#f5f0e7'
+              colorEstado = modoOscuro
+                ? '#fcd34d'
+                : '#806c48'
 
+              fondoEstado = modoOscuro
+                ? '#29251d'
+                : '#f5f0e7'
             } else {
+              estadoGeneral =
+                'Desempeño favorable'
 
-              estadoGeneral = 'Desempeño favorable'
-              colorEstado = '#477255'
-              fondoEstado = '#edf4ef'
+              colorEstado = modoOscuro
+                ? '#86efac'
+                : '#477255'
 
+              fondoEstado = modoOscuro
+                ? '#17251d'
+                : '#edf4ef'
             }
           }
 
-
           return (
             <>
-
               {/* TARJETAS DEL RESUMEN */}
 
               <div
@@ -1043,17 +1128,18 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                   gap: '15px'
                 }}
               >
-
                 <div
                   style={{
                     padding: '20px',
                     borderRadius: '8px',
-                    backgroundColor:
-                      modoOscuro ? '#0f172a' : '#f8fafc',
-                    border: '1px solid #e2e8f0'
+                    backgroundColor: modoOscuro
+                      ? '#0f172a'
+                      : '#f8fafc',
+                    border: modoOscuro
+                      ? '1px solid #334155'
+                      : '1px solid #e2e8f0'
                   }}
                 >
-
                   <div
                     style={{
                       fontSize: '28px',
@@ -1073,25 +1159,27 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                   >
                     Proveedores registrados
                   </div>
-
                 </div>
-
 
                 <div
                   style={{
                     padding: '20px',
                     borderRadius: '8px',
-                    backgroundColor:
-                      modoOscuro ? '#17251d' : '#f2f6f3',
-                    border: '1px solid #d8e3db'
+                    backgroundColor: modoOscuro
+                      ? '#17251d'
+                      : '#f2f6f3',
+                    border: modoOscuro
+                      ? '1px solid #31523d'
+                      : '1px solid #d8e3db'
                   }}
                 >
-
                   <div
                     style={{
                       fontSize: '28px',
                       fontWeight: '600',
-                      color: '#477255'
+                      color: modoOscuro
+                        ? '#86efac'
+                        : '#477255'
                     }}
                   >
                     {proveedoresActivos}
@@ -1106,25 +1194,27 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                   >
                     Proveedores activos
                   </div>
-
                 </div>
-
 
                 <div
                   style={{
                     padding: '20px',
                     borderRadius: '8px',
-                    backgroundColor:
-                      modoOscuro ? '#2b1e1e' : '#faf4f4',
-                    border: '1px solid #e4d7d7'
+                    backgroundColor: modoOscuro
+                      ? '#2b1e1e'
+                      : '#faf4f4',
+                    border: modoOscuro
+                      ? '1px solid #553838'
+                      : '1px solid #e4d7d7'
                   }}
                 >
-
                   <div
                     style={{
                       fontSize: '28px',
                       fontWeight: '600',
-                      color: '#7a4b4b'
+                      color: modoOscuro
+                        ? '#fca5a5'
+                        : '#7a4b4b'
                     }}
                   >
                     {evaluacionesRiesgo}
@@ -1139,25 +1229,27 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                   >
                     Evaluaciones en riesgo
                   </div>
-
                 </div>
-
 
                 <div
                   style={{
                     padding: '20px',
                     borderRadius: '8px',
-                    backgroundColor:
-                      modoOscuro ? '#182431' : '#f1f5f8',
-                    border: '1px solid #d8e1e8'
+                    backgroundColor: modoOscuro
+                      ? '#182431'
+                      : '#f1f5f8',
+                    border: modoOscuro
+                      ? '1px solid #334b5f'
+                      : '1px solid #d8e1e8'
                   }}
                 >
-
                   <div
                     style={{
                       fontSize: '28px',
                       fontWeight: '600',
-                      color: '#526f89'
+                      color: modoOscuro
+                        ? '#93c5fd'
+                        : '#526f89'
                     }}
                   >
                     {evaluaciones.length}
@@ -1172,25 +1264,27 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                   >
                     Evaluaciones realizadas
                   </div>
-
                 </div>
-
 
                 <div
                   style={{
                     padding: '20px',
                     borderRadius: '8px',
-                    backgroundColor:
-                      modoOscuro ? '#24202d' : '#f5f3f8',
-                    border: '1px solid #ddd8e5'
+                    backgroundColor: modoOscuro
+                      ? '#24202d'
+                      : '#f5f3f8',
+                    border: modoOscuro
+                      ? '1px solid #463c52'
+                      : '1px solid #ddd8e5'
                   }}
                 >
-
                   <div
                     style={{
                       fontSize: '28px',
                       fontWeight: '600',
-                      color: '#665a7c'
+                      color: modoOscuro
+                        ? '#c4b5fd'
+                        : '#665a7c'
                     }}
                   >
                     {evaluacionesConIA}
@@ -1205,25 +1299,27 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                   >
                     Recomendaciones generadas
                   </div>
-
                 </div>
-
 
                 <div
                   style={{
                     padding: '20px',
                     borderRadius: '8px',
-                    backgroundColor:
-                      modoOscuro ? '#29251d' : '#f7f5ef',
-                    border: '1px solid #e4dfd2'
+                    backgroundColor: modoOscuro
+                      ? '#29251d'
+                      : '#f7f5ef',
+                    border: modoOscuro
+                      ? '1px solid #50452f'
+                      : '1px solid #e4dfd2'
                   }}
                 >
-
                   <div
                     style={{
                       fontSize: '28px',
                       fontWeight: '600',
-                      color: '#806c48'
+                      color: modoOscuro
+                        ? '#fcd34d'
+                        : '#806c48'
                     }}
                   >
                     {promedioEvaluacion}
@@ -1238,11 +1334,8 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                   >
                     Promedio general
                   </div>
-
                 </div>
-
               </div>
-
 
               {/* PROGRESO DE EVALUACIÓN */}
 
@@ -1251,12 +1344,14 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                   marginTop: '25px',
                   padding: '20px',
                   borderRadius: '8px',
-                  backgroundColor:
-                    modoOscuro ? '#0f172a' : '#f8fafc',
-                  border: '1px solid #e2e8f0'
+                  backgroundColor: modoOscuro
+                    ? '#0f172a'
+                    : '#f8fafc',
+                  border: modoOscuro
+                    ? '1px solid #334155'
+                    : '1px solid #e2e8f0'
                 }}
               >
-
                 <div
                   style={{
                     display: 'flex',
@@ -1267,8 +1362,11 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                     flexWrap: 'wrap'
                   }}
                 >
-
-                  <strong style={{ color: colorTexto }}>
+                  <strong
+                    style={{
+                      color: colorTexto
+                    }}
+                  >
                     Proveedores evaluados
                   </strong>
 
@@ -1280,21 +1378,19 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                   >
                     {porcentajeEvaluados}%
                   </span>
-
                 </div>
-
 
                 <div
                   style={{
                     width: '100%',
                     height: '10px',
                     borderRadius: '20px',
-                    backgroundColor:
-                      modoOscuro ? '#334155' : '#e2e8f0',
+                    backgroundColor: modoOscuro
+                      ? '#334155'
+                      : '#e2e8f0',
                     overflow: 'hidden'
                   }}
                 >
-
                   <div
                     style={{
                       width: `${porcentajeEvaluados}%`,
@@ -1304,9 +1400,7 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                       transition: 'width 0.5s ease'
                     }}
                   />
-
                 </div>
-
 
                 <div
                   style={{
@@ -1317,7 +1411,6 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                     color: colorSecundario
                   }}
                 >
-
                   <span>
                     {proveedoresEvaluados} evaluados
                   </span>
@@ -1325,11 +1418,8 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                   <span>
                     {proveedoresPendientes} pendientes
                   </span>
-
                 </div>
-
               </div>
-
 
               {/* ESTADO GENERAL */}
 
@@ -1347,9 +1437,7 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                   flexWrap: 'wrap'
                 }}
               >
-
                 <div>
-
                   <div
                     style={{
                       fontSize: '13px',
@@ -1368,9 +1456,7 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                   >
                     {estadoGeneral}
                   </strong>
-
                 </div>
-
 
                 <div
                   style={{
@@ -1379,7 +1465,6 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                     fontSize: '13px'
                   }}
                 >
-
                   <div>
                     {porcentajeRiesgo}% de las evaluaciones
                   </div>
@@ -1387,34 +1472,26 @@ function Dashboard({ modoOscuro, colorPrincipal }) {
                   <div>
                     corresponden a riesgo
                   </div>
-
                 </div>
-
               </div>
-
             </>
           )
         })()}
-
       </div>
-
     </div>
   )
 }
-
 
 /* =====================================================
    APLICACIÓN PRINCIPAL
    ===================================================== */
 
 function App() {
-
   // ==============================
   // USUARIO LOGUEADO
   // ==============================
 
   const [usuario, setUsuario] = useState(() => {
-
     const guardado = localStorage.getItem('usuario')
 
     if (!guardado) {
@@ -1427,72 +1504,85 @@ function App() {
       localStorage.removeItem('usuario')
       return null
     }
-
   })
-
 
   // ==============================
   // MODO OSCURO
   // ==============================
 
   const [modoOscuro, setModoOscuro] = useState(() => {
-
     const guardado =
       localStorage.getItem('modoOscuro')
 
     return guardado === 'true'
-
   })
-
 
   // ==============================
   // COLOR PRINCIPAL
   // ==============================
 
-  const [colorPrincipal, setColorPrincipal] = useState(() => {
+  const [colorPrincipal, setColorPrincipal] =
+    useState(() => {
+      return (
+        localStorage.getItem('colorPrincipal') ||
+        '#29465f'
+      )
+    })
 
-    return (
-      localStorage.getItem('colorPrincipal') ||
-      '#29465f'
+  // ==============================
+  // APLICAR MODO OSCURO GLOBAL
+  // ==============================
+
+  useEffect(() => {
+    document.body.classList.toggle(
+      'dark-mode',
+      modoOscuro
     )
 
-  })
+    document.documentElement.style.colorScheme =
+      modoOscuro
+        ? 'dark'
+        : 'light'
+  }, [modoOscuro])
 
+  // ==============================
+  // APLICAR COLOR PRINCIPAL GLOBAL
+  // ==============================
+
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      '--color-principal',
+      colorPrincipal
+    )
+  }, [colorPrincipal])
 
   // ==============================
   // GUARDAR MODO OSCURO
   // ==============================
 
   useEffect(() => {
-
     localStorage.setItem(
       'modoOscuro',
       modoOscuro
     )
-
   }, [modoOscuro])
-
 
   // ==============================
   // GUARDAR COLOR
   // ==============================
 
   useEffect(() => {
-
     localStorage.setItem(
       'colorPrincipal',
       colorPrincipal
     )
-
   }, [colorPrincipal])
-
 
   // ==============================
   // LOGIN
   // ==============================
 
   if (!usuario) {
-
     return (
       <Login
         onLogin={(datosUsuario) => {
@@ -1500,58 +1590,44 @@ function App() {
         }}
       />
     )
-
   }
-
 
   // ==============================
   // CERRAR SESIÓN
   // ==============================
 
   const cerrarSesion = () => {
-
     localStorage.removeItem('usuario')
     setUsuario(null)
-
   }
 
-
   return (
-
     <BrowserRouter>
-
       <div
         className="app"
         style={{
-          backgroundColor:
-            modoOscuro
-              ? '#0f172a'
-              : '#f4f6f8',
-
-          color:
-            modoOscuro
-              ? '#f8fafc'
-              : '#263238',
-
+          backgroundColor: modoOscuro
+            ? '#0f172a'
+            : '#f4f6f8',
+          color: modoOscuro
+            ? '#f8fafc'
+            : '#263238',
           minHeight: '100vh',
-          transition: '0.3s'
+          transition:
+            'background-color 0.3s ease, color 0.3s ease'
         }}
       >
-
         {/* MENÚ LATERAL */}
 
         <aside
           className="sidebar"
           style={{
-            backgroundColor:
-              modoOscuro
-                ? '#111827'
-                : undefined
+            backgroundColor: modoOscuro
+              ? '#111827'
+              : undefined
           }}
         >
-
           <div className="logo">
-
             <h2>
               Evaluación de Proveedores
             </h2>
@@ -1559,9 +1635,7 @@ function App() {
             <span>
               Sistema inteligente
             </span>
-
           </div>
-
 
           {/* USUARIO */}
 
@@ -1570,27 +1644,24 @@ function App() {
               padding: '15px 20px',
               margin: '10px 15px 20px',
               borderRadius: '8px',
-
-              backgroundColor:
-                modoOscuro
-                  ? '#1e293b'
-                  : '#f1f5f8',
-
+              backgroundColor: modoOscuro
+                ? '#1e293b'
+                : '#f1f5f8',
               border:
                 '1px solid ' +
-                (modoOscuro ? '#334155' : '#e2e8f0')
+                (
+                  modoOscuro
+                    ? '#334155'
+                    : '#e2e8f0'
+                )
             }}
           >
-
             <div
               style={{
                 fontSize: '12px',
-
-                color:
-                  modoOscuro
-                    ? '#94a3b8'
-                    : '#687680',
-
+                color: modoOscuro
+                  ? '#94a3b8'
+                  : '#687680',
                 marginBottom: '4px'
               }}
             >
@@ -1598,14 +1669,12 @@ function App() {
             </div>
 
             <strong>
-              {usuario.nombre || usuario.usuario}
+              {usuario.nombre ||
+                usuario.usuario}
             </strong>
-
           </div>
 
-
           <nav>
-
             <Link to="/">
               Inicio
             </Link>
@@ -1629,9 +1698,7 @@ function App() {
             <Link to="/configuracion">
               Configuración
             </Link>
-
           </nav>
-
 
           {/* CERRAR SESIÓN */}
 
@@ -1641,7 +1708,6 @@ function App() {
               padding: '20px'
             }}
           >
-
             <button
               onClick={cerrarSesion}
               style={{
@@ -1649,17 +1715,12 @@ function App() {
                 padding: '11px 15px',
                 border: 'none',
                 borderRadius: '7px',
-
-                backgroundColor:
-                  modoOscuro
-                    ? '#334155'
-                    : '#e9eef2',
-
-                color:
-                  modoOscuro
-                    ? '#f8fafc'
-                    : '#263238',
-
+                backgroundColor: modoOscuro
+                  ? '#334155'
+                  : '#e9eef2',
+                color: modoOscuro
+                  ? '#f8fafc'
+                  : '#263238',
                 fontSize: '14px',
                 fontWeight: '600',
                 cursor: 'pointer'
@@ -1667,28 +1728,22 @@ function App() {
             >
               Cerrar sesión
             </button>
-
           </div>
-
         </aside>
-
 
         {/* CONTENIDO PRINCIPAL */}
 
         <main
           className="main"
           style={{
-            backgroundColor:
-              modoOscuro
-                ? '#0f172a'
-                : undefined,
-
-            transition: '0.3s'
+            backgroundColor: modoOscuro
+              ? '#0f172a'
+              : undefined,
+            transition:
+              'background-color 0.3s ease'
           }}
         >
-
           <Routes>
-
             <Route
               path="/"
               element={
@@ -1699,48 +1754,40 @@ function App() {
               }
             />
 
-
             <Route
               path="/proveedores"
               element={<Proveedores />}
             />
-
 
             <Route
               path="/alertas"
               element={<Alertas />}
             />
 
-
             <Route
               path="/evaluaciones"
               element={<Evaluaciones />}
             />
-
 
             <Route
               path="/nueva-evaluacion"
               element={<NuevaEvaluacion />}
             />
 
-
             <Route
               path="/registrar-proveedor"
               element={<RegistrarProveedor />}
             />
-
 
             <Route
               path="/editar-proveedor/:id"
               element={<EditarProveedor />}
             />
 
-
             <Route
               path="/reportes"
               element={<Reportes />}
             />
-
 
             <Route
               path="/configuracion"
@@ -1753,17 +1800,11 @@ function App() {
                 />
               }
             />
-
           </Routes>
-
         </main>
-
       </div>
-
     </BrowserRouter>
-
   )
 }
-
 
 export default App

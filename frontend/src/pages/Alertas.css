@@ -1,0 +1,599 @@
+/* =========================================================
+   ALERTAS
+   ========================================================= */
+
+.alertas-container {
+    min-height: 100vh;
+    padding: 40px 50px;
+
+    background: var(--al-bg);
+    color: var(--al-text);
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+
+/* =========================================================
+   VARIABLES MODO CLARO
+   ========================================================= */
+
+.alertas-container {
+    --al-bg: #f8fafc;
+    --al-card: #ffffff;
+    --al-input: #ffffff;
+
+    --al-border: #e2e8f0;
+    --al-border-soft: #eef2f7;
+    --al-border-input: #dbe2ea;
+
+    --al-title: #1e293b;
+    --al-heading: #1e293b;
+    --al-text: #334155;
+    --al-text-secondary: #475569;
+    --al-secondary: #64748b;
+    --al-muted: #94a3b8;
+    --al-placeholder: #a0aab8;
+
+    --al-green: #16a34a;
+    --al-green-dark: #166534;
+
+    --al-red: #dc2626;
+    --al-red-bg: #fee2e2;
+    --al-red-text: #b91c1c;
+
+    --al-yellow: #f59e0b;
+    --al-yellow-bg: #fef3c7;
+    --al-yellow-text: #b45309;
+
+    --al-bar-bg: #e2e8f0;
+
+    --al-success-border: #d1fae5;
+    --al-success-bg: #f0fdf4;
+
+    --al-shadow:
+        0 3px 10px rgba(15, 23, 42, 0.04);
+
+    --al-shadow-hover:
+        0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+
+/* =========================================================
+   MODO OSCURO
+   MISMO SISTEMA QUE REGISTRAR PROVEEDOR
+   ========================================================= */
+
+body.dark .alertas-container,
+body.dark-mode .alertas-container,
+body[data-theme="dark"] .alertas-container {
+
+    --al-bg: #111827;
+    --al-card: #1f2937;
+    --al-input: #273244;
+
+    --al-border: #374151;
+    --al-border-soft: #374151;
+    --al-border-input: #4b5563;
+
+    --al-title: #f3f4f6;
+    --al-heading: #f3f4f6;
+    --al-text: #e5e7eb;
+    --al-text-secondary: #cbd5e1;
+    --al-secondary: #aeb8c6;
+    --al-muted: #9ca3af;
+    --al-placeholder: #7f8a9a;
+
+    --al-green: #4ade80;
+    --al-green-dark: #86efac;
+
+    --al-red: #ef4444;
+    --al-red-bg: #3b1f24;
+    --al-red-text: #fca5a5;
+
+    --al-yellow: #f59e0b;
+    --al-yellow-bg: #3a2d13;
+    --al-yellow-text: #fbbf24;
+
+    --al-bar-bg: #4b5563;
+
+    --al-success-border: #23624f;
+    --al-success-bg: #12372d;
+
+    --al-shadow:
+        0 4px 18px rgba(0, 0, 0, 0.20);
+
+    --al-shadow-hover:
+        0 8px 24px rgba(0, 0, 0, 0.30);
+}
+
+
+/* =========================================================
+   ENCABEZADO
+   ========================================================= */
+
+.alertas-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.alertas-subtitulo {
+    display: inline-block;
+
+    color: var(--al-green);
+
+    font-size: 11px;
+    font-weight: 700;
+
+    letter-spacing: 2px;
+
+    margin-bottom: 7px;
+}
+
+.alertas-header h1 {
+    margin: 0;
+
+    font-size: 42px;
+    font-weight: 800;
+
+    color: var(--al-title);
+}
+
+.titulo-linea {
+    width: 55px;
+    height: 3px;
+
+    background: var(--al-green);
+
+    border-radius: 10px;
+
+    margin: 10px auto 12px;
+}
+
+.alertas-header p {
+    margin: 0 auto;
+
+    max-width: 560px;
+
+    color: var(--al-secondary);
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   BUSCADOR
+   ========================================================= */
+
+.alertas-herramientas {
+    max-width: 950px;
+
+    margin: 0 auto 22px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.buscador {
+    width: 100%;
+    max-width: 420px;
+
+    display: flex;
+    align-items: center;
+
+    background: var(--al-input);
+
+    border: 1px solid var(--al-border-input);
+
+    border-radius: 10px;
+
+    padding: 0 14px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.buscador:focus-within {
+    border-color: var(--al-green);
+
+    box-shadow:
+        0 0 0 3px rgba(22, 163, 74, 0.08);
+}
+
+.buscador-icono {
+    color: var(--al-muted);
+
+    font-size: 12px;
+    font-weight: 600;
+
+    margin-right: 10px;
+}
+
+.buscador input {
+    width: 100%;
+
+    border: none;
+    outline: none;
+
+    padding: 12px 0;
+
+    font-size: 13px;
+
+    color: var(--al-text);
+
+    background: transparent;
+}
+
+.buscador input::placeholder {
+    color: var(--al-placeholder);
+}
+
+.resultado-texto {
+    color: var(--al-muted);
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   CONTENEDOR DE TARJETAS
+   ========================================================= */
+
+.alertas-grid {
+    max-width: 950px;
+
+    margin: auto;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(300px, 1fr));
+
+    gap: 18px;
+}
+
+
+/* =========================================================
+   TARJETA
+   ========================================================= */
+
+.alerta-card {
+    position: relative;
+
+    background: var(--al-card);
+
+    border: 1px solid var(--al-border);
+
+    border-radius: 13px;
+
+    padding: 19px;
+
+    overflow: hidden;
+
+    box-shadow: var(--al-shadow);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.alerta-card:hover {
+    transform: translateY(-3px);
+
+    box-shadow: var(--al-shadow-hover);
+}
+
+
+/* =========================================================
+   LÍNEA SUPERIOR
+   ========================================================= */
+
+.alerta-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 3px;
+}
+
+.card-riesgo::before {
+    background: var(--al-red);
+}
+
+.card-regular::before {
+    background: var(--al-yellow);
+}
+
+
+/* =========================================================
+   PARTE SUPERIOR DE TARJETA
+   ========================================================= */
+
+.alerta-top {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 17px;
+}
+
+.evaluacion-id {
+    color: var(--al-muted);
+
+    font-size: 11px;
+}
+
+.estado-badge {
+    padding: 5px 10px;
+
+    border-radius: 15px;
+
+    font-size: 10px;
+
+    font-weight: 700;
+}
+
+.badge-riesgo {
+    background: var(--al-red-bg);
+    color: var(--al-red-text);
+}
+
+.badge-regular {
+    background: var(--al-yellow-bg);
+    color: var(--al-yellow-text);
+}
+
+
+/* =========================================================
+   PROVEEDOR
+   ========================================================= */
+
+.proveedor-info {
+    margin-bottom: 18px;
+}
+
+.proveedor-info span {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+
+    color: var(--al-muted);
+}
+
+.proveedor-info h2 {
+    margin: 0;
+
+    font-size: 17px;
+
+    font-weight: 700;
+
+    color: var(--al-heading);
+}
+
+
+/* =========================================================
+   DATOS DE LA ALERTA
+   ========================================================= */
+
+.datos-alerta {
+    display: grid;
+
+    grid-template-columns: 0.8fr 1.2fr;
+
+    gap: 15px;
+
+    padding: 15px 0;
+
+    border-top: 1px solid var(--al-border-soft);
+    border-bottom: 1px solid var(--al-border-soft);
+}
+
+.datos-alerta span {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--al-muted);
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.7px;
+}
+
+.datos-alerta strong {
+    display: block;
+
+    color: var(--al-heading);
+
+    font-size: 28px;
+
+    line-height: 1;
+}
+
+.datos-alerta small {
+    margin-left: 2px;
+
+    font-size: 11px;
+
+    color: var(--al-muted);
+
+    font-weight: 500;
+}
+
+.datos-alerta p {
+    margin: 0;
+
+    color: var(--al-text-secondary);
+
+    font-size: 12px;
+
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   BARRA DE CALIFICACIÓN
+   ========================================================= */
+
+.barra-calificacion {
+    width: 100%;
+
+    height: 5px;
+
+    margin-top: 14px;
+
+    background: var(--al-bar-bg);
+
+    border-radius: 10px;
+
+    overflow: hidden;
+}
+
+.barra-calificacion div {
+    height: 100%;
+
+    border-radius: 10%;
+}
+
+.barra-riesgo {
+    background: var(--al-red);
+}
+
+.barra-regular {
+    background: var(--al-yellow);
+}
+
+
+/* =========================================================
+   MENSAJE
+   ========================================================= */
+
+.alerta-mensaje {
+    padding-top: 14px;
+}
+
+.alerta-mensaje strong {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: var(--al-text);
+
+    font-size: 12px;
+}
+
+.alerta-mensaje p {
+    margin: 0;
+
+    color: var(--al-secondary);
+
+    font-size: 11px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   SIN ALERTAS
+   ========================================================= */
+
+.sin-alertas {
+    max-width: 600px;
+
+    margin: 35px auto;
+
+    padding: 45px 30px;
+
+    text-align: center;
+
+    background: var(--al-card);
+
+    border-radius: 15px;
+
+    border: 1px solid var(--al-success-border);
+
+    box-shadow: var(--al-shadow);
+}
+
+.estado-linea {
+    width: 45px;
+    height: 3px;
+
+    margin: 0 auto 18px;
+
+    background: var(--al-green);
+
+    border-radius: 10px;
+}
+
+.sin-alertas h2 {
+    margin: 0 0 8px;
+
+    color: var(--al-green-dark);
+
+    font-size: 21px;
+}
+
+.sin-alertas p {
+    margin: 0;
+
+    color: var(--al-secondary);
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   RESPONSIVO
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .alertas-container {
+        padding: 30px 18px;
+    }
+
+    .alertas-header h1 {
+        font-size: 35px;
+    }
+
+    .alertas-herramientas {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .buscador {
+        max-width: none;
+    }
+
+    .resultado-texto {
+        text-align: right;
+    }
+
+    .alertas-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,388 +1,293 @@
 
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
-
-function NuevaEvaluacion() {
-
-    const navigate = useNavigate()
-
-
-    // ==========================================
-    // ESTADOS
-    // ==========================================
-
-    const [proveedores, setProveedores] = useState([])
+function NuevaEvaluacion({
+    proveedores = [],
+    onCancelar,
+    onGuardado
+}) {
 
     const [idProveedor, setIdProveedor] = useState('')
+    const [busquedaProveedor, setBusquedaProveedor] = useState('')
+    const [mostrarProveedores, setMostrarProveedores] = useState(false)
 
-    const [cumplimientoEntregas, setCumplimientoEntregas] = useState('')
-    const [calidad, setCalidad] = useState('')
-    const [costos, setCostos] = useState('')
-    const [tiempoRespuesta, setTiempoRespuesta] = useState('')
-    const [incidencias, setIncidencias] = useState('')
+    const [cumplimientoEntregas, setCumplimientoEntregas] = useState(0)
+    const [calidad, setCalidad] = useState(0)
+    const [costos, setCostos] = useState(0)
+    const [tiempoRespuesta, setTiempoRespuesta] = useState(0)
+    const [incidencias, setIncidencias] = useState(0)
+
+    const [calificacionFinal, setCalificacionFinal] = useState(0)
+    const [clasificacion, setClasificacion] = useState('Riesgo')
+    const [recomendacion, setRecomendacion] = useState('')
+
+    const [guardando, setGuardando] = useState(false)
+    const [mensaje, setMensaje] = useState('')
+    const [error, setError] = useState('')
 
 
-    // ==========================================
-    // OBTENER PROVEEDORES
-    // ==========================================
+    // =========================================================
+    // CALCULAR CALIFICACIÓN
+    // =========================================================
 
     useEffect(() => {
 
-        obtenerProveedores()
-
-    }, [])
-
-
-    const obtenerProveedores = async () => {
-
-        try {
-
-            const respuesta = await fetch(
-                'http://localhost:8080/api/proveedores'
-            )
-
-
-            if (!respuesta.ok) {
-
-                throw new Error(
-                    'Error al obtener los proveedores'
-                )
-
-            }
-
-
-            const datos = await respuesta.json()
-
-            setProveedores(datos)
-
-
-        } catch (error) {
-
-            console.error(
-                'Error al obtener proveedores:',
-                error
-            )
-
-        }
-
-    }
-
-
-    // ==========================================
-    // CALIFICACIÓN AUTOMÁTICA
-    // ==========================================
-
-    const calcularCalificacion = () => {
-
-        const cumplimiento =
-            Number(cumplimientoEntregas) || 0
-
-        const calidadValor =
-            Number(calidad) || 0
-
-        const costosValor =
-            Number(costos) || 0
-
-        const tiempo =
-            Number(tiempoRespuesta) || 0
-
-        const incidenciasValor =
-            Number(incidencias) || 0
-
-
         const resultado =
-            (cumplimiento * 0.25) +
-            (calidadValor * 0.25) +
-            (costosValor * 0.20) +
-            (tiempo * 0.15) +
-            (incidenciasValor * 0.15)
+            Number(cumplimientoEntregas) * 0.25 +
+            Number(calidad) * 0.25 +
+            Number(costos) * 0.20 +
+            Number(tiempoRespuesta) * 0.15 +
+            Number(incidencias) * 0.15
 
-
-        return resultado.toFixed(2)
-
-    }
-
-
-    // ==========================================
-    // CLASIFICACIÓN AUTOMÁTICA
-    // ==========================================
-
-    const obtenerClasificacion = (calificacion) => {
-
-        const valor = Number(calificacion)
-
-
-        if (valor >= 90) {
-
-            return 'Excelente'
-
-        }
-
-
-        if (valor >= 80) {
-
-            return 'Bueno'
-
-        }
-
-
-        if (valor >= 70) {
-
-            return 'Regular'
-
-        }
-
-
-        return 'Riesgo'
-
-    }
-
-
-    const calificacionActual =
-        calcularCalificacion()
-
-
-    const clasificacionActual =
-        obtenerClasificacion(
-            calificacionActual
+        const resultadoFinal = Number(
+            resultado.toFixed(2)
         )
 
+        setCalificacionFinal(resultadoFinal)
 
-    // ==========================================
-    // ANALIZAR EVALUACIÓN CON IA
-    // ==========================================
+        if (resultadoFinal >= 90) {
 
-    const analizarConIA = async () => {
+            setClasificacion('Excelente')
 
-        const datosEvaluacion = {
+        } else if (resultadoFinal >= 80) {
 
-            cumplimientoEntregas:
-                Number(cumplimientoEntregas),
+            setClasificacion('Bueno')
 
-            calidad:
-                Number(calidad),
+        } else if (resultadoFinal >= 70) {
 
-            costos:
-                Number(costos),
+            setClasificacion('Regular')
 
-            tiempoRespuesta:
-                Number(tiempoRespuesta),
+        } else {
 
-            incidencias:
-                Number(incidencias)
+            setClasificacion('Riesgo')
 
         }
 
-
-        try {
-
-            const respuesta = await fetch(
-                'http://localhost:8000/ia/analizar',
-                {
-                    method: 'POST',
-
-                    headers: {
-                        'Content-Type':
-                            'application/json'
-                    },
-
-                    body:
-                        JSON.stringify(
-                            datosEvaluacion
-                        )
-
-                }
-            )
+    }, [
+        cumplimientoEntregas,
+        calidad,
+        costos,
+        tiempoRespuesta,
+        incidencias
+    ])
 
 
-            if (!respuesta.ok) {
+    // =========================================================
+    // PROVEEDORES FILTRADOS
+    // =========================================================
 
-                throw new Error(
-                    'Error al comunicarse con la API de IA'
-                )
+    const proveedoresFiltrados = proveedores.filter(
+        proveedor => {
 
-            }
+            const nombre =
+                String(
+                    proveedor.nombre || ''
+                ).toLowerCase()
 
+            const busqueda =
+                busquedaProveedor
+                    .toLowerCase()
+                    .trim()
 
-            const resultado =
-                await respuesta.json()
-
-
-            console.log(
-                'Resultado de la IA:',
-                resultado
-            )
-
-
-            return resultado
-
-
-        } catch (error) {
-
-            console.error(
-                'Error al analizar con IA:',
-                error
-            )
-
-
-            // IMPORTANTE:
-            // No detenemos el guardado.
-            return null
+            return nombre.includes(busqueda)
 
         }
+    )
+
+
+    // =========================================================
+    // SELECCIONAR PROVEEDOR
+    // =========================================================
+
+    const seleccionarProveedor = (proveedor) => {
+
+        setIdProveedor(
+            proveedor.idProveedor
+        )
+
+        setBusquedaProveedor(
+            proveedor.nombre
+        )
+
+        setMostrarProveedores(false)
+
+        setError('')
 
     }
 
 
-    // ==========================================
+    // =========================================================
+    // CAMBIAR BÚSQUEDA
+    // =========================================================
+
+    const cambiarBusquedaProveedor = (e) => {
+
+        const valor = e.target.value
+
+        setBusquedaProveedor(valor)
+
+        setIdProveedor('')
+
+        setMostrarProveedores(true)
+
+    }
+
+
+    // =========================================================
+    // MOSTRAR PROVEEDORES
+    // =========================================================
+
+    const abrirListaProveedores = () => {
+
+        setMostrarProveedores(true)
+
+    }
+
+
+    // =========================================================
+    // RECOMENDACIÓN LOCAL
+    // =========================================================
+
+    const obtenerRecomendacion = (clasificacion) => {
+
+        if (clasificacion === 'Excelente') {
+
+            return 'El proveedor presenta un desempeño excelente. Se recomienda mantener la relación comercial y continuar con el seguimiento periódico.'
+
+        }
+
+        if (clasificacion === 'Bueno') {
+
+            return 'El proveedor presenta un buen desempeño. Se recomienda mantener el seguimiento para conservar y mejorar sus resultados.'
+
+        }
+
+        if (clasificacion === 'Regular') {
+
+            return 'El proveedor presenta áreas de oportunidad. Se recomienda establecer acciones de mejora y realizar un seguimiento más frecuente.'
+
+        }
+
+        return 'El proveedor presenta un nivel de riesgo. Se recomienda revisar los principales indicadores y establecer acciones correctivas.'
+
+    }
+
+
+    // =========================================================
     // GUARDAR EVALUACIÓN
-    // ==========================================
+    // =========================================================
 
     const guardarEvaluacion = async (e) => {
 
         e.preventDefault()
 
+        setMensaje('')
+        setError('')
+
+        if (!idProveedor) {
+
+            setError(
+                'Debes seleccionar un proveedor de la lista.'
+            )
+
+            setMostrarProveedores(true)
+
+            return
+
+        }
+
+        setGuardando(true)
 
         try {
 
-            // ==========================================
-            // VALIDAR PROVEEDOR
-            // ==========================================
+            // =====================================================
+            // ANALIZAR CON IA
+            // =====================================================
 
-            if (!idProveedor) {
+            let recomendacionIA = ''
 
-                alert(
-                    'Selecciona un proveedor'
-                )
+            try {
 
-                return
+                const respuestaIA = await fetch(
+                    'http://localhost:8000/ia/analizar',
+                    {
+                        method: 'POST',
 
-            }
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
 
+                        body: JSON.stringify({
 
-            // ==========================================
-            // VALIDAR INDICADORES
-            // ==========================================
+                            cumplimientoEntregas:
+                                Number(
+                                    cumplimientoEntregas
+                                ),
 
-            if (
-                cumplimientoEntregas === '' ||
-                calidad === '' ||
-                costos === '' ||
-                tiempoRespuesta === '' ||
-                incidencias === ''
-            ) {
+                            calidad:
+                                Number(
+                                    calidad
+                                ),
 
-                alert(
-                    'Completa todos los indicadores'
-                )
+                            costos:
+                                Number(
+                                    costos
+                                ),
 
-                return
+                            tiempoRespuesta:
+                                Number(
+                                    tiempoRespuesta
+                                ),
 
-            }
+                            incidencias:
+                                Number(
+                                    incidencias
+                                )
 
-
-            // ==========================================
-            // CALIFICACIÓN LOCAL
-            // ==========================================
-
-            const calificacionLocal =
-                Number(
-                    calcularCalificacion()
-                )
-
-
-            // ==========================================
-            // CLASIFICACIÓN LOCAL
-            // ==========================================
-
-            let clasificacionLocal =
-                obtenerClasificacion(
-                    calificacionLocal
-                )
-
-
-            // ==========================================
-            // RECOMENDACIÓN LOCAL
-            // ==========================================
-
-            let recomendacionLocal =
-                'Evaluación registrada correctamente.'
-
-
-            // ==========================================
-            // INTENTAR USAR IA
-            // ==========================================
-
-            const resultadoIA =
-                await analizarConIA()
-
-
-            // ==========================================
-            // SI LA IA RESPONDE
-            // ==========================================
-
-            if (resultadoIA) {
-
-                if (
-                    resultadoIA.calificacion !==
-                    undefined &&
-                    resultadoIA.calificacion !==
-                    null
-                ) {
-
-                    const calificacionIA =
-                        Number(
-                            resultadoIA.calificacion
-                        )
-
-
-                    if (
-                        !Number.isNaN(
-                            calificacionIA
-                        )
-                    ) {
-
-                        // Usamos el resultado de IA
-                        // si viene correctamente.
-
-                        console.log(
-                            'Calificación IA:',
-                            calificacionIA
-                        )
-
+                        })
                     }
+                )
+
+                if (respuestaIA.ok) {
+
+                    const datosIA =
+                        await respuestaIA.json()
+
+                    recomendacionIA =
+                        datosIA.recomendacion ||
+                        obtenerRecomendacion(
+                            clasificacion
+                        )
+
+                } else {
+
+                    recomendacionIA =
+                        obtenerRecomendacion(
+                            clasificacion
+                        )
 
                 }
 
+            } catch (errorIA) {
 
-                if (
-                    resultadoIA.clasificacion
-                ) {
+                console.warn(
+                    'No se pudo consultar la IA:',
+                    errorIA
+                )
 
-                    clasificacionLocal =
-                        resultadoIA.clasificacion
-
-                }
-
-
-                if (
-                    resultadoIA.recomendacion
-                ) {
-
-                    recomendacionLocal =
-                        resultadoIA.recomendacion
-
-                }
+                recomendacionIA =
+                    obtenerRecomendacion(
+                        clasificacion
+                    )
 
             }
 
 
-            // ==========================================
-            // CREAR OBJETO PARA BACKEND
-            // ==========================================
+            // =====================================================
+            // DATOS PARA BACKEND
+            // =====================================================
 
-            const nuevaEvaluacion = {
+            const datosEvaluacion = {
 
                 idProveedor:
                     Number(idProveedor),
@@ -413,550 +318,1844 @@ function NuevaEvaluacion() {
                     ),
 
                 calificacionFinal:
-                    calificacionLocal,
+                    Number(
+                        calificacionFinal
+                    ),
 
                 clasificacion:
-                    clasificacionLocal,
+                    clasificacion,
 
                 recomendacion:
-                    recomendacionLocal
+                    recomendacionIA
 
             }
 
 
-            console.log(
-                '================================'
-            )
-
-            console.log(
-                'Evaluación que se enviará:',
-                nuevaEvaluacion
-            )
-
-            console.log(
-                '================================'
-            )
-
-
-            // ==========================================
+            // =====================================================
             // GUARDAR EN SPRING BOOT
-            // ==========================================
+            // =====================================================
 
-            const respuesta =
-                await fetch(
-                    'http://localhost:8080/api/evaluaciones',
-                    {
-                        method: 'POST',
+            const respuesta = await fetch(
+                'http://localhost:8080/api/evaluaciones',
+                {
+                    method: 'POST',
 
-                        headers: {
-                            'Content-Type':
-                                'application/json'
-                        },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
 
-                        body:
-                            JSON.stringify(
-                                nuevaEvaluacion
-                            )
+                    body:
+                        JSON.stringify(
+                            datosEvaluacion
+                        )
 
-                    }
-                )
-
-
-            // ==========================================
-            // LEER RESPUESTA
-            // ==========================================
+                }
+            )
 
             if (!respuesta.ok) {
 
-                const mensajeError =
+                const textoError =
                     await respuesta.text()
 
-
-                console.error(
-                    'Respuesta del backend:',
-                    mensajeError
-                )
-
-
                 throw new Error(
-                    mensajeError ||
-                    'Error al guardar la evaluación'
+                    textoError ||
+                    'No se pudo guardar la evaluación.'
                 )
 
             }
 
 
-            // ==========================================
-            // ÉXITO
-            // ==========================================
-
-            alert(
-                'Evaluación registrada correctamente'
+            setMensaje(
+                'Evaluación guardada correctamente.'
             )
 
 
-            navigate(
-                '/evaluaciones'
-            )
+            // =====================================================
+            // AVISAR A EVALUACIONES
+            // =====================================================
+
+            setTimeout(() => {
+
+                if (onGuardado) {
+
+                    onGuardado()
+
+                }
+
+            }, 500)
 
 
         } catch (error) {
 
             console.error(
-                'Error al guardar evaluación:',
+                'Error al guardar:',
                 error
             )
 
-
-            alert(
-                'No se pudo registrar la evaluación. Revisa la consola del navegador.'
+            setError(
+                'No se pudo guardar la evaluación. Verifica que el backend esté funcionando.'
             )
+
+        } finally {
+
+            setGuardando(false)
 
         }
 
     }
 
 
-    // ==========================================
-    // INTERFAZ
-    // ==========================================
+    // =========================================================
+    // CAMBIO DE INDICADORES
+    // =========================================================
+
+    const obtenerClaseValor = (valor) => {
+
+        if (valor >= 90) {
+
+            return 'valor-excelente'
+
+        }
+
+        if (valor >= 80) {
+
+            return 'valor-bueno'
+
+        }
+
+        if (valor >= 70) {
+
+            return 'valor-regular'
+
+        }
+
+        return 'valor-riesgo'
+
+    }
+
 
     return (
 
-        <div
-            style={{
-                padding: '30px'
-            }}
-        >
+        <div className="nueva-evaluacion-page">
 
-
-            {/* ==================================
+            {/* =================================================
                 ENCABEZADO
-            ================================== */}
+            ================================================== */}
 
-            <h1>
-                Nueva evaluación
-            </h1>
+            <div className="nueva-evaluacion-header">
 
+                <div>
 
-            <p
-                style={{
-                    color: '#777',
-                    marginBottom: '25px'
-                }}
-            >
-                Registra el desempeño de un proveedor.
-            </p>
+                    <h1>
+                        Nueva evaluación
+                    </h1>
+
+                    <p>
+                        Evalúa el desempeño del proveedor mediante los indicadores establecidos.
+                    </p>
+
+                </div>
+
+            </div>
 
 
             <form
+                className="formulario-evaluacion"
                 onSubmit={guardarEvaluacion}
-                style={{
-                    backgroundColor: 'white',
-                    padding: '30px',
-                    borderRadius: '15px',
-                    maxWidth: '650px',
-                    boxShadow:
-                        '0 4px 12px rgba(0,0,0,0.08)'
-                }}
             >
 
 
-                {/* ==================================
+                {/* =================================================
                     PROVEEDOR
-                ================================== */}
+                ================================================== */}
 
-                <div
-                    style={{
-                        marginBottom: '25px'
-                    }}
-                >
+                <div className="seccion-formulario">
 
-                    <label>
+                    <div className="seccion-titulo">
 
-                        <strong>
+                        <h2>
                             Proveedor
-                        </strong>
+                        </h2>
 
-                    </label>
+                        <p>
+                            Escribe el nombre o selecciona un proveedor registrado.
+                        </p>
 
-
-                    <select
-                        value={idProveedor}
-                        onChange={(e) =>
-                            setIdProveedor(
-                                e.target.value
-                            )
-                        }
-                        required
-                        style={{
-                            width: '100%',
-                            padding: '12px',
-                            marginTop: '8px',
-                            borderRadius: '8px',
-                            border:
-                                '1px solid #ddd',
-                            fontSize: '14px'
-                        }}
-                    >
-
-                        <option value="">
-                            Selecciona un proveedor
-                        </option>
+                    </div>
 
 
-                        {proveedores.map(
-                            (proveedor) => (
+                    <div className="campo">
 
-                                <option
-                                    key={
-                                        proveedor.idProveedor
-                                    }
-                                    value={
-                                        proveedor.idProveedor
-                                    }
+                        <label>
+                            Proveedor
+                        </label>
+
+
+                        <div className="buscador-proveedor">
+
+                            <input
+                                type="text"
+                                value={
+                                    busquedaProveedor
+                                }
+                                onChange={
+                                    cambiarBusquedaProveedor
+                                }
+                                onFocus={
+                                    abrirListaProveedores
+                                }
+                                placeholder="Escribe el nombre del proveedor..."
+                                autoComplete="off"
+                            />
+
+                            {busquedaProveedor && (
+
+                                <button
+                                    type="button"
+                                    className="btn-limpiar-proveedor"
+                                    onClick={() => {
+
+                                        setBusquedaProveedor('')
+                                        setIdProveedor('')
+                                        setMostrarProveedores(true)
+
+                                    }}
+                                    aria-label="Limpiar proveedor"
                                 >
+                                    ×
+                                </button>
 
-                                    {proveedor.nombre}
+                            )}
 
-                                </option>
+                        </div>
 
-                            )
+
+                        {/* =================================================
+                            LISTA DE PROVEEDORES
+                        ================================================== */}
+
+                        {mostrarProveedores &&
+                            proveedoresFiltrados.length > 0 && (
+
+                                <div className="resultados-proveedores">
+
+                                    <div className="resultados-titulo">
+
+                                        Proveedores registrados
+
+                                    </div>
+
+
+                                    {proveedoresFiltrados
+                                        .slice(0, 8)
+                                        .map(
+                                            proveedor => (
+
+                                                <button
+                                                    type="button"
+                                                    className="resultado-proveedor"
+                                                    key={
+                                                        proveedor.idProveedor
+                                                    }
+                                                    onClick={() =>
+                                                        seleccionarProveedor(
+                                                            proveedor
+                                                        )
+                                                    }
+                                                >
+
+                                                    <span className="resultado-nombre">
+
+                                                        {
+                                                            proveedor.nombre
+                                                        }
+
+                                                    </span>
+
+                                                    <span className="resultado-id">
+
+                                                        ID #
+                                                        {
+                                                            proveedor.idProveedor
+                                                        }
+
+                                                    </span>
+
+                                                </button>
+
+                                            )
+                                        )}
+
+                                </div>
+
+                            )}
+
+
+                        {/* =================================================
+                            SIN RESULTADOS
+                        ================================================== */}
+
+                        {mostrarProveedores &&
+                            busquedaProveedor &&
+                            proveedoresFiltrados.length === 0 && (
+
+                                <div className="sin-resultados">
+
+                                    No se encontró ningún proveedor con ese nombre.
+
+                                </div>
+
+                            )}
+
+
+                        {/* =================================================
+                            PROVEEDOR SELECCIONADO
+                        ================================================== */}
+
+                        {idProveedor && (
+
+                            <div className="proveedor-seleccionado">
+
+                                <span>
+                                    Proveedor seleccionado:
+                                </span>
+
+                                <strong>
+                                    {busquedaProveedor}
+                                </strong>
+
+                            </div>
+
                         )}
 
-                    </select>
+                    </div>
 
                 </div>
 
 
-                {/* ==================================
+                {/* =================================================
                     INDICADORES
-                ================================== */}
+                ================================================== */}
 
-                <CampoEvaluacion
-                    nombre="Cumplimiento de entregas"
-                    valor={cumplimientoEntregas}
-                    cambiarValor={
-                        setCumplimientoEntregas
-                    }
-                    peso="25%"
-                />
+                <div className="seccion-formulario">
 
+                    <div className="seccion-titulo">
 
-                <CampoEvaluacion
-                    nombre="Calidad"
-                    valor={calidad}
-                    cambiarValor={
-                        setCalidad
-                    }
-                    peso="25%"
-                />
+                        <h2>
+                            Indicadores de desempeño
+                        </h2>
+
+                        <p>
+                            Asigna una calificación de 0 a 100 para cada indicador.
+                        </p>
+
+                    </div>
 
 
-                <CampoEvaluacion
-                    nombre="Costos"
-                    valor={costos}
-                    cambiarValor={
-                        setCostos
-                    }
-                    peso="20%"
-                />
+                    <div className="indicadores-formulario">
 
 
-                <CampoEvaluacion
-                    nombre="Tiempo de respuesta"
-                    valor={tiempoRespuesta}
-                    cambiarValor={
-                        setTiempoRespuesta
-                    }
-                    peso="15%"
-                />
+                        {/* ENTREGAS */}
+
+                        <div className="indicador-formulario">
+
+                            <div className="indicador-formulario-header">
+
+                                <label>
+                                    Cumplimiento de entregas
+                                </label>
+
+                                <span
+                                    className={
+                                        `valor-indicador ${
+                                            obtenerClaseValor(
+                                                cumplimientoEntregas
+                                            )
+                                        }`
+                                    }
+                                >
+                                    {cumplimientoEntregas}
+                                </span>
+
+                            </div>
+
+                            <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={
+                                    cumplimientoEntregas
+                                }
+                                onChange={(e) =>
+                                    setCumplimientoEntregas(
+                                        Number(
+                                            e.target.value
+                                        )
+                                    )
+                                }
+                            />
+
+                            <div className="rango-labels">
+
+                                <span>
+                                    0
+                                </span>
+
+                                <span>
+                                    100
+                                </span>
+
+                            </div>
+
+                        </div>
 
 
-                <CampoEvaluacion
-                    nombre="Incidencias"
-                    valor={incidencias}
-                    cambiarValor={
-                        setIncidencias
-                    }
-                    peso="15%"
-                />
+                        {/* CALIDAD */}
+
+                        <div className="indicador-formulario">
+
+                            <div className="indicador-formulario-header">
+
+                                <label>
+                                    Calidad
+                                </label>
+
+                                <span
+                                    className={
+                                        `valor-indicador ${
+                                            obtenerClaseValor(
+                                                calidad
+                                            )
+                                        }`
+                                    }
+                                >
+                                    {calidad}
+                                </span>
+
+                            </div>
+
+                            <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={calidad}
+                                onChange={(e) =>
+                                    setCalidad(
+                                        Number(
+                                            e.target.value
+                                        )
+                                    )
+                                }
+                            />
+
+                            <div className="rango-labels">
+
+                                <span>
+                                    0
+                                </span>
+
+                                <span>
+                                    100
+                                </span>
+
+                            </div>
+
+                        </div>
 
 
-                {/* ==================================
-                    RESULTADO
-                ================================== */}
+                        {/* COSTOS */}
 
-                <div
-                    style={{
-                        marginTop: '30px',
-                        padding: '25px',
-                        backgroundColor:
-                            '#f8fafc',
-                        borderRadius: '12px',
-                        textAlign: 'center',
-                        border:
-                            '1px solid #e5e7eb'
-                    }}
-                >
+                        <div className="indicador-formulario">
 
-                    <span
-                        style={{
-                            display: 'block',
-                            fontSize: '13px',
-                            color: '#777',
-                            marginBottom: '8px'
-                        }}
-                    >
+                            <div className="indicador-formulario-header">
 
-                        CALIFICACIÓN ESTIMADA
+                                <label>
+                                    Costos
+                                </label>
 
-                    </span>
+                                <span
+                                    className={
+                                        `valor-indicador ${
+                                            obtenerClaseValor(
+                                                costos
+                                            )
+                                        }`
+                                    }
+                                >
+                                    {costos}
+                                </span>
+
+                            </div>
+
+                            <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={
+                                    costos
+                                }
+                                onChange={(e) =>
+                                    setCostos(
+                                        Number(
+                                            e.target.value
+                                        )
+                                    )
+                                }
+                            />
+
+                            <div className="rango-labels">
+
+                                <span>
+                                    0
+                                </span>
+
+                                <span>
+                                    100
+                                </span>
+
+                            </div>
+
+                        </div>
 
 
-                    <strong
-                        style={{
-                            display: 'block',
-                            fontSize: '42px'
-                        }}
-                    >
+                        {/* TIEMPO DE RESPUESTA */}
 
-                        {calificacionActual}
+                        <div className="indicador-formulario">
 
-                    </strong>
+                            <div className="indicador-formulario-header">
+
+                                <label>
+                                    Tiempo de respuesta
+                                </label>
+
+                                <span
+                                    className={
+                                        `valor-indicador ${
+                                            obtenerClaseValor(
+                                                tiempoRespuesta
+                                            )
+                                        }`
+                                    }
+                                >
+                                    {tiempoRespuesta}
+                                </span>
+
+                            </div>
+
+                            <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={
+                                    tiempoRespuesta
+                                }
+                                onChange={(e) =>
+                                    setTiempoRespuesta(
+                                        Number(
+                                            e.target.value
+                                        )
+                                    )
+                                }
+                            />
+
+                            <div className="rango-labels">
+
+                                <span>
+                                    0
+                                </span>
+
+                                <span>
+                                    100
+                                </span>
+
+                            </div>
+
+                        </div>
 
 
-                    <span
-                        style={{
-                            display:
-                                'inline-block',
+                        {/* INCIDENCIAS */}
 
-                            marginTop: '8px',
+                        <div className="indicador-formulario">
 
-                            backgroundColor:
-                                clasificacionActual ===
-                                'Excelente'
-                                    ? '#dcfce7'
-                                    : clasificacionActual ===
-                                      'Bueno'
-                                        ? '#dbeafe'
-                                        : clasificacionActual ===
-                                          'Regular'
-                                            ? '#fef3c7'
-                                            : '#fee2e2',
+                            <div className="indicador-formulario-header">
 
-                            color:
-                                clasificacionActual ===
-                                'Excelente'
-                                    ? '#166534'
-                                    : clasificacionActual ===
-                                      'Bueno'
-                                        ? '#1e40af'
-                                        : clasificacionActual ===
-                                          'Regular'
-                                            ? '#92400e'
-                                            : '#991b1b',
+                                <label>
+                                    Incidencias
+                                </label>
 
-                            padding:
-                                '7px 15px',
+                                <span
+                                    className={
+                                        `valor-indicador ${
+                                            obtenerClaseValor(
+                                                incidencias
+                                            )
+                                        }`
+                                    }
+                                >
+                                    {incidencias}
+                                </span>
 
-                            borderRadius:
-                                '20px',
+                            </div>
 
-                            fontWeight:
-                                'bold'
+                            <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={
+                                    incidencias
+                                }
+                                onChange={(e) =>
+                                    setIncidencias(
+                                        Number(
+                                            e.target.value
+                                        )
+                                    )
+                                }
+                            />
 
-                        }}
-                    >
+                            <div className="rango-labels">
 
-                        {clasificacionActual}
+                                <span>
+                                    0
+                                </span>
 
-                    </span>
+                                <span>
+                                    100
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
 
-                {/* ==================================
-                    BOTONES
-                ================================== */}
+                {/* =================================================
+                    RESULTADO
+                ================================================== */}
 
-                <div
-                    style={{
-                        display: 'flex',
-                        gap: '10px',
-                        marginTop: '25px'
-                    }}
-                >
+                <div className="resultado-evaluacion">
+
+                    <div className="resultado-calificacion">
+
+                        <span className="resultado-label">
+                            Calificación final
+                        </span>
+
+                        <strong>
+                            {calificacionFinal.toFixed(1)}
+                        </strong>
+
+                        <span>
+                            sobre 100
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        className={
+                            `resultado-clasificacion ${
+                                clasificacion
+                                    .toLowerCase()
+                                    .replace('í', 'i')
+                            }`
+                        }
+                    >
+
+                        <span className="resultado-label">
+                            Clasificación
+                        </span>
+
+                        <strong>
+                            {clasificacion}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                {/* =================================================
+                    RECOMENDACIÓN
+                ================================================== */}
+
+                <div className="recomendacion-preview">
+
+                    <div>
+
+                        <h3>
+                            Recomendación
+                        </h3>
+
+                        <p>
+                            {recomendacion ||
+                                obtenerRecomendacion(
+                                    clasificacion
+                                )}
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                {/* =================================================
+                    MENSAJES
+                ================================================== */}
+
+                {mensaje && (
+
+                    <div className="mensaje-exito">
+
+                        {mensaje}
+
+                    </div>
+
+                )}
+
+
+                {error && (
+
+                    <div className="mensaje-error">
+
+                        {error}
+
+                    </div>
+
+                )}
+
+
+                {/* =================================================
+                    BOTONES
+                ================================================== */}
+
+                <div className="acciones-formulario">
+
+                    <button
+                        type="button"
+                        className="btn-cancelar"
+                        onClick={onCancelar}
+                        disabled={guardando}
+                    >
+                        Cancelar
+                    </button>
 
 
                     <button
                         type="submit"
-                        style={{
-                            backgroundColor:
-                                '#2563eb',
-
-                            color: 'white',
-
-                            border: 'none',
-
-                            padding:
-                                '12px 20px',
-
-                            borderRadius:
-                                '8px',
-
-                            cursor:
-                                'pointer',
-
-                            fontWeight:
-                                'bold'
-                        }}
+                        className="btn-guardar"
+                        disabled={guardando}
                     >
 
-                        Guardar evaluación
+                        {guardando
+                            ? 'Guardando...'
+                            : 'Guardar evaluación'}
 
                     </button>
-
-
-                    <button
-                        type="button"
-                        onClick={() =>
-                            navigate(
-                                '/evaluaciones'
-                            )
-                        }
-                        style={{
-                            backgroundColor:
-                                '#e5e7eb',
-
-                            color: '#333',
-
-                            border: 'none',
-
-                            padding:
-                                '12px 20px',
-
-                            borderRadius:
-                                '8px',
-
-                            cursor:
-                                'pointer'
-                        }}
-                    >
-
-                        Cancelar
-
-                    </button>
-
 
                 </div>
 
-
             </form>
 
-        </div>
 
-    )
+            <style>{`
 
-}
+                /* =================================================
+                   VARIABLES
+                ================================================= */
 
+                .nueva-evaluacion-page {
 
-// ==========================================
-// COMPONENTE DE CADA INDICADOR
-// ==========================================
+                    --ne-bg: #ffffff;
+                    --ne-card: #ffffff;
+                    --ne-soft: #f8fafc;
+                    --ne-border: #e2e8f0;
 
-function CampoEvaluacion({
-    nombre,
-    valor,
-    cambiarValor,
-    peso
-}) {
+                    --ne-text: #1e293b;
+                    --ne-muted: #64748b;
 
-    return (
+                    --ne-primary: #2563eb;
+                    --ne-primary-hover: #1d4ed8;
 
-        <div
-            style={{
-                marginBottom: '22px'
-            }}
-        >
+                    --ne-shadow:
+                        rgba(15, 23, 42, 0.06);
 
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent:
-                        'space-between',
-                    alignItems:
-                        'center'
-                }}
-            >
+                    --ne-green: #10b981;
+                    --ne-blue: #3b82f6;
+                    --ne-yellow: #f59e0b;
+                    --ne-red: #ef4444;
 
-                <label>
+                    --ne-excelente-bg: #dcfce7;
+                    --ne-excelente-text: #166534;
 
-                    <strong>
-                        {nombre}
-                    </strong>
+                    --ne-bueno-bg: #dbeafe;
+                    --ne-bueno-text: #1d4ed8;
 
-                </label>
+                    --ne-regular-bg: #fef3c7;
+                    --ne-regular-text: #92400e;
 
+                    --ne-riesgo-bg: #fee2e2;
+                    --ne-riesgo-text: #b91c1c;
 
-                <span
-                    style={{
-                        fontSize: '13px',
-                        color: '#777'
-                    }}
-                >
+                    background:
+                        var(--ne-bg);
 
-                    Peso: {peso}
+                    color:
+                        var(--ne-text);
 
-                </span>
+                    padding:
+                        25px;
 
-            </div>
+                    box-sizing:
+                        border-box;
+
+                }
 
 
-            <div
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '15px',
-                    marginTop: '8px'
-                }}
-            >
+                /* =================================================
+                   MODO OSCURO
+                ================================================= */
 
-                <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={valor}
-                    onChange={(e) =>
-                        cambiarValor(
-                            e.target.value
-                        )
+                body.dark .nueva-evaluacion-page,
+                body.dark-mode .nueva-evaluacion-page,
+                body[data-theme="dark"] .nueva-evaluacion-page {
+
+                    --ne-bg: #1e293b;
+                    --ne-card: #1e293b;
+                    --ne-soft: #162033;
+                    --ne-border: #334155;
+
+                    --ne-text: #f1f5f9;
+                    --ne-muted: #94a3b8;
+
+                    --ne-primary: #60a5fa;
+                    --ne-primary-hover: #93c5fd;
+
+                    --ne-shadow:
+                        rgba(0, 0, 0, 0.25);
+
+                    --ne-excelente-bg: #14532d;
+                    --ne-excelente-text: #bbf7d0;
+
+                    --ne-bueno-bg: #1e3a8a;
+                    --ne-bueno-text: #bfdbfe;
+
+                    --ne-regular-bg: #78350f;
+                    --ne-regular-text: #fde68a;
+
+                    --ne-riesgo-bg: #7f1d1d;
+                    --ne-riesgo-text: #fecaca;
+
+                }
+
+
+                /* =================================================
+                   ENCABEZADO
+                ================================================= */
+
+                .nueva-evaluacion-header {
+
+                    padding-right:
+                        35px;
+
+                    margin-bottom:
+                        20px;
+
+                }
+
+                .nueva-evaluacion-header h1 {
+
+                    margin:
+                        0 0 5px;
+
+                    font-size:
+                        22px;
+
+                    color:
+                        var(--ne-text);
+
+                }
+
+                .nueva-evaluacion-header p {
+
+                    margin:
+                        0;
+
+                    font-size:
+                        11px;
+
+                    color:
+                        var(--ne-muted);
+
+                    line-height:
+                        1.5;
+
+                }
+
+
+                /* =================================================
+                   FORMULARIO
+                ================================================= */
+
+                .formulario-evaluacion {
+
+                    display:
+                        flex;
+
+                    flex-direction:
+                        column;
+
+                    gap:
+                        14px;
+
+                }
+
+                .seccion-formulario {
+
+                    padding:
+                        14px;
+
+                    border:
+                        1px solid
+                        var(--ne-border);
+
+                    border-radius:
+                        9px;
+
+                    background:
+                        var(--ne-card);
+
+                }
+
+                .seccion-titulo {
+
+                    margin-bottom:
+                        12px;
+
+                }
+
+                .seccion-titulo h2 {
+
+                    margin:
+                        0 0 3px;
+
+                    font-size:
+                        14px;
+
+                    color:
+                        var(--ne-text);
+
+                }
+
+                .seccion-titulo p {
+
+                    margin:
+                        0;
+
+                    font-size:
+                        10px;
+
+                    color:
+                        var(--ne-muted);
+
+                }
+
+
+                /* =================================================
+                   CAMPOS
+                ================================================= */
+
+                .campo {
+
+                    position:
+                        relative;
+
+                }
+
+                .campo label {
+
+                    display:
+                        block;
+
+                    margin-bottom:
+                        5px;
+
+                    font-size:
+                        10px;
+
+                    font-weight:
+                        600;
+
+                    color:
+                        var(--ne-text);
+
+                }
+
+                .buscador-proveedor {
+
+                    position:
+                        relative;
+
+                }
+
+                .campo input[type="text"] {
+
+                    width:
+                        100%;
+
+                    padding:
+                        9px 36px 9px 10px;
+
+                    border:
+                        1px solid
+                        var(--ne-border);
+
+                    border-radius:
+                        6px;
+
+                    background:
+                        var(--ne-soft);
+
+                    color:
+                        var(--ne-text);
+
+                    font-size:
+                        11px;
+
+                    outline:
+                        none;
+
+                    box-sizing:
+                        border-box;
+
+                }
+
+                .campo input[type="text"]:focus {
+
+                    border-color:
+                        var(--ne-primary);
+
+                }
+
+                .campo input::placeholder {
+
+                    color:
+                        var(--ne-muted);
+
+                }
+
+                .btn-limpiar-proveedor {
+
+                    position:
+                        absolute;
+
+                    right:
+                        8px;
+
+                    top:
+                        50%;
+
+                    transform:
+                        translateY(-50%);
+
+                    width:
+                        22px;
+
+                    height:
+                        22px;
+
+                    display:
+                        flex;
+
+                    align-items:
+                        center;
+
+                    justify-content:
+                        center;
+
+                    border:
+                        none;
+
+                    border-radius:
+                        5px;
+
+                    background:
+                        transparent;
+
+                    color:
+                        var(--ne-muted);
+
+                    font-size:
+                        18px;
+
+                    line-height:
+                        1;
+
+                    cursor:
+                        pointer;
+
+                }
+
+                .btn-limpiar-proveedor:hover {
+
+                    background:
+                        var(--ne-border);
+
+                    color:
+                        var(--ne-text);
+
+                }
+
+
+                /* =================================================
+                   RESULTADOS
+                ================================================= */
+
+                .resultados-proveedores {
+
+                    position:
+                        absolute;
+
+                    top:
+                        100%;
+
+                    left:
+                        0;
+
+                    right:
+                        0;
+
+                    z-index:
+                        100;
+
+                    margin-top:
+                        4px;
+
+                    max-height:
+                        240px;
+
+                    overflow-y:
+                        auto;
+
+                    background:
+                        var(--ne-card);
+
+                    border:
+                        1px solid
+                        var(--ne-border);
+
+                    border-radius:
+                        7px;
+
+                    box-shadow:
+                        0 10px 25px
+                        var(--ne-shadow);
+
+                    overflow-x:
+                        hidden;
+
+                }
+
+                .resultados-titulo {
+
+                    padding:
+                        8px 11px;
+
+                    font-size:
+                        9px;
+
+                    font-weight:
+                        700;
+
+                    color:
+                        var(--ne-muted);
+
+                    background:
+                        var(--ne-soft);
+
+                    border-bottom:
+                        1px solid
+                        var(--ne-border);
+
+                    text-transform:
+                        uppercase;
+
+                    letter-spacing:
+                        0.3px;
+
+                }
+
+                .resultado-proveedor {
+
+                    display:
+                        flex;
+
+                    justify-content:
+                        space-between;
+
+                    align-items:
+                        center;
+
+                    width:
+                        100%;
+
+                    padding:
+                        9px 11px;
+
+                    border:
+                        none;
+
+                    border-bottom:
+                        1px solid
+                        var(--ne-border);
+
+                    background:
+                        transparent;
+
+                    color:
+                        var(--ne-text);
+
+                    text-align:
+                        left;
+
+                    cursor:
+                        pointer;
+
+                }
+
+                .resultado-proveedor:last-child {
+
+                    border-bottom:
+                        none;
+
+                }
+
+                .resultado-proveedor:hover {
+
+                    background:
+                        var(--ne-soft);
+
+                }
+
+                .resultado-nombre {
+
+                    font-size:
+                        11px;
+
+                    font-weight:
+                        600;
+
+                }
+
+                .resultado-id {
+
+                    font-size:
+                        9px;
+
+                    color:
+                        var(--ne-muted);
+
+                }
+
+                .sin-resultados {
+
+                    position:
+                        absolute;
+
+                    top:
+                        100%;
+
+                    left:
+                        0;
+
+                    right:
+                        0;
+
+                    z-index:
+                        100;
+
+                    margin-top:
+                        4px;
+
+                    padding:
+                        11px;
+
+                    background:
+                        var(--ne-card);
+
+                    border:
+                        1px solid
+                        var(--ne-border);
+
+                    border-radius:
+                        7px;
+
+                    color:
+                        var(--ne-muted);
+
+                    font-size:
+                        10px;
+
+                    box-shadow:
+                        0 8px 20px
+                        var(--ne-shadow);
+
+                }
+
+                .proveedor-seleccionado {
+
+                    display:
+                        flex;
+
+                    align-items:
+                        center;
+
+                    gap:
+                        5px;
+
+                    margin-top:
+                        7px;
+
+                    padding:
+                        7px 9px;
+
+                    border-radius:
+                        6px;
+
+                    background:
+                        var(--ne-soft);
+
+                    color:
+                        var(--ne-muted);
+
+                    font-size:
+                        9px;
+
+                }
+
+                .proveedor-seleccionado strong {
+
+                    color:
+                        var(--ne-text);
+
+                    font-size:
+                        10px;
+
+                }
+
+
+                /* =================================================
+                   INDICADORES
+                ================================================= */
+
+                .indicadores-formulario {
+
+                    display:
+                        grid;
+
+                    grid-template-columns:
+                        repeat(
+                            2,
+                            minmax(0, 1fr)
+                        );
+
+                    gap:
+                        10px;
+
+                }
+
+                .indicador-formulario {
+
+                    padding:
+                        10px;
+
+                    border:
+                        1px solid
+                        var(--ne-border);
+
+                    border-radius:
+                        8px;
+
+                    background:
+                        var(--ne-soft);
+
+                }
+
+                .indicador-formulario-header {
+
+                    display:
+                        flex;
+
+                    justify-content:
+                        space-between;
+
+                    align-items:
+                        center;
+
+                    gap:
+                        10px;
+
+                    margin-bottom:
+                        8px;
+
+                }
+
+                .indicador-formulario-header label {
+
+                    font-size:
+                        10px;
+
+                    font-weight:
+                        600;
+
+                    color:
+                        var(--ne-text);
+
+                }
+
+                .valor-indicador {
+
+                    min-width:
+                        28px;
+
+                    text-align:
+                        center;
+
+                    font-size:
+                        11px;
+
+                    font-weight:
+                        700;
+
+                }
+
+                .valor-excelente {
+
+                    color:
+                        var(--ne-green);
+
+                }
+
+                .valor-bueno {
+
+                    color:
+                        var(--ne-blue);
+
+                }
+
+                .valor-regular {
+
+                    color:
+                        var(--ne-yellow);
+
+                }
+
+                .valor-riesgo {
+
+                    color:
+                        var(--ne-red);
+
+                }
+
+                .indicador-formulario input[type="range"] {
+
+                    width:
+                        100%;
+
+                    height:
+                        4px;
+
+                    accent-color:
+                        var(--ne-primary);
+
+                    cursor:
+                        pointer;
+
+                }
+
+                .rango-labels {
+
+                    display:
+                        flex;
+
+                    justify-content:
+                        space-between;
+
+                    margin-top:
+                        4px;
+
+                    font-size:
+                        8px;
+
+                    color:
+                        var(--ne-muted);
+
+                }
+
+
+                /* =================================================
+                   RESULTADO
+                ================================================= */
+
+                .resultado-evaluacion {
+
+                    display:
+                        grid;
+
+                    grid-template-columns:
+                        1fr 1fr;
+
+                    gap:
+                        10px;
+
+                }
+
+                .resultado-calificacion,
+                .resultado-clasificacion {
+
+                    display:
+                        flex;
+
+                    flex-direction:
+                        column;
+
+                    align-items:
+                        center;
+
+                    justify-content:
+                        center;
+
+                    min-height:
+                        85px;
+
+                    padding:
+                        12px;
+
+                    border:
+                        1px solid
+                        var(--ne-border);
+
+                    border-radius:
+                        9px;
+
+                    background:
+                        var(--ne-soft);
+
+                    text-align:
+                        center;
+
+                }
+
+                .resultado-label {
+
+                    margin-bottom:
+                        5px;
+
+                    font-size:
+                        9px;
+
+                    color:
+                        var(--ne-muted);
+
+                }
+
+                .resultado-calificacion strong {
+
+                    font-size:
+                        27px;
+
+                    line-height:
+                        1;
+
+                    color:
+                        var(--ne-primary);
+
+                }
+
+                .resultado-calificacion > span:last-child {
+
+                    margin-top:
+                        4px;
+
+                    font-size:
+                        8px;
+
+                    color:
+                        var(--ne-muted);
+
+                }
+
+                .resultado-clasificacion strong {
+
+                    font-size:
+                        18px;
+
+                }
+
+                .resultado-clasificacion.excelente strong {
+
+                    color:
+                        var(--ne-green);
+
+                }
+
+                .resultado-clasificacion.bueno strong {
+
+                    color:
+                        var(--ne-blue);
+
+                }
+
+                .resultado-clasificacion.regular strong {
+
+                    color:
+                        var(--ne-yellow);
+
+                }
+
+                .resultado-clasificacion.riesgo strong {
+
+                    color:
+                        var(--ne-red);
+
+                }
+
+
+                /* =================================================
+                   RECOMENDACIÓN
+                ================================================= */
+
+                .recomendacion-preview {
+
+                    padding:
+                        10px 12px;
+
+                    border:
+                        1px solid
+                        var(--ne-border);
+
+                    border-radius:
+                        8px;
+
+                    background:
+                        var(--ne-soft);
+
+                }
+
+                .recomendacion-preview h3 {
+
+                    margin:
+                        0 0 4px;
+
+                    font-size:
+                        10px;
+
+                    color:
+                        var(--ne-primary);
+
+                }
+
+                .recomendacion-preview p {
+
+                    margin:
+                        0;
+
+                    font-size:
+                        10px;
+
+                    line-height:
+                        1.45;
+
+                    color:
+                        var(--ne-text);
+
+                }
+
+
+                /* =================================================
+                   MENSAJES
+                ================================================= */
+
+                .mensaje-exito {
+
+                    padding:
+                        9px 11px;
+
+                    border-radius:
+                        7px;
+
+                    background:
+                        var(--ne-excelente-bg);
+
+                    color:
+                        var(--ne-excelente-text);
+
+                    border:
+                        1px solid
+                        var(--ne-excelente-text);
+
+                    font-size:
+                        10px;
+
+                }
+
+                .mensaje-error {
+
+                    padding:
+                        9px 11px;
+
+                    border-radius:
+                        7px;
+
+                    background:
+                        var(--ne-riesgo-bg);
+
+                    color:
+                        var(--ne-riesgo-text);
+
+                    border:
+                        1px solid
+                        var(--ne-riesgo-text);
+
+                    font-size:
+                        10px;
+
+                }
+
+
+                /* =================================================
+                   BOTONES
+                ================================================= */
+
+                .acciones-formulario {
+
+                    display:
+                        flex;
+
+                    justify-content:
+                        flex-end;
+
+                    gap:
+                        8px;
+
+                    padding-top:
+                        2px;
+
+                }
+
+                .btn-cancelar,
+                .btn-guardar {
+
+                    padding:
+                        8px 13px;
+
+                    border-radius:
+                        6px;
+
+                    font-size:
+                        10px;
+
+                    font-weight:
+                        600;
+
+                    cursor:
+                        pointer;
+
+                }
+
+                .btn-cancelar {
+
+                    border:
+                        1px solid
+                        var(--ne-border);
+
+                    background:
+                        var(--ne-soft);
+
+                    color:
+                        var(--ne-text);
+
+                }
+
+                .btn-cancelar:hover {
+
+                    border-color:
+                        var(--ne-primary);
+
+                    color:
+                        var(--ne-primary);
+
+                }
+
+                .btn-guardar {
+
+                    border:
+                        none;
+
+                    background:
+                        var(--ne-primary);
+
+                    color:
+                        white;
+
+                }
+
+                .btn-guardar:hover {
+
+                    background:
+                        var(--ne-primary-hover);
+
+                }
+
+                .btn-cancelar:disabled,
+                .btn-guardar:disabled {
+
+                    opacity:
+                        0.6;
+
+                    cursor:
+                        not-allowed;
+
+                }
+
+
+                /* =================================================
+                   RESPONSIVE
+                ================================================= */
+
+                @media (max-width: 700px) {
+
+                    .nueva-evaluacion-page {
+
+                        padding:
+                            18px;
+
                     }
-                    style={{
-                        flex: 1
-                    }}
-                    required
-                />
 
+                    .indicadores-formulario {
 
-                <strong
-                    style={{
-                        minWidth: '45px',
-                        textAlign: 'right'
-                    }}
-                >
+                        grid-template-columns:
+                            1fr;
 
-                    {valor || 0}%
+                    }
 
-                </strong>
+                    .resultado-evaluacion {
 
-            </div>
+                        grid-template-columns:
+                            1fr;
+
+                    }
+
+                }
+
+            `}</style>
 
         </div>
 
     )
-
 }
-
 
 export default NuevaEvaluacion

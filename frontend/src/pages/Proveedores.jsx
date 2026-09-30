@@ -84,13 +84,23 @@ function Proveedores() {
   return (
     <div className="proveedores-page">
 
-      {/* ENCABEZADO */}
+ 
+ 
+{/* ENCABEZADO */}
 
 <div className="proveedores-header">
 
   <div className="proveedores-header-content">
 
-    <h1>Proveedores</h1>
+    <span className="proveedores-subtitulo">
+      ADMINISTRACIÓN DE PROVEEDORES
+    </span>
+
+    <h1>
+      Proveedores
+    </h1>
+
+    <div className="proveedores-titulo-linea"></div>
 
     <p>
       Administra y consulta la información de los proveedores registrados.
@@ -116,6 +126,8 @@ function Proveedores() {
   </Link>
 
 </div>
+
+
 
 
 

@@ -1,9 +1,12 @@
+
 import { useEffect, useState } from 'react'
+import './Alertas.css'
 
 function Alertas() {
 
     const [evaluaciones, setEvaluaciones] = useState([])
     const [proveedores, setProveedores] = useState([])
+    const [busqueda, setBusqueda] = useState('')
 
     useEffect(() => {
         obtenerDatos()
@@ -39,13 +42,13 @@ function Alertas() {
 
         } catch (error) {
 
-            console.error('Error:', error)
+            console.error('Error al obtener los datos:', error)
 
         }
-
     }
 
 
+    // Obtener el nombre del proveedor
     const obtenerNombreProveedor = (idProveedor) => {
 
         const proveedor = proveedores.find(
@@ -55,10 +58,38 @@ function Alertas() {
         return proveedor
             ? proveedor.nombre
             : 'Proveedor no encontrado'
-
     }
 
 
+    // Formatear fecha y hora
+    const formatearFecha = (fecha) => {
+
+        if (!fecha) {
+            return 'Fecha no disponible'
+        }
+
+        const fechaFormateada = new Date(fecha)
+
+        if (isNaN(fechaFormateada.getTime())) {
+            return 'Fecha no disponible'
+        }
+
+        return fechaFormateada.toLocaleString(
+            'es-MX',
+            {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            }
+        )
+    }
+
+
+    // Obtener solamente las evaluaciones
+    // clasificadas como Riesgo o Regular
     const alertas = evaluaciones.filter(
         (evaluacion) =>
             evaluacion.clasificacion === 'Riesgo' ||
@@ -66,181 +97,265 @@ function Alertas() {
     )
 
 
+    // Filtrar por nombre del proveedor
+    const alertasFiltradas = alertas.filter(
+        (evaluacion) => {
+
+            const nombreProveedor =
+                obtenerNombreProveedor(
+                    evaluacion.idProveedor
+                ).toLowerCase()
+
+            return nombreProveedor.includes(
+                busqueda.toLowerCase()
+            )
+        }
+    )
+
+
     return (
 
-        <div style={{ padding: '30px' }}>
+        <div className="alertas-container">
 
-            <h1>
-                Alertas
-            </h1>
+            {/* ENCABEZADO */}
 
-            <p style={{
-                color: '#777',
-                marginBottom: '30px'
-            }}>
-                Proveedores que requieren atención según su evaluación.
-            </p>
+            <header className="alertas-header">
+
+                <span className="alertas-subtitulo">
+                    MONITOREO DE PROVEEDORES
+                </span>
+
+                <h1>
+                    Alertas
+                </h1>
+
+                <div className="titulo-linea"></div>
+
+                <p>
+                    Proveedores que requieren atención según los resultados
+                    de sus evaluaciones.
+                </p>
+
+            </header>
 
 
-            {alertas.length === 0 ? (
+            {/* BUSCADOR */}
 
-                <div style={{
-                    backgroundColor: '#f0fdf4',
-                    border: '1px solid #bbf7d0',
-                    padding: '25px',
-                    borderRadius: '12px'
-                }}>
+            <div className="alertas-herramientas">
 
-                    <h2 style={{
-                        marginTop: 0,
-                        color: '#166534'
-                    }}>
-                        ✓ Todo está en orden
+                <div className="buscador">
+
+                    <span className="buscador-icono">
+                        Buscar
+                    </span>
+
+                    <input
+                        type="text"
+                        placeholder="Buscar proveedor..."
+                        value={busqueda}
+                        onChange={(e) =>
+                            setBusqueda(e.target.value)
+                        }
+                    />
+
+                </div>
+
+                <span className="resultado-texto">
+
+                    {alertasFiltradas.length}
+
+                    {' '}
+
+                    proveedor
+                    {alertasFiltradas.length !== 1
+                        ? 'es'
+                        : ''
+                    }
+
+                </span>
+
+            </div>
+
+
+            {/* SIN RESULTADOS */}
+
+            {alertasFiltradas.length === 0 ? (
+
+                <div className="sin-alertas">
+
+                    <div className="estado-linea"></div>
+
+                    <h2>
+
+                        {busqueda
+                            ? 'No se encontraron resultados'
+                            : 'Todo está en orden'
+                        }
+
                     </h2>
 
                     <p>
-                        No existen proveedores con evaluaciones
-                        clasificadas como Riesgo o Regular.
+
+                        {busqueda
+                            ? 'No existe una alerta para el proveedor que estás buscando.'
+                            : 'Actualmente no existen proveedores con evaluaciones clasificadas como Riesgo o Regular.'
+                        }
+
                     </p>
 
                 </div>
 
             ) : (
 
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns:
-                        'repeat(auto-fit, minmax(300px, 1fr))',
-                    gap: '20px'
-                }}>
+                /* TARJETAS */
 
-                    {alertas.map((evaluacion) => (
+                <div className="alertas-grid">
 
-                        <div
-                            key={evaluacion.idEvaluacion}
-                            style={{
-                                backgroundColor: 'white',
-                                border: '1px solid #e5e7eb',
-                                borderRadius: '16px',
-                                padding: '24px',
-                                boxShadow:
-                                    '0 4px 12px rgba(0,0,0,0.08)'
-                            }}
-                        >
+                    {alertasFiltradas.map((evaluacion) => {
 
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                marginBottom: '20px'
-                            }}>
+                        const esRiesgo =
+                            evaluacion.clasificacion === 'Riesgo'
 
-                                <span style={{
-                                    fontSize: '13px',
-                                    color: '#777'
-                                }}>
-                                    Evaluación #{evaluacion.idEvaluacion}
-                                </span>
+                        return (
 
-                                <span style={{
-                                    backgroundColor:
-                                        evaluacion.clasificacion === 'Riesgo'
-                                            ? '#fee2e2'
-                                            : '#fef3c7',
+                            <div
+                                className={`alerta-card ${
+                                    esRiesgo
+                                        ? 'card-riesgo'
+                                        : 'card-regular'
+                                }`}
+                                key={evaluacion.idEvaluacion}
+                            >
 
-                                    color:
-                                        evaluacion.clasificacion === 'Riesgo'
-                                            ? '#991b1b'
-                                            : '#92400e',
+                                {/* PARTE SUPERIOR */}
 
-                                    padding: '6px 12px',
-                                    borderRadius: '20px',
-                                    fontWeight: 'bold',
-                                    fontSize: '13px'
-                                }}>
-                                    {evaluacion.clasificacion}
-                                </span>
+                                <div className="alerta-top">
+
+                                    <span className="evaluacion-id">
+
+                                        Evaluación #
+                                        {evaluacion.idEvaluacion}
+
+                                    </span>
+
+                                    <span
+                                        className={`estado-badge ${
+                                            esRiesgo
+                                                ? 'badge-riesgo'
+                                                : 'badge-regular'
+                                        }`}
+                                    >
+
+                                        {evaluacion.clasificacion}
+
+                                    </span>
+
+                                </div>
+
+
+                                {/* PROVEEDOR */}
+
+                                <div className="proveedor-info">
+
+                                    <span>
+                                        PROVEEDOR
+                                    </span>
+
+                                    <h2>
+
+                                        {obtenerNombreProveedor(
+                                            evaluacion.idProveedor
+                                        )}
+
+                                    </h2>
+
+                                </div>
+
+
+                                {/* INFORMACIÓN */}
+
+                                <div className="datos-alerta">
+
+                                    <div>
+
+                                        <span>
+                                            CALIFICACIÓN
+                                        </span>
+
+                                        <strong>
+
+                                            {evaluacion.calificacionFinal}
+
+                                            <small>
+                                                /100
+                                            </small>
+
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <span>
+                                            FECHA DE EVALUACIÓN
+                                        </span>
+
+                                        <p>
+                                            {formatearFecha(
+                                                evaluacion.fechaEvaluacion
+                                            )}
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+
+                                {/* BARRA DE CALIFICACIÓN */}
+
+                                <div className="barra-calificacion">
+
+                                    <div
+                                        className={
+                                            esRiesgo
+                                                ? 'barra-riesgo'
+                                                : 'barra-regular'
+                                        }
+
+                                        style={{
+                                            width: `${Math.min(
+                                                Number(
+                                                    evaluacion.calificacionFinal
+                                                ) || 0,
+                                                100
+                                            )}%`
+                                        }}
+                                    ></div>
+
+                                </div>
+
+
+                                {/* MENSAJE */}
+
+                                <div className="alerta-mensaje">
+
+                                    <strong>
+                                        Requiere seguimiento
+                                    </strong>
+
+                                    <p>
+                                        Se recomienda revisar el desempeño
+                                        de este proveedor.
+                                    </p>
+
+                                </div>
 
                             </div>
 
+                        )
 
-                            <div style={{
-                                backgroundColor: '#f8fafc',
-                                padding: '15px',
-                                borderRadius: '10px',
-                                marginBottom: '20px'
-                            }}>
-
-                                <span style={{
-                                    display: 'block',
-                                    fontSize: '12px',
-                                    color: '#777',
-                                    marginBottom: '5px'
-                                }}>
-                                    PROVEEDOR
-                                </span>
-
-                                <strong style={{
-                                    fontSize: '18px'
-                                }}>
-                                    {obtenerNombreProveedor(
-                                        evaluacion.idProveedor
-                                    )}
-                                </strong>
-
-                            </div>
-
-
-                            <div style={{
-                                textAlign: 'center',
-                                marginBottom: '20px'
-                            }}>
-
-                                <span style={{
-                                    display: 'block',
-                                    color: '#777',
-                                    fontSize: '13px'
-                                }}>
-                                    CALIFICACIÓN
-                                </span>
-
-                                <strong style={{
-                                    fontSize: '38px'
-                                }}>
-                                    {evaluacion.calificacionFinal}
-                                </strong>
-
-                                <span style={{
-                                    color: '#777'
-                                }}>
-                                    /100
-                                </span>
-
-                            </div>
-
-
-                            <div style={{
-                                borderTop: '1px solid #e5e7eb',
-                                paddingTop: '15px'
-                            }}>
-
-                                <strong>
-                                    ⚠️ Atención requerida
-                                </strong>
-
-                                <p style={{
-                                    color: '#666',
-                                    fontSize: '14px'
-                                }}>
-                                    Se recomienda revisar el desempeño
-                                    de este proveedor.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                    ))}
+                    })}
 
                 </div>
 

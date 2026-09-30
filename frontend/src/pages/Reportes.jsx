@@ -1,22 +1,18 @@
+
 import { useEffect, useState } from 'react'
 import jsPDF from 'jspdf'
-import { autoTable } from 'jspdf-autotable'
-
+import autoTable from 'jspdf-autotable'
+import './Reportes.css'
 
 function Reportes() {
 
     const [proveedores, setProveedores] = useState([])
     const [evaluaciones, setEvaluaciones] = useState([])
-
-
-    // =========================================
-    // OBTENER DATOS
-    // =========================================
+    const [cargando, setCargando] = useState(true)
 
     useEffect(() => {
         obtenerDatos()
     }, [])
-
 
     const obtenerDatos = async () => {
 
@@ -30,14 +26,12 @@ function Reportes() {
                 'http://localhost:8080/api/evaluaciones'
             )
 
-
             if (
                 !respuestaProveedores.ok ||
                 !respuestaEvaluaciones.ok
             ) {
-                throw new Error('Error al obtener los datos')
+                throw new Error('No se pudieron obtener los datos')
             }
-
 
             const datosProveedores =
                 await respuestaProveedores.json()
@@ -45,64 +39,51 @@ function Reportes() {
             const datosEvaluaciones =
                 await respuestaEvaluaciones.json()
 
-
             setProveedores(datosProveedores)
             setEvaluaciones(datosEvaluaciones)
 
         } catch (error) {
 
-            console.error('Error:', error)
+            console.error('Error al obtener los datos:', error)
+
+        } finally {
+
+            setCargando(false)
 
         }
-
     }
 
-
-    // =========================================
-    // OBTENER NOMBRE DEL PROVEEDOR
-    // =========================================
-
-    const obtenerNombreProveedor = (idProveedor) => {
-
-        const proveedor = proveedores.find(
-            (p) => p.idProveedor === idProveedor
-        )
-
-
-        return proveedor
-            ? proveedor.nombre
-            : 'Proveedor no encontrado'
-
-    }
-
-
-    // =========================================
-    // OBTENER ÚLTIMA EVALUACIÓN
-    // =========================================
 
     const obtenerUltimaEvaluacion = (idProveedor) => {
 
-        const evaluacionesProveedor = evaluaciones.filter(
-            (evaluacion) =>
-                evaluacion.idProveedor === idProveedor
-        )
-
+        const evaluacionesProveedor =
+            evaluaciones.filter(
+                (e) => e.idProveedor === idProveedor
+            )
 
         if (evaluacionesProveedor.length === 0) {
             return null
         }
 
-
-        return evaluacionesProveedor[
-            evaluacionesProveedor.length - 1
-        ]
-
+        return [...evaluacionesProveedor].sort(
+            (a, b) =>
+                new Date(b.fechaEvaluacion) -
+                new Date(a.fechaEvaluacion)
+        )[0]
     }
 
 
-    // =========================================
-    // PROMEDIO GENERAL
-    // =========================================
+    const ultimasEvaluaciones = proveedores
+        .map((proveedor) => ({
+            proveedor,
+            evaluacion: obtenerUltimaEvaluacion(
+                proveedor.idProveedor
+            )
+        }))
+        .filter(
+            (item) => item.evaluacion !== null
+        )
+
 
     const promedioGeneral =
         evaluaciones.length > 0
@@ -110,755 +91,708 @@ function Reportes() {
                 evaluaciones.reduce(
                     (total, evaluacion) =>
                         total +
-                        (Number(evaluacion.calificacionFinal) || 0),
+                        Number(
+                            evaluacion.calificacionFinal || 0
+                        ),
                     0
                 ) / evaluaciones.length
-            ).toFixed(2)
-            : '0.00'
+            ).toFixed(1)
+            : '0.0'
 
 
-    // =========================================
-    // PROVEEDORES ACTIVOS
-    // =========================================
-
-    const proveedoresActivos = proveedores.filter(
-        (proveedor) =>
-            proveedor.estado?.toLowerCase() === 'activo'
-    ).length
-
-
-    // =========================================
-    // PROVEEDORES EN RIESGO
-    // =========================================
-
-    const proveedoresRiesgo = evaluaciones.filter(
-        (evaluacion) =>
-            evaluacion.clasificacion?.toLowerCase() === 'riesgo'
-    )
+    const promedioPorProveedor =
+        ultimasEvaluaciones
+            .map((item) => ({
+                nombre: item.proveedor.nombre,
+                promedio: Number(
+                    item.evaluacion.calificacionFinal || 0
+                )
+            }))
+            .sort(
+                (a, b) =>
+                    b.promedio - a.promedio
+            )
 
 
-    // =========================================
-    // GENERAR PDF
-    // =========================================
+    const clasificaciones = {
+        Excelente: 0,
+        Bueno: 0,
+        Regular: 0,
+        Riesgo: 0
+    }
+
+
+    evaluaciones.forEach((evaluacion) => {
+
+        if (
+            clasificaciones[
+                evaluacion.clasificacion
+            ] !== undefined
+        ) {
+
+            clasificaciones[
+                evaluacion.clasificacion
+            ]++
+
+        }
+
+    })
+
+
+    const totalClasificaciones =
+        Object.values(clasificaciones).reduce(
+            (total, cantidad) =>
+                total + cantidad,
+            0
+        )
+
+
+    const obtenerPorcentaje = (cantidad) => {
+
+        if (totalClasificaciones === 0) {
+            return 0
+        }
+
+        return (
+            cantidad /
+            totalClasificaciones
+        ) * 100
+
+    }
+
+
+    const porcentajeExcelente =
+        obtenerPorcentaje(
+            clasificaciones.Excelente
+        )
+
+    const porcentajeBueno =
+        obtenerPorcentaje(
+            clasificaciones.Bueno
+        )
+
+    const porcentajeRegular =
+        obtenerPorcentaje(
+            clasificaciones.Regular
+        )
+
+
+    const proveedoresRiesgo =
+        ultimasEvaluaciones.filter(
+            (item) =>
+                item.evaluacion.clasificacion ===
+                'Riesgo'
+        )
+
+
+    const formatearFecha = (fecha) => {
+
+        if (!fecha) {
+            return 'Sin fecha'
+        }
+
+        return new Date(fecha).toLocaleDateString(
+            'es-MX',
+            {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            }
+        )
+    }
+
+
+    const obtenerClaseCalificacion = (
+        calificacion
+    ) => {
+
+        if (calificacion >= 90) {
+            return 'calificacion-alta'
+        }
+
+        if (calificacion >= 75) {
+            return 'calificacion-media'
+        }
+
+        return 'calificacion-baja'
+    }
+
 
     const generarPDF = () => {
 
-        const doc = new jsPDF()
+        const documento = new jsPDF()
 
+        documento.setFontSize(20)
 
-        // -----------------------------------------
-        // TÍTULO
-        // -----------------------------------------
-
-        doc.setFontSize(20)
-
-        doc.text(
-            'Reporte de Evaluacion de Proveedores',
-            20,
+        documento.text(
+            'Reporte de Evaluación de Proveedores',
+            14,
             20
         )
 
+        documento.setFontSize(10)
 
-        // -----------------------------------------
-        // FECHA
-        // -----------------------------------------
-
-        const fecha = new Date()
-
-        const fechaTexto =
-            fecha.toLocaleDateString('es-MX')
-
-
-        doc.setFontSize(10)
-
-        doc.text(
-            `Fecha del reporte: ${fechaTexto}`,
-            20,
+        documento.text(
+            `Fecha del reporte: ${new Date().toLocaleDateString('es-MX')}`,
+            14,
             28
         )
 
+        documento.text(
+            `Proveedores evaluados: ${ultimasEvaluaciones.length}`,
+            14,
+            36
+        )
 
-        // -----------------------------------------
-        // RESUMEN
-        // -----------------------------------------
-
-        doc.setFontSize(14)
-
-        doc.text(
-            'Resumen general',
-            20,
+        documento.text(
+            `Evaluaciones realizadas: ${evaluaciones.length}`,
+            14,
             42
         )
 
-
-        doc.setFontSize(11)
-
-
-        doc.text(
-            `Total de proveedores: ${proveedores.length}`,
-            20,
-            52
+        documento.text(
+            `Promedio general: ${promedioGeneral}`,
+            14,
+            48
         )
 
 
-        doc.text(
-            `Proveedores activos: ${proveedoresActivos}`,
-            20,
-            60
-        )
+        const filas =
+            promedioPorProveedor.map(
+                (item) => {
+
+                    const evaluacion =
+                        ultimasEvaluaciones.find(
+                            (e) =>
+                                e.proveedor.nombre ===
+                                item.nombre
+                        )?.evaluacion
+
+                    return [
+                        item.nombre,
+                        item.promedio,
+                        evaluacion?.clasificacion ||
+                        'Sin clasificación',
+                        formatearFecha(
+                            evaluacion?.fechaEvaluacion
+                        )
+                    ]
+
+                }
+            )
 
 
-        doc.text(
-            `Evaluaciones realizadas: ${evaluaciones.length}`,
-            20,
-            68
-        )
+        autoTable(documento, {
 
-
-        doc.text(
-            `Promedio general: ${promedioGeneral} / 100`,
-            20,
-            76
-        )
-
-
-        // -----------------------------------------
-        // TABLA DE PROVEEDORES
-        // -----------------------------------------
-
-        const filas = proveedores.map((proveedor) => {
-
-            const evaluacion =
-                obtenerUltimaEvaluacion(
-                    proveedor.idProveedor
-                )
-
-
-            return [
-
-                proveedor.nombre,
-
-                proveedor.estado || 'Sin estado',
-
-                evaluacion
-                    ? `${evaluacion.calificacionFinal} / 100`
-                    : 'Sin evaluacion',
-
-                evaluacion
-                    ? evaluacion.clasificacion
-                    : 'Sin evaluacion'
-
-            ]
-
-        })
-
-
-        autoTable(doc, {
-
-            startY: 88,
+            startY: 58,
 
             head: [[
                 'Proveedor',
-                'Estado',
-                'Calificacion',
-                'Clasificacion'
+                'Calificación',
+                'Clasificación',
+                'Fecha'
             ]],
 
             body: filas,
-
-            theme: 'grid',
 
             styles: {
                 fontSize: 9
             },
 
             headStyles: {
-                fontSize: 9
+                fillColor: [22, 163, 74]
             }
 
         })
 
 
-        // -----------------------------------------
-        // PROVEEDORES EN RIESGO
-        // -----------------------------------------
-
-        doc.addPage()
+        const posicionFinal =
+            documento.lastAutoTable.finalY + 15
 
 
-        doc.setFontSize(16)
+        documento.setFontSize(14)
 
-        doc.text(
+        documento.text(
             'Proveedores en riesgo',
-            20,
-            20
+            14,
+            posicionFinal
         )
 
 
-        if (proveedoresRiesgo.length === 0) {
-
-            doc.setFontSize(11)
-
-            doc.text(
-                'No existen proveedores clasificados en riesgo.',
-                20,
-                32
+        const riesgos =
+            proveedoresRiesgo.map(
+                (item) => [
+                    item.proveedor.nombre,
+                    item.evaluacion.calificacionFinal,
+                    item.evaluacion.recomendacion ||
+                    'Requiere seguimiento'
+                ]
             )
+
+
+        if (riesgos.length > 0) {
+
+            autoTable(documento, {
+
+                startY:
+                    posicionFinal + 6,
+
+                head: [[
+                    'Proveedor',
+                    'Calificación',
+                    'Recomendación'
+                ]],
+
+                body: riesgos,
+
+                styles: {
+                    fontSize: 8
+                },
+
+                headStyles: {
+                    fillColor: [220, 38, 38]
+                }
+
+            })
 
         } else {
 
-            let posicionY = 35
+            documento.setFontSize(10)
 
-
-            proveedoresRiesgo.forEach(
-                (evaluacion, index) => {
-
-                    const nombreProveedor =
-                        obtenerNombreProveedor(
-                            evaluacion.idProveedor
-                        )
-
-
-                    doc.setFontSize(12)
-
-                    doc.text(
-                        `${index + 1}. ${nombreProveedor}`,
-                        20,
-                        posicionY
-                    )
-
-
-                    doc.setFontSize(10)
-
-
-                    doc.text(
-                        `Calificacion: ${evaluacion.calificacionFinal} / 100`,
-                        25,
-                        posicionY + 8
-                    )
-
-
-                    doc.text(
-                        `Clasificacion: ${evaluacion.clasificacion}`,
-                        25,
-                        posicionY + 16
-                    )
-
-
-                    const recomendacion =
-                        evaluacion.recomendacion ||
-                        'No hay una recomendacion disponible.'
-
-
-                    const lineas =
-                        doc.splitTextToSize(
-                            `Recomendacion: ${recomendacion}`,
-                            165
-                        )
-
-
-                    doc.text(
-                        lineas,
-                        25,
-                        posicionY + 24
-                    )
-
-
-                    posicionY += 45
-
-
-                    // Crear nueva página si hace falta
-
-                    if (posicionY > 260) {
-
-                        doc.addPage()
-
-                        posicionY = 25
-
-                    }
-
-                }
+            documento.text(
+                'No existen proveedores clasificados como Riesgo.',
+                14,
+                posicionFinal + 8
             )
 
         }
 
 
-        // -----------------------------------------
-        // DESCARGAR PDF
-        // -----------------------------------------
-
-        const nombreArchivo =
-            `Reporte_Proveedores_${fechaTexto.replaceAll('/', '-')}.pdf`
+        const fechaArchivo =
+            new Date()
+                .toISOString()
+                .split('T')[0]
 
 
-        doc.save(nombreArchivo)
+        documento.save(
+            `Reporte-Proveedores-${fechaArchivo}.pdf`
+        )
+    }
+
+
+    if (cargando) {
+
+        return (
+
+            <div className="reportes-loading">
+
+                <div className="reportes-spinner"></div>
+
+                <span>
+                    Generando información del reporte...
+                </span>
+
+            </div>
+
+        )
 
     }
 
 
-    // =========================================
-    // INTERFAZ
-    // =========================================
-
     return (
 
-        <div style={{
-            padding: '30px'
-        }}>
+        <div className="reportes-container">
 
-
-            {/* ================================= */}
-            {/* ENCABEZADO */}
-            {/* ================================= */}
-
-            <div style={{
-                marginBottom: '30px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: '20px',
-                flexWrap: 'wrap'
-            }}>
-
+            <header className="reportes-header">
 
                 <div>
 
-                    <h1 style={{
-                        margin: 0,
-                        color: '#1e293b'
-                    }}>
+                    <span className="reportes-subtitulo">
+                        ANÁLISIS DE DESEMPEÑO
+                    </span>
+
+                    <h1>
                         Reportes
                     </h1>
 
+                    <div className="reportes-linea"></div>
 
-                    <p style={{
-                        color: '#777',
-                        marginTop: '8px'
-                    }}>
-                        Reporte general del desempeño de los proveedores.
+                    <p>
+                        Consulta el comportamiento y desempeño
+                        general de los proveedores evaluados.
                     </p>
 
                 </div>
 
 
-                {/* BOTÓN PDF */}
-
                 <button
+                    className="btn-pdf"
                     onClick={generarPDF}
-                    style={{
-                        backgroundColor: '#2563eb',
-                        color: 'white',
-                        border: 'none',
-                        padding: '12px 20px',
-                        borderRadius: '10px',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        boxShadow: '0 4px 10px rgba(37,99,235,0.25)'
-                    }}
                 >
-                    📄 Generar PDF
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                    >
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <path d="M14 2v6h6" />
+                        <path d="M8 13h8" />
+                        <path d="M8 17h5" />
+                    </svg>
+
+                    Generar PDF
+
                 </button>
 
-
-            </div>
-
-
-            {/* ================================= */}
-            {/* RESUMEN */}
-            {/* ================================= */}
-
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns:
-                    'repeat(auto-fit, minmax(220px, 1fr))',
-                gap: '20px',
-                marginBottom: '30px'
-            }}>
+            </header>
 
 
-                {/* TOTAL */}
+            <section className="reportes-resumen">
 
-                <div style={{
-                    backgroundColor: 'white',
-                    padding: '24px',
-                    borderRadius: '16px',
-                    boxShadow:
-                        '0 4px 15px rgba(0,0,0,0.06)',
-                    border:
-                        '1px solid #f1f5f9'
-                }}>
+                <div className="resumen-item">
 
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                    }}>
+                    <span>
+                        PROVEEDORES EVALUADOS
+                    </span>
 
-                        <div>
-
-                            <span style={{
-                                color: '#64748b',
-                                fontSize: '14px',
-                                fontWeight: '600'
-                            }}>
-                                Total de proveedores
-                            </span>
-
-
-                            <strong style={{
-                                display: 'block',
-                                fontSize: '34px',
-                                marginTop: '8px',
-                                color: '#1e293b'
-                            }}>
-                                {proveedores.length}
-                            </strong>
-
-                        </div>
-
-
-                        <div style={{
-                            width: '50px',
-                            height: '50px',
-                            borderRadius: '12px',
-                            backgroundColor: '#eff6ff',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '25px'
-                        }}>
-                            👥
-                        </div>
-
-                    </div>
+                    <strong>
+                        {ultimasEvaluaciones.length}
+                    </strong>
 
                 </div>
 
 
-                {/* ACTIVOS */}
+                <div className="resumen-item">
 
-                <div style={{
-                    backgroundColor: 'white',
-                    padding: '24px',
-                    borderRadius: '16px',
-                    boxShadow:
-                        '0 4px 15px rgba(0,0,0,0.06)',
-                    border:
-                        '1px solid #f1f5f9'
-                }}>
+                    <span>
+                        EVALUACIONES REALIZADAS
+                    </span>
 
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                    }}>
-
-                        <div>
-
-                            <span style={{
-                                color: '#64748b',
-                                fontSize: '14px',
-                                fontWeight: '600'
-                            }}>
-                                Proveedores activos
-                            </span>
-
-
-                            <strong style={{
-                                display: 'block',
-                                fontSize: '34px',
-                                marginTop: '8px',
-                                color: '#16a34a'
-                            }}>
-                                {proveedoresActivos}
-                            </strong>
-
-                        </div>
-
-
-                        <div style={{
-                            width: '50px',
-                            height: '50px',
-                            borderRadius: '12px',
-                            backgroundColor: '#f0fdf4',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '25px'
-                        }}>
-                            ✅
-                        </div>
-
-                    </div>
+                    <strong>
+                        {evaluaciones.length}
+                    </strong>
 
                 </div>
 
 
-                {/* EVALUACIONES */}
+                <div className="resumen-item">
 
-                <div style={{
-                    backgroundColor: 'white',
-                    padding: '24px',
-                    borderRadius: '16px',
-                    boxShadow:
-                        '0 4px 15px rgba(0,0,0,0.06)',
-                    border:
-                        '1px solid #f1f5f9'
-                }}>
+                    <span>
+                        PROMEDIO GENERAL
+                    </span>
 
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                    }}>
-
-                        <div>
-
-                            <span style={{
-                                color: '#64748b',
-                                fontSize: '14px',
-                                fontWeight: '600'
-                            }}>
-                                Evaluaciones realizadas
-                            </span>
-
-
-                            <strong style={{
-                                display: 'block',
-                                fontSize: '34px',
-                                marginTop: '8px',
-                                color: '#1e293b'
-                            }}>
-                                {evaluaciones.length}
-                            </strong>
-
-                        </div>
-
-
-                        <div style={{
-                            width: '50px',
-                            height: '50px',
-                            borderRadius: '12px',
-                            backgroundColor: '#fefce8',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '25px'
-                        }}>
-                            📊
-                        </div>
-
-                    </div>
+                    <strong>
+                        {promedioGeneral}
+                        <small>/100</small>
+                    </strong>
 
                 </div>
 
-
-                {/* PROMEDIO */}
-
-                <div style={{
-                    backgroundColor: 'white',
-                    padding: '24px',
-                    borderRadius: '16px',
-                    boxShadow:
-                        '0 4px 15px rgba(0,0,0,0.06)',
-                    border:
-                        '1px solid #f1f5f9'
-                }}>
-
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                    }}>
-
-                        <div>
-
-                            <span style={{
-                                color: '#64748b',
-                                fontSize: '14px',
-                                fontWeight: '600'
-                            }}>
-                                Promedio general
-                            </span>
+            </section>
 
 
-                            <strong style={{
-                                display: 'block',
-                                fontSize: '34px',
-                                marginTop: '8px',
-                                color: '#2563eb'
-                            }}>
-                                {promedioGeneral}
-                            </strong>
+            <section className="reportes-panel">
 
-
-                            <span style={{
-                                color: '#94a3b8',
-                                fontSize: '12px'
-                            }}>
-                                de 100 puntos
-                            </span>
-
-                        </div>
-
-
-                        <div style={{
-                            width: '50px',
-                            height: '50px',
-                            borderRadius: '12px',
-                            backgroundColor: '#eff6ff',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '25px'
-                        }}>
-                            📈
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            {/* ================================= */}
-            {/* TABLA DE PROVEEDORES */}
-            {/* ================================= */}
-
-            <div style={{
-                backgroundColor: 'white',
-                padding: '25px',
-                borderRadius: '16px',
-                boxShadow:
-                    '0 4px 15px rgba(0,0,0,0.06)',
-                border:
-                    '1px solid #f1f5f9',
-                marginBottom: '30px'
-            }}>
-
-
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '20px'
-                }}>
+                <div className="panel-header">
 
                     <div>
 
-                        <h2 style={{
-                            margin: 0,
-                            color: '#1e293b'
-                        }}>
-                            Desempeño de proveedores
+                        <span className="panel-etiqueta">
+                            DESEMPEÑO
+                        </span>
+
+                        <h2>
+                            Calificación por proveedor
                         </h2>
 
-
-                        <p style={{
-                            margin: '6px 0 0',
-                            color: '#64748b',
-                            fontSize: '14px'
-                        }}>
-                            Resumen de la evaluación más reciente de cada proveedor.
-                        </p>
-
                     </div>
 
-
-                    <div style={{
-                        backgroundColor: '#eff6ff',
-                        color: '#2563eb',
-                        padding: '8px 14px',
-                        borderRadius: '20px',
-                        fontSize: '13px',
-                        fontWeight: '600'
-                    }}>
-                        {proveedores.length} proveedores
-                    </div>
+                    <span className="panel-descripcion">
+                        Última evaluación registrada
+                    </span>
 
                 </div>
 
 
-                {proveedores.length === 0 ? (
+                {promedioPorProveedor.length === 0 ? (
 
-                    <div style={{
-                        textAlign: 'center',
-                        padding: '40px',
-                        color: '#64748b'
-                    }}>
-
-                        <div style={{
-                            fontSize: '40px',
-                            marginBottom: '10px'
-                        }}>
-                            👥
-                        </div>
-
-
-                        <p>
-                            No hay proveedores registrados.
-                        </p>
-
+                    <div className="reporte-vacio">
+                        No existen evaluaciones para mostrar.
                     </div>
 
                 ) : (
 
-                    <div style={{
-                        overflowX: 'auto'
-                    }}>
+                    <div className="grafica-proveedores">
 
-                        <table style={{
-                            width: '100%',
-                            borderCollapse: 'collapse'
-                        }}>
+                        {promedioPorProveedor.map(
+                            (item, index) => {
+
+                                const porcentaje =
+                                    Math.min(
+                                        item.promedio,
+                                        100
+                                    )
+
+                                return (
+
+                                    <div
+                                        className="barra-proveedor"
+                                        key={index}
+                                    >
+
+                                        <div className="barra-info">
+
+                                            <span
+                                                title={item.nombre}
+                                            >
+                                                {item.nombre}
+                                            </span>
+
+                                            <strong>
+                                                {item.promedio.toFixed(1)}
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div className="barra-fondo">
+
+                                            <div
+                                                className={`barra-valor ${
+                                                    obtenerClaseCalificacion(
+                                                        item.promedio
+                                                    )
+                                                }`}
+                                                style={{
+                                                    width: `${porcentaje}%`
+                                                }}
+                                            ></div>
+
+                                        </div>
+
+                                    </div>
+
+                                )
+
+                            }
+                        )}
+
+                    </div>
+
+                )}
+
+            </section>
+
+
+            <div className="reportes-dos-columnas">
+
+
+                {/* GRÁFICA CIRCULAR */}
+
+                <section className="reportes-panel">
+
+                    <div className="panel-header">
+
+                        <div>
+
+                            <span className="panel-etiqueta">
+                                DISTRIBUCIÓN
+                            </span>
+
+                            <h2>
+                                Resultados de evaluación
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    {totalClasificaciones === 0 ? (
+
+                        <div className="reporte-vacio">
+                            No existen evaluaciones para mostrar.
+                        </div>
+
+                    ) : (
+
+                        <div className="grafica-circular-contenedor">
+
+
+                            <div
+                                className="grafica-circular"
+                                style={{
+                                    background: `conic-gradient(
+                                        #16a34a 0% ${porcentajeExcelente}%,
+                                        #65a30d ${porcentajeExcelente}% ${porcentajeExcelente + porcentajeBueno}%,
+                                        #f59e0b ${porcentajeExcelente + porcentajeBueno}% ${porcentajeExcelente + porcentajeBueno + porcentajeRegular}%,
+                                        #dc2626 ${porcentajeExcelente + porcentajeBueno + porcentajeRegular}% 100%
+                                    )`
+                                }}
+                            >
+
+                                <div className="grafica-circular-centro">
+
+                                    <strong>
+                                        {totalClasificaciones}
+                                    </strong>
+
+                                    <span>
+                                        evaluaciones
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div className="grafica-leyenda">
+
+
+                                <div className="leyenda-item">
+
+                                    <span className="leyenda-punto punto-excelente"></span>
+
+                                    <div>
+
+                                        <strong>
+                                            Excelente
+                                        </strong>
+
+                                        <span>
+                                            {clasificaciones.Excelente}
+                                            {' '}
+                                            (
+                                            {porcentajeExcelente.toFixed(0)}
+                                            %)
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div className="leyenda-item">
+
+                                    <span className="leyenda-punto punto-bueno"></span>
+
+                                    <div>
+
+                                        <strong>
+                                            Bueno
+                                        </strong>
+
+                                        <span>
+                                            {clasificaciones.Bueno}
+                                            {' '}
+                                            (
+                                            {porcentajeBueno.toFixed(0)}
+                                            %)
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div className="leyenda-item">
+
+                                    <span className="leyenda-punto punto-regular"></span>
+
+                                    <div>
+
+                                        <strong>
+                                            Regular
+                                        </strong>
+
+                                        <span>
+                                            {clasificaciones.Regular}
+                                            {' '}
+                                            (
+                                            {porcentajeRegular.toFixed(0)}
+                                            %)
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div className="leyenda-item">
+
+                                    <span className="leyenda-punto punto-riesgo"></span>
+
+                                    <div>
+
+                                        <strong>
+                                            Riesgo
+                                        </strong>
+
+                                        <span>
+                                            {clasificaciones.Riesgo}
+                                            {' '}
+                                            (
+                                            {obtenerPorcentaje(
+                                                clasificaciones.Riesgo
+                                            ).toFixed(0)}
+                                            %)
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                    )}
+
+                </section>
+
+
+                {/* TABLA */}
+
+                <section className="reportes-panel">
+
+                    <div className="panel-header">
+
+                        <div>
+
+                            <span className="panel-etiqueta">
+                                EVALUACIONES
+                            </span>
+
+                            <h2>
+                                Últimos resultados
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div className="tabla-contenedor">
+
+                        <table className="tabla-reportes">
 
                             <thead>
 
-                                <tr style={{
-                                    backgroundColor: '#f8fafc',
-                                    borderBottom:
-                                        '2px solid #e2e8f0'
-                                }}>
+                                <tr>
 
-                                    <th style={{
-                                        padding: '14px',
-                                        textAlign: 'left',
-                                        color: '#475569',
-                                        fontSize: '13px'
-                                    }}>
+                                    <th>
                                         Proveedor
                                     </th>
 
-
-                                    <th style={{
-                                        padding: '14px',
-                                        textAlign: 'left',
-                                        color: '#475569',
-                                        fontSize: '13px'
-                                    }}>
-                                        Estado
-                                    </th>
-
-
-                                    <th style={{
-                                        padding: '14px',
-                                        textAlign: 'center',
-                                        color: '#475569',
-                                        fontSize: '13px'
-                                    }}>
+                                    <th>
                                         Calificación
                                     </th>
 
-
-                                    <th style={{
-                                        padding: '14px',
-                                        textAlign: 'center',
-                                        color: '#475569',
-                                        fontSize: '13px'
-                                    }}>
-                                        Clasificación
+                                    <th>
+                                        Estado
                                     </th>
 
                                 </tr>
@@ -868,211 +802,53 @@ function Reportes() {
 
                             <tbody>
 
-                                {proveedores.map((proveedor) => {
+                                {promedioPorProveedor
+                                    .slice(0, 5)
+                                    .map(
+                                        (item, index) => {
 
-                                    const evaluacion =
-                                        obtenerUltimaEvaluacion(
-                                            proveedor.idProveedor
-                                        )
+                                            const evaluacion =
+                                                ultimasEvaluaciones.find(
+                                                    (e) =>
+                                                        e.proveedor.nombre ===
+                                                        item.nombre
+                                                )?.evaluacion
 
+                                            return (
 
-                                    return (
+                                                <tr
+                                                    key={index}
+                                                >
 
-                                        <tr
-                                            key={proveedor.idProveedor}
-                                            style={{
-                                                borderBottom:
-                                                    '1px solid #e5e7eb'
-                                            }}
-                                        >
+                                                    <td>
+                                                        {item.nombre}
+                                                    </td>
 
-                                            <td style={{
-                                                padding: '16px'
-                                            }}>
-
-                                                <div style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '12px'
-                                                }}>
-
-                                                    <div style={{
-                                                        width: '38px',
-                                                        height: '38px',
-                                                        borderRadius: '50%',
-                                                        backgroundColor:
-                                                            '#eff6ff',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent:
-                                                            'center',
-                                                        fontSize: '18px'
-                                                    }}>
-                                                        👤
-                                                    </div>
-
-
-                                                    <div>
-
-                                                        <strong style={{
-                                                            color:
-                                                                '#1e293b'
-                                                        }}>
-                                                            {proveedor.nombre}
+                                                    <td>
+                                                        <strong>
+                                                            {item.promedio.toFixed(1)}
                                                         </strong>
+                                                    </td>
 
+                                                    <td>
 
-                                                        <div style={{
-                                                            fontSize: '12px',
-                                                            color:
-                                                                '#94a3b8',
-                                                            marginTop:
-                                                                '3px'
-                                                        }}>
-                                                            ID: {proveedor.idProveedor}
-                                                        </div>
-
-                                                    </div>
-
-                                                </div>
-
-                                            </td>
-
-
-                                            <td style={{
-                                                padding: '16px'
-                                            }}>
-
-                                                <span style={{
-                                                    display:
-                                                        'inline-block',
-                                                    padding:
-                                                        '6px 12px',
-                                                    borderRadius:
-                                                        '20px',
-                                                    fontSize:
-                                                        '12px',
-                                                    fontWeight:
-                                                        '600',
-                                                    backgroundColor:
-                                                        proveedor.estado?.toLowerCase() === 'activo'
-                                                            ? '#dcfce7'
-                                                            : '#f1f5f9',
-                                                    color:
-                                                        proveedor.estado?.toLowerCase() === 'activo'
-                                                            ? '#166534'
-                                                            : '#475569'
-                                                }}>
-                                                    {proveedor.estado}
-                                                </span>
-
-                                            </td>
-
-
-                                            <td style={{
-                                                padding: '16px',
-                                                textAlign: 'center'
-                                            }}>
-
-                                                {evaluacion ? (
-
-                                                    <div>
-
-                                                        <strong style={{
-                                                            fontSize:
-                                                                '16px',
-                                                            color:
-                                                                '#1e293b'
-                                                        }}>
-                                                            {evaluacion.calificacionFinal}
-                                                        </strong>
-
-
-                                                        <span style={{
-                                                            color:
-                                                                '#94a3b8',
-                                                            fontSize:
-                                                                '12px'
-                                                        }}>
-                                                            {' '} / 100
+                                                        <span
+                                                            className={`tabla-estado estado-${evaluacion?.clasificacion?.toLowerCase()}`}
+                                                        >
+                                                            {
+                                                                evaluacion?.clasificacion ||
+                                                                'Sin datos'
+                                                            }
                                                         </span>
 
-                                                    </div>
+                                                    </td>
 
-                                                ) : (
+                                                </tr>
 
-                                                    <span style={{
-                                                        color:
-                                                            '#94a3b8',
-                                                        fontSize:
-                                                            '13px'
-                                                    }}>
-                                                        Sin evaluación
-                                                    </span>
+                                            )
 
-                                                )}
-
-                                            </td>
-
-
-                                            <td style={{
-                                                padding: '16px',
-                                                textAlign: 'center'
-                                            }}>
-
-                                                {evaluacion ? (
-
-                                                    <span style={{
-                                                        display:
-                                                            'inline-block',
-                                                        padding:
-                                                            '7px 14px',
-                                                        borderRadius:
-                                                            '20px',
-                                                        fontSize:
-                                                            '12px',
-                                                        fontWeight:
-                                                            '700',
-                                                        backgroundColor:
-                                                            evaluacion.clasificacion === 'Excelente'
-                                                                ? '#dcfce7'
-                                                                : evaluacion.clasificacion === 'Bueno'
-                                                                    ? '#dbeafe'
-                                                                    : evaluacion.clasificacion === 'Regular'
-                                                                        ? '#fef3c7'
-                                                                        : '#fee2e2',
-                                                        color:
-                                                            evaluacion.clasificacion === 'Excelente'
-                                                                ? '#166534'
-                                                                : evaluacion.clasificacion === 'Bueno'
-                                                                    ? '#1d4ed8'
-                                                                    : evaluacion.clasificacion === 'Regular'
-                                                                        ? '#92400e'
-                                                                        : '#991b1b'
-                                                    }}>
-                                                        {evaluacion.clasificacion}
-                                                    </span>
-
-                                                ) : (
-
-                                                    <span style={{
-                                                        color:
-                                                            '#94a3b8',
-                                                        fontSize:
-                                                            '13px'
-                                                    }}>
-                                                        Sin evaluación
-                                                    </span>
-
-                                                )}
-
-                                            </td>
-
-                                        </tr>
-
-                                    )
-
-                                })}
+                                        }
+                                    )}
 
                             </tbody>
 
@@ -1080,309 +856,90 @@ function Reportes() {
 
                     </div>
 
-                )}
+                </section>
 
             </div>
 
 
-            {/* ================================= */}
-            {/* PROVEEDORES EN RIESGO */}
-            {/* ================================= */}
+            <section className="reportes-panel reporte-riesgo">
 
-            <div style={{
-                backgroundColor: 'white',
-                padding: '25px',
-                borderRadius: '16px',
-                boxShadow:
-                    '0 4px 15px rgba(0,0,0,0.06)',
-                border:
-                    '1px solid #f1f5f9'
-            }}>
-
-
-                <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    marginBottom: '20px'
-                }}>
-
-                    <div style={{
-                        width: '45px',
-                        height: '45px',
-                        borderRadius: '12px',
-                        backgroundColor: '#fef2f2',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '22px'
-                    }}>
-                        ⚠️
-                    </div>
-
+                <div className="panel-header">
 
                     <div>
 
-                        <h2 style={{
-                            margin: 0,
-                            color: '#1e293b'
-                        }}>
-                            Proveedores en riesgo
+                        <span className="panel-etiqueta">
+                            SEGUIMIENTO
+                        </span>
+
+                        <h2>
+                            Proveedores que requieren atención
                         </h2>
 
-
-                        <p style={{
-                            margin: '5px 0 0',
-                            color: '#64748b',
-                            fontSize: '14px'
-                        }}>
-                            Proveedores que requieren seguimiento y acciones de mejora.
-                        </p>
-
                     </div>
+
+                    <span className="riesgo-contador">
+                        {proveedoresRiesgo.length}
+                    </span>
 
                 </div>
 
 
                 {proveedoresRiesgo.length === 0 ? (
 
-                    <div style={{
-                        padding: '25px',
-                        backgroundColor: '#f0fdf4',
-                        border:
-                            '1px solid #bbf7d0',
-                        borderRadius: '12px',
-                        textAlign: 'center'
-                    }}>
+                    <div className="riesgo-vacio">
 
-                        <div style={{
-                            fontSize: '35px',
-                            marginBottom: '8px'
-                        }}>
-                            ✅
-                        </div>
-
-
-                        <strong style={{
-                            color: '#166534'
-                        }}>
-                            No existen proveedores clasificados en riesgo.
+                        <strong>
+                            No hay proveedores clasificados como Riesgo.
                         </strong>
 
-
-                        <p style={{
-                            margin: '8px 0 0',
-                            color: '#4b5563',
-                            fontSize: '13px'
-                        }}>
-                            Todos los proveedores cuentan actualmente con una clasificación diferente a riesgo.
+                        <p>
+                            Las evaluaciones actuales no muestran
+                            proveedores que requieran seguimiento por riesgo.
                         </p>
 
                     </div>
 
                 ) : (
 
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns:
-                            'repeat(auto-fit, minmax(300px, 1fr))',
-                        gap: '18px'
-                    }}>
+                    <div className="riesgo-lista">
 
                         {proveedoresRiesgo.map(
-                            (evaluacion) => (
+                            (item) => (
 
                                 <div
+                                    className="riesgo-item"
                                     key={
-                                        evaluacion.idEvaluacion
+                                        item.evaluacion.idEvaluacion
                                     }
-                                    style={{
-                                        padding: '20px',
-                                        backgroundColor:
-                                            '#fff7f7',
-                                        border:
-                                            '1px solid #fecaca',
-                                        borderRadius:
-                                            '14px'
-                                    }}
                                 >
 
+                                    <div>
 
-                                    {/* PROVEEDOR */}
-
-                                    <div style={{
-                                        display: 'flex',
-                                        alignItems:
-                                            'center',
-                                        gap: '12px',
-                                        marginBottom:
-                                            '15px'
-                                    }}>
-
-                                        <div style={{
-                                            width: '42px',
-                                            height: '42px',
-                                            borderRadius:
-                                                '50%',
-                                            backgroundColor:
-                                                '#fee2e2',
-                                            display: 'flex',
-                                            alignItems:
-                                                'center',
-                                            justifyContent:
-                                                'center',
-                                            fontSize: '19px'
-                                        }}>
-                                            👤
-                                        </div>
-
-
-                                        <div>
-
-                                            <strong style={{
-                                                display:
-                                                    'block',
-                                                fontSize:
-                                                    '17px',
-                                                color:
-                                                    '#991b1b'
-                                            }}>
-                                                {obtenerNombreProveedor(
-                                                    evaluacion.idProveedor
-                                                )}
-                                            </strong>
-
-
-                                            <span style={{
-                                                fontSize:
-                                                    '12px',
-                                                color:
-                                                    '#7f1d1d'
-                                            }}>
-                                                Proveedor en riesgo
-                                            </span>
-
-                                        </div>
-
-                                    </div>
-
-
-                                    {/* CALIFICACIÓN */}
-
-                                    <div style={{
-                                        backgroundColor:
-                                            'white',
-                                        padding: '12px',
-                                        borderRadius:
-                                            '10px',
-                                        marginBottom:
-                                            '15px',
-                                        border:
-                                            '1px solid #fee2e2'
-                                    }}>
-
-                                        <span style={{
-                                            fontSize:
-                                                '13px',
-                                            color:
-                                                '#64748b'
-                                        }}>
-                                            Calificación obtenida
-                                        </span>
-
-
-                                        <strong style={{
-                                            display:
-                                                'block',
-                                            fontSize:
-                                                '24px',
-                                            color:
-                                                '#dc2626',
-                                            marginTop:
-                                                '3px'
-                                        }}>
-
-                                            {
-                                                evaluacion.calificacionFinal
-                                            }
-
-
-                                            <span style={{
-                                                fontSize:
-                                                    '13px',
-                                                color:
-                                                    '#94a3b8'
-                                            }}>
-                                                {' '} / 100
-                                            </span>
-
+                                        <strong>
+                                            {item.proveedor.nombre}
                                         </strong>
 
-                                    </div>
-
-
-                                    {/* RECOMENDACIÓN IA */}
-
-                                    <div style={{
-                                        backgroundColor:
-                                            '#eff6ff',
-                                        border:
-                                            '1px solid #bfdbfe',
-                                        borderRadius:
-                                            '10px',
-                                        padding: '15px'
-                                    }}>
-
-                                        <div style={{
-                                            display:
-                                                'flex',
-                                            alignItems:
-                                                'center',
-                                            gap: '7px',
-                                            marginBottom:
-                                                '8px'
-                                        }}>
-
-                                            <span style={{
-                                                fontSize:
-                                                    '18px'
-                                            }}>
-                                                🤖
-                                            </span>
-
-
-                                            <strong style={{
-                                                color:
-                                                    '#1d4ed8',
-                                                fontSize:
-                                                    '14px'
-                                            }}>
-                                                Recomendación de IA
-                                            </strong>
-
-                                        </div>
-
-
-                                        <p style={{
-                                            margin: 0,
-                                            color:
-                                                '#374151',
-                                            lineHeight:
-                                                '1.5',
-                                            fontSize:
-                                                '13px'
-                                        }}>
-
-                                            {
-                                                evaluacion.recomendacion
-                                                    ? evaluacion.recomendacion
-                                                    : 'No hay una recomendación disponible para esta evaluación.'
-                                            }
-
-                                        </p>
+                                        <span>
+                                            Evaluación del{' '}
+                                            {formatearFecha(
+                                                item.evaluacion.fechaEvaluacion
+                                            )}
+                                        </span>
 
                                     </div>
 
+
+                                    <div className="riesgo-calificacion">
+
+                                        <strong>
+                                            {item.evaluacion.calificacionFinal}
+                                        </strong>
+
+                                        <span>
+                                            /100
+                                        </span>
+
+                                    </div>
 
                                 </div>
 
@@ -1393,14 +950,11 @@ function Reportes() {
 
                 )}
 
-            </div>
-
+            </section>
 
         </div>
 
     )
-
 }
-
 
 export default Reportes

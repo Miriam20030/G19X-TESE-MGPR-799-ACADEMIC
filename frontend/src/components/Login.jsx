@@ -19,29 +19,42 @@ function Login({ onLogin }) {
     setCargando(true)
 
     try {
-      const respuesta = await fetch('http://localhost:8080/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          usuario,
-          password
-        })
-      })
+      const respuesta = await fetch(
+        'http://localhost:8080/api/auth/login',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            usuario,
+            password
+          })
+        }
+      )
 
       const data = await respuesta.json()
 
       if (!respuesta.ok) {
-        setError(data.mensaje || 'Usuario o contraseña incorrectos')
+        setError(
+          data.mensaje ||
+          'Usuario o contraseña incorrectos'
+        )
         return
       }
 
-      localStorage.setItem('usuario', JSON.stringify(data))
+      localStorage.setItem(
+        'usuario',
+        JSON.stringify(data)
+      )
+
       onLogin(data)
 
     } catch (error) {
-      setError('No se pudo conectar con el servidor')
+      setError(
+        'No se pudo conectar con el servidor'
+      )
+
     } finally {
       setCargando(false)
     }
@@ -50,7 +63,10 @@ function Login({ onLogin }) {
   return (
     <div className="login-page">
 
-      {/* PANEL DE BIENVENIDA */}
+      {/* ==========================================
+          PANEL DE BIENVENIDA
+      ========================================== */}
+
       <div className="welcome-panel">
 
         <div className="welcome-content">
@@ -82,7 +98,11 @@ function Login({ onLogin }) {
 
       </div>
 
-      {/* PANEL DE LOGIN */}
+
+      {/* ==========================================
+          PANEL DE LOGIN
+      ========================================== */}
+
       <div className="login-panel">
 
         <div className="login-card">
@@ -90,7 +110,6 @@ function Login({ onLogin }) {
           <div className="login-header">
 
             <div className="login-icon">
-              
             </div>
 
             <h2>Iniciar sesión</h2>
@@ -101,37 +120,64 @@ function Login({ onLogin }) {
 
           </div>
 
+
+          {/* ========================================
+              FORMULARIO
+          ======================================== */}
+
           <form onSubmit={iniciarSesion}>
 
             <div className="input-group">
-              <label>Usuario</label>
+
+              <label>
+                Usuario
+              </label>
 
               <div className="input-wrapper">
+
                 <span></span>
 
                 <input
                   type="text"
                   placeholder="Ingresa tu usuario"
                   value={usuario}
-                  onChange={(e) => setUsuario(e.target.value)}
+                  onChange={(e) =>
+                    setUsuario(e.target.value)
+                  }
                 />
+
               </div>
+
             </div>
 
+
             <div className="input-group">
-              <label>Contraseña</label>
+
+              <label>
+                Contraseña
+              </label>
 
               <div className="input-wrapper">
+
                 <span></span>
 
                 <input
                   type="password"
                   placeholder="Ingresa tu contraseña"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) =>
+                    setPassword(e.target.value)
+                  }
                 />
+
               </div>
+
             </div>
+
+
+            {/* ======================================
+                MENSAJE DE ERROR
+            ====================================== */}
 
             {error && (
               <div className="login-error">
@@ -139,15 +185,27 @@ function Login({ onLogin }) {
               </div>
             )}
 
+
+            {/* ======================================
+                BOTÓN
+            ====================================== */}
+
             <button
               type="submit"
               className="login-button"
               disabled={cargando}
             >
-              {cargando ? 'Ingresando...' : 'Iniciar sesión'}
+              {cargando
+                ? 'Ingresando...'
+                : 'Iniciar sesión'}
             </button>
 
           </form>
+
+
+          {/* ========================================
+              FOOTER
+          ======================================== */}
 
           <div className="login-footer">
             Sistema de Evaluación de Proveedores
