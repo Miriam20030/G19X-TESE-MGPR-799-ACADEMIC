@@ -84,4 +84,80 @@ public String generarHash() {
 
         return ResponseEntity.ok(respuesta);
     }
+
+            @PostMapping("/cambiar-password")
+    public ResponseEntity<?> cambiarPassword(
+            @RequestBody Map<String, String> datos) {
+
+        String usuario = datos.get("usuario");
+        String passwordActual = datos.get("passwordActual");
+        String nuevaPassword = datos.get("nuevaPassword");
+
+        // Validar que todos los datos estén presentes
+        if (usuario == null || passwordActual == null || nuevaPassword == null ||
+                usuario.isBlank() || passwordActual.isBlank() || nuevaPassword.isBlank()) {
+
+            return ResponseEntity.badRequest()
+                    .body(Map.of(
+                            "mensaje",
+                            "Todos los campos son obligatorios"
+                    ));
+        }
+
+        // Buscar el usuario
+        Usuario usuarioEncontrado =
+                usuarioRepository.findByUsuario(usuario).orElse(null);
+
+        if (usuarioEncontrado == null) {
+            return ResponseEntity.status(404)
+                    .body(Map.of(
+                            "mensaje",
+                            "Usuario no encontrado"
+                    ));
+        }
+
+        // Verificar contraseña actual
+        boolean passwordCorrecta = passwordEncoder.matches(
+                passwordActual,
+                usuarioEncontrado.getPassword()
+        );
+
+        if (!passwordCorrecta) {
+            return ResponseEntity.status(401)
+                    .body(Map.of(
+                            "mensaje",
+                            "La contraseña actual es incorrecta"
+                    ));
+        }
+
+        // Validar longitud mínima
+        if (nuevaPassword.length() < 8) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of(
+                            "mensaje",
+                            "La nueva contraseña debe tener al menos 8 caracteres"
+                    ));
+        }
+
+        // Encriptar la nueva contraseña
+        String nuevaPasswordEncriptada =
+                passwordEncoder.encode(nuevaPassword);
+
+        usuarioEncontrado.setPassword(nuevaPasswordEncriptada);
+
+        // Guardar cambios en la base de datos
+        usuarioRepository.save(usuarioEncontrado);
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "mensaje",
+                        "Contraseña actualizada correctamente"
+                )
+        );
+    }
+
+
+
+
+
 }

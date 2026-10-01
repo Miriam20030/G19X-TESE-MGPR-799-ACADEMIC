@@ -44,9 +44,9 @@ function Login({ onLogin }) {
       }
 
       localStorage.setItem(
-        'usuario',
-        JSON.stringify(data)
-      )
+  'usuario',
+  data.usuario
+)
 
       onLogin(data)
 
