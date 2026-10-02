@@ -206,6 +206,10 @@ function NuevaEvaluacion({
 
             let recomendacionIA = ''
 
+            // NUEVOS DATOS DE IA
+            let riesgoIA = null
+            let probabilidadRiesgoAlto = null
+
             try {
 
                 const respuestaIA = await fetch(
@@ -253,11 +257,20 @@ function NuevaEvaluacion({
                     const datosIA =
                         await respuestaIA.json()
 
+                    // RECOMENDACIÓN GENERADA POR IA
                     recomendacionIA =
                         datosIA.recomendacion ||
                         obtenerRecomendacion(
                             clasificacion
                         )
+
+                    // RESULTADO DEL MODELO MACHINE LEARNING
+                    riesgoIA =
+                        datosIA.riesgoIA || null
+
+                    // PROBABILIDAD DE RIESGO ALTO
+                    probabilidadRiesgoAlto =
+                        datosIA.probabilidadRiesgoAlto ?? null
 
                 } else {
 
@@ -326,7 +339,15 @@ function NuevaEvaluacion({
                     clasificacion,
 
                 recomendacion:
-                    recomendacionIA
+                    recomendacionIA,
+
+                // NUEVO: RESULTADO DE LA IA
+                riesgoIA:
+                    riesgoIA,
+
+                // NUEVO: PROBABILIDAD DE RIESGO ALTO
+                probabilidadRiesgoAlto:
+                    probabilidadRiesgoAlto
 
             }
 
@@ -635,7 +656,7 @@ function NuevaEvaluacion({
 
                 {/* =================================================
                     INDICADORES
-                ================================================== */}
+                ================================================= */}
 
                 <div className="seccion-formulario">
 

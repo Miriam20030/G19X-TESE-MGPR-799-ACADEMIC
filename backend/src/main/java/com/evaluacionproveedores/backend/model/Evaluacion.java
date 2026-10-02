@@ -39,6 +39,12 @@ public class Evaluacion {
 @Column(name = "recomendacion")
 private String recomendacion;
 
+@Column(name = "riesgoIA")
+private String riesgoIA;
+
+@Column(name = "probabilidadRiesgoAlto")
+private Double probabilidadRiesgoAlto;
+
 
     @Column(name = "fechaEvaluacion")
     private LocalDateTime fechaEvaluacion;
@@ -151,4 +157,23 @@ public void setRecomendacion(String recomendacion) {
     public void setFechaEvaluacion(LocalDateTime fechaEvaluacion) {
         this.fechaEvaluacion = fechaEvaluacion;
     }
+
+
+public String getRiesgoIA() {
+    return riesgoIA;
+}
+
+public void setRiesgoIA(String riesgoIA) {
+    this.riesgoIA = riesgoIA;
+}
+
+public Double getProbabilidadRiesgoAlto() {
+    return probabilidadRiesgoAlto;
+}
+
+public void setProbabilidadRiesgoAlto(Double probabilidadRiesgoAlto) {
+    this.probabilidadRiesgoAlto = probabilidadRiesgoAlto;
+}
+
+
 }

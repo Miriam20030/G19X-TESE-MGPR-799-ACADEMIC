@@ -665,6 +665,12 @@ function Evaluaciones() {
                                     evaluacion.clasificacion
                                 )
 
+                            const riesgoIA =
+                                evaluacion.riesgoIA || 'Sin análisis'
+
+                            const probabilidadRiesgoAlto =
+                                evaluacion.probabilidadRiesgoAlto ?? null
+
                             return (
 
                                 <div
@@ -809,27 +815,77 @@ function Evaluaciones() {
                                         RECOMENDACIÓN IA
                                     ====================================== */}
 
-                                    {evaluacion.recomendacion && (
+                                    <div
+                                        className="
+                                            analisis-ia
+                                        "
+                                    >
 
-                                        <div
-                                            className="
-                                                recomendacion-ia
-                                            "
-                                        >
+                                        <div className="analisis-ia-header">
 
                                             <h4>
-                                                Recomendación de IA
+                                                🤖 Análisis de Inteligencia Artificial
                                             </h4>
-
-                                            <p>
-                                                {
-                                                    evaluacion.recomendacion
-                                                }
-                                            </p>
 
                                         </div>
 
-                                    )}
+                                        <div className="analisis-ia-datos">
+
+                                            <div className="dato-ia">
+                                                <span className="dato-ia-label">
+                                                    Riesgo detectado
+                                                </span>
+
+                                                <span
+                                                    className={`riesgo-ia-badge riesgo-ia-${
+                                                        riesgoIA.toLowerCase()
+                                                    }`}
+                                                >
+                                                    {riesgoIA}
+                                                </span>
+                                            </div>
+
+                                            <div className="dato-ia">
+                                                <span className="dato-ia-label">
+                                                    Probabilidad de riesgo alto
+                                                </span>
+
+                                                <span className="probabilidad-ia">
+                                                    {
+                                                        probabilidadRiesgoAlto !== null
+                                                            ? `${Number(
+                                                                probabilidadRiesgoAlto
+                                                            ).toFixed(0)}%`
+                                                            : 'Sin dato'
+                                                    }
+                                                </span>
+                                            </div>
+
+                                        </div>
+
+                                        {evaluacion.recomendacion && (
+
+                                            <div
+                                                className="
+                                                    recomendacion-ia
+                                                "
+                                            >
+
+                                                <h4>
+                                                    Recomendación de IA
+                                                </h4>
+
+                                                <p>
+                                                    {
+                                                        evaluacion.recomendacion
+                                                    }
+                                                </p>
+
+                                            </div>
+
+                                        )}
+
+                                    </div>
 
                                     {/* =====================================
                                         ACCIONES
@@ -1814,6 +1870,171 @@ function Evaluaciones() {
 
                     background:
                         #ef4444;
+
+                }
+
+
+                /* =====================================================
+                   ANÁLISIS IA
+                ====================================================== */
+
+                .analisis-ia {
+
+                    margin-top:
+                        9px;
+
+                    padding:
+                        10px 11px;
+
+                    border-radius:
+                        8px;
+
+                    background:
+                        var(--ev-ai-bg);
+
+                    border:
+                        1px solid
+                        var(--ev-ai-border);
+
+                }
+
+                .analisis-ia-header {
+
+                    margin-bottom:
+                        8px;
+
+                }
+
+                .analisis-ia-header h4 {
+
+                    margin:
+                        0;
+
+                    font-size:
+                        11px;
+
+                    color:
+                        var(--ev-ai-title);
+
+                    font-weight:
+                        700;
+
+                }
+
+                .analisis-ia-datos {
+
+                    display:
+                        grid;
+
+                    grid-template-columns:
+                        repeat(2, minmax(0, 1fr));
+
+                    gap:
+                        8px;
+
+                }
+
+                .dato-ia {
+
+                    display:
+                        flex;
+
+                    align-items:
+                        center;
+
+                    justify-content:
+                        space-between;
+
+                    gap:
+                        8px;
+
+                    padding:
+                        7px 9px;
+
+                    border-radius:
+                        7px;
+
+                    background:
+                        var(--ev-card);
+
+                    border:
+                        1px solid
+                        var(--ev-border);
+
+                }
+
+                .dato-ia-label {
+
+                    font-size:
+                        9px;
+
+                    color:
+                        var(--ev-muted);
+
+                }
+
+                .probabilidad-ia {
+
+                    font-size:
+                        11px;
+
+                    font-weight:
+                        700;
+
+                    color:
+                        var(--ev-text);
+
+                }
+
+                .riesgo-ia-badge {
+
+                    display:
+                        inline-flex;
+
+                    align-items:
+                        center;
+
+                    justify-content:
+                        center;
+
+                    padding:
+                        4px 8px;
+
+                    border-radius:
+                        999px;
+
+                    font-size:
+                        9px;
+
+                    font-weight:
+                        700;
+
+                    border:
+                        1px solid;
+
+                }
+
+                .riesgo-ia-bajo {
+
+                    background: #dcfce7;
+                    color: #166534;
+                    border-color: #bbf7d0;
+
+                }
+
+                .riesgo-ia-medio {
+
+                    background: #fef3c7;
+                    color: #92400e;
+                    border-color: #fde68a;
+
+                }
+
+                .riesgo-ia-alto {
+
+                    background: #fee2e2;
+                    color: #b91c1c;
+                    border-color: #fecaca;
 
                 }
 
