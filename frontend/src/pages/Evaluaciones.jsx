@@ -824,7 +824,7 @@ function Evaluaciones() {
                                         <div className="analisis-ia-header">
 
                                             <h4>
-                                                🤖 Análisis de Inteligencia Artificial
+                                                 Análisis de Inteligencia Artificial
                                             </h4>
 
                                         </div>

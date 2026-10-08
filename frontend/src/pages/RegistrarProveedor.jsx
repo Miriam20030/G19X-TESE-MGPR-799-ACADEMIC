@@ -1,6 +1,6 @@
-
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import ModalMensaje from '../components/ModalMensaje'
 
 function RegistrarProveedor() {
 
@@ -19,6 +19,38 @@ function RegistrarProveedor() {
   const [vistaPrevia, setVistaPrevia] = useState(null)
 
   // ==========================================
+  // MODAL
+  // ==========================================
+
+  const [modal, setModal] = useState({
+    abierto: false,
+    tipo: 'info',
+    titulo: '',
+    mensaje: '',
+    mostrarCancelar: false,
+    onAceptar: null
+  })
+
+
+  // ==========================================
+  // CERRAR MODAL
+  // ==========================================
+
+  const cerrarModal = () => {
+
+    setModal({
+      abierto: false,
+      tipo: 'info',
+      titulo: '',
+      mensaje: '',
+      mostrarCancelar: false,
+      onAceptar: null
+    })
+
+  }
+
+
+  // ==========================================
   // CAMBIAR DATOS
   // ==========================================
 
@@ -30,6 +62,7 @@ function RegistrarProveedor() {
     })
 
   }
+
 
   // ==========================================
   // SELECCIONAR FOTO
@@ -45,9 +78,14 @@ function RegistrarProveedor() {
 
     if (!archivo.type.startsWith('image/')) {
 
-      alert(
-        'Por favor selecciona un archivo de imagen.'
-      )
+      setModal({
+        abierto: true,
+        tipo: 'error',
+        titulo: 'Archivo no válido',
+        mensaje: 'Por favor selecciona un archivo de imagen válido.',
+        mostrarCancelar: false,
+        onAceptar: cerrarModal
+      })
 
       return
     }
@@ -60,6 +98,7 @@ function RegistrarProveedor() {
 
   }
 
+
   // ==========================================
   // QUITAR FOTO
   // ==========================================
@@ -70,6 +109,7 @@ function RegistrarProveedor() {
     setVistaPrevia(null)
 
   }
+
 
   // ==========================================
   // GUARDAR PROVEEDOR
@@ -132,7 +172,7 @@ function RegistrarProveedor() {
         if (!respuestaFoto.ok) {
 
           throw new Error(
-            'El proveedor se guardó, pero no se pudo subir la fotografía.'
+            'El proveedor se registró, pero no se pudo subir la fotografía.'
           )
 
         }
@@ -140,21 +180,47 @@ function RegistrarProveedor() {
       }
 
 
-      alert(
-        'Proveedor registrado correctamente.'
-      )
+      // ==========================================
+      // MENSAJE DE ÉXITO
+      // ==========================================
 
-      navigate('/proveedores')
+      setModal({
+        abierto: true,
+        tipo: 'exito',
+        titulo: 'Proveedor registrado',
+        mensaje: 'El proveedor se registró correctamente en el sistema.',
+        mostrarCancelar: false,
+
+        onAceptar: () => {
+
+          cerrarModal()
+
+          navigate('/proveedores')
+
+        }
+
+      })
 
 
     } catch (error) {
 
       console.error(error)
 
-      alert(
-        error.message ||
-        'Ocurrió un error al registrar el proveedor.'
-      )
+
+      // ==========================================
+      // MENSAJE DE ERROR
+      // ==========================================
+
+      setModal({
+        abierto: true,
+        tipo: 'error',
+        titulo: 'No se pudo registrar',
+        mensaje:
+          error.message ||
+          'Ocurrió un error al registrar el proveedor.',
+        mostrarCancelar: false,
+        onAceptar: cerrarModal
+      })
 
     }
 
@@ -1349,6 +1415,7 @@ function RegistrarProveedor() {
                         Fotografía seleccionada
                       </h3>
 
+
                       <p>
                         {foto?.name}
                       </p>
@@ -1467,10 +1534,28 @@ function RegistrarProveedor() {
 
         </div>
 
+
+        {/* ==================================================
+            MODAL
+        ================================================== */}
+
+        <ModalMensaje
+          abierto={modal.abierto}
+          tipo={modal.tipo}
+          titulo={modal.titulo}
+          mensaje={modal.mensaje}
+          mostrarCancelar={modal.mostrarCancelar}
+          onCancelar={cerrarModal}
+          onAceptar={modal.onAceptar || cerrarModal}
+        />
+
+
       </div>
 
     </>
+
   )
+
 }
 
 export default RegistrarProveedor

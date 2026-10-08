@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import ModalMensaje from '../components/ModalMensaje'
 
 function EditarProveedor() {
 
@@ -18,6 +19,36 @@ function EditarProveedor() {
 
   const [cargando, setCargando] = useState(true)
   const [guardando, setGuardando] = useState(false)
+
+  // ==========================================
+  // MODAL
+  // ==========================================
+
+  const [modal, setModal] = useState({
+    abierto: false,
+    tipo: 'info',
+    titulo: '',
+    mensaje: '',
+    mostrarCancelar: false,
+    textoCancelar: 'Cancelar',
+    textoAceptar: 'Aceptar',
+    onAceptar: null
+  })
+
+  const cerrarModal = () => {
+
+    setModal({
+      abierto: false,
+      tipo: 'info',
+      titulo: '',
+      mensaje: '',
+      mostrarCancelar: false,
+      textoCancelar: 'Cancelar',
+      textoAceptar: 'Aceptar',
+      onAceptar: null
+    })
+
+  }
 
 
   // ==========================================
@@ -52,7 +83,16 @@ function EditarProveedor() {
       } catch (error) {
 
         console.error(error)
-        alert('Error al cargar el proveedor')
+
+        setModal({
+          abierto: true,
+          tipo: 'error',
+          titulo: 'No se pudo cargar',
+          mensaje: 'Ocurrió un error al cargar la información del proveedor.',
+          mostrarCancelar: false,
+          textoAceptar: 'Aceptar',
+          onAceptar: cerrarModal
+        })
 
       } finally {
 
@@ -112,14 +152,32 @@ function EditarProveedor() {
 
       }
 
-      alert('Proveedor actualizado correctamente')
-
-      navigate('/proveedores')
+      setModal({
+        abierto: true,
+        tipo: 'exito',
+        titulo: 'Proveedor actualizado',
+        mensaje: 'La información del proveedor se actualizó correctamente.',
+        mostrarCancelar: false,
+        textoAceptar: 'Continuar',
+        onAceptar: () => {
+          cerrarModal()
+          navigate('/proveedores')
+        }
+      })
 
     } catch (error) {
 
       console.error(error)
-      alert('Error al actualizar el proveedor')
+
+      setModal({
+        abierto: true,
+        tipo: 'error',
+        titulo: 'No se pudo actualizar',
+        mensaje: error.message || 'Ocurrió un error al actualizar el proveedor.',
+        mostrarCancelar: false,
+        textoAceptar: 'Aceptar',
+        onAceptar: cerrarModal
+      })
 
     } finally {
 
@@ -238,7 +296,6 @@ function EditarProveedor() {
 
         /* ==================================================
            MODO OSCURO
-           MISMO SISTEMA QUE REGISTRARPROVEEDOR
         ================================================== */
 
         body.dark .editar-page,
@@ -1239,7 +1296,25 @@ function EditarProveedor() {
 
       </div>
 
+
+      {/* ==================================================
+          MODAL
+      ================================================== */}
+
+      <ModalMensaje
+        abierto={modal.abierto}
+        tipo={modal.tipo}
+        titulo={modal.titulo}
+        mensaje={modal.mensaje}
+        mostrarCancelar={modal.mostrarCancelar}
+        textoCancelar={modal.textoCancelar}
+        textoAceptar={modal.textoAceptar}
+        onCancelar={cerrarModal}
+        onAceptar={modal.onAceptar || cerrarModal}
+      />
+
     </>
+
   )
 }
 

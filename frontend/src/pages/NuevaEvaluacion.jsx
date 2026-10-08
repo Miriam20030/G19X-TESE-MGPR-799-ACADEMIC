@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from 'react'
+import ModalMensaje from '../components/ModalMensaje'
 
 function NuevaEvaluacion({
     proveedores = [],
@@ -22,8 +23,38 @@ function NuevaEvaluacion({
     const [recomendacion, setRecomendacion] = useState('')
 
     const [guardando, setGuardando] = useState(false)
-    const [mensaje, setMensaje] = useState('')
-    const [error, setError] = useState('')
+
+
+    // =========================================================
+    // MODAL
+    // =========================================================
+
+    const [modal, setModal] = useState({
+        abierto: false,
+        tipo: 'info',
+        titulo: '',
+        mensaje: '',
+        mostrarCancelar: false,
+        textoCancelar: 'Cancelar',
+        textoAceptar: 'Aceptar',
+        onAceptar: null
+    })
+
+
+    const cerrarModal = () => {
+
+        setModal({
+            abierto: false,
+            tipo: 'info',
+            titulo: '',
+            mensaje: '',
+            mostrarCancelar: false,
+            textoCancelar: 'Cancelar',
+            textoAceptar: 'Aceptar',
+            onAceptar: null
+        })
+
+    }
 
 
     // =========================================================
@@ -111,7 +142,7 @@ function NuevaEvaluacion({
 
         setMostrarProveedores(false)
 
-        setError('')
+        cerrarModal()
 
     }
 
@@ -181,14 +212,17 @@ function NuevaEvaluacion({
 
         e.preventDefault()
 
-        setMensaje('')
-        setError('')
-
         if (!idProveedor) {
 
-            setError(
-                'Debes seleccionar un proveedor de la lista.'
-            )
+            setModal({
+                abierto: true,
+                tipo: 'advertencia',
+                titulo: 'Selecciona un proveedor',
+                mensaje: 'Debes seleccionar un proveedor de la lista antes de guardar la evaluación.',
+                mostrarCancelar: false,
+                textoAceptar: 'Aceptar',
+                onAceptar: cerrarModal
+            })
 
             setMostrarProveedores(true)
 
@@ -206,7 +240,6 @@ function NuevaEvaluacion({
 
             let recomendacionIA = ''
 
-            // NUEVOS DATOS DE IA
             let riesgoIA = null
             let probabilidadRiesgoAlto = null
 
@@ -257,18 +290,15 @@ function NuevaEvaluacion({
                     const datosIA =
                         await respuestaIA.json()
 
-                    // RECOMENDACIÓN GENERADA POR IA
                     recomendacionIA =
                         datosIA.recomendacion ||
                         obtenerRecomendacion(
                             clasificacion
                         )
 
-                    // RESULTADO DEL MODELO MACHINE LEARNING
                     riesgoIA =
                         datosIA.riesgoIA || null
 
-                    // PROBABILIDAD DE RIESGO ALTO
                     probabilidadRiesgoAlto =
                         datosIA.probabilidadRiesgoAlto ?? null
 
@@ -341,11 +371,9 @@ function NuevaEvaluacion({
                 recomendacion:
                     recomendacionIA,
 
-                // NUEVO: RESULTADO DE LA IA
                 riesgoIA:
                     riesgoIA,
 
-                // NUEVO: PROBABILIDAD DE RIESGO ALTO
                 probabilidadRiesgoAlto:
                     probabilidadRiesgoAlto
 
@@ -386,24 +414,30 @@ function NuevaEvaluacion({
             }
 
 
-            setMensaje(
-                'Evaluación guardada correctamente.'
-            )
-
-
             // =====================================================
-            // AVISAR A EVALUACIONES
+            // MODAL DE ÉXITO
             // =====================================================
 
-            setTimeout(() => {
+            setModal({
+                abierto: true,
+                tipo: 'exito',
+                titulo: 'Evaluación registrada',
+                mensaje:
+                    `La evaluación del proveedor se registró correctamente. ` +
+                    `Calificación final: ${calificacionFinal.toFixed(1)} puntos. ` +
+                    `Clasificación: ${clasificacion}.`,
+                mostrarCancelar: false,
+                textoAceptar: 'Continuar',
+                onAceptar: () => {
 
-                if (onGuardado) {
+                    cerrarModal()
 
-                    onGuardado()
+                    if (onGuardado) {
+                        onGuardado()
+                    }
 
                 }
-
-            }, 500)
+            })
 
 
         } catch (error) {
@@ -413,9 +447,21 @@ function NuevaEvaluacion({
                 error
             )
 
-            setError(
-                'No se pudo guardar la evaluación. Verifica que el backend esté funcionando.'
-            )
+            // =====================================================
+            // MODAL DE ERROR
+            // =====================================================
+
+            setModal({
+                abierto: true,
+                tipo: 'error',
+                titulo: 'No se pudo registrar',
+                mensaje:
+                    error.message ||
+                    'No se pudo guardar la evaluación. Verifica que el backend esté funcionando.',
+                mostrarCancelar: false,
+                textoAceptar: 'Aceptar',
+                onAceptar: cerrarModal
+            })
 
         } finally {
 
@@ -656,7 +702,7 @@ function NuevaEvaluacion({
 
                 {/* =================================================
                     INDICADORES
-                ================================================= */}
+                ================================================== */}
 
                 <div className="seccion-formulario">
 
@@ -1024,32 +1070,6 @@ function NuevaEvaluacion({
 
 
                 {/* =================================================
-                    MENSAJES
-                ================================================== */}
-
-                {mensaje && (
-
-                    <div className="mensaje-exito">
-
-                        {mensaje}
-
-                    </div>
-
-                )}
-
-
-                {error && (
-
-                    <div className="mensaje-error">
-
-                        {error}
-
-                    </div>
-
-                )}
-
-
-                {/* =================================================
                     BOTONES
                 ================================================== */}
 
@@ -1080,6 +1100,26 @@ function NuevaEvaluacion({
                 </div>
 
             </form>
+
+
+            {/* =================================================
+                MODAL
+            ================================================== */}
+
+            <ModalMensaje
+                abierto={modal.abierto}
+                tipo={modal.tipo}
+                titulo={modal.titulo}
+                mensaje={modal.mensaje}
+                mostrarCancelar={modal.mostrarCancelar}
+                textoCancelar={modal.textoCancelar}
+                textoAceptar={modal.textoAceptar}
+                onCancelar={cerrarModal}
+                onAceptar={
+                    modal.onAceptar ||
+                    cerrarModal
+                }
+            />
 
 
             <style>{`
@@ -1992,57 +2032,6 @@ function NuevaEvaluacion({
 
                     color:
                         var(--ne-text);
-
-                }
-
-
-                /* =================================================
-                   MENSAJES
-                ================================================= */
-
-                .mensaje-exito {
-
-                    padding:
-                        9px 11px;
-
-                    border-radius:
-                        7px;
-
-                    background:
-                        var(--ne-excelente-bg);
-
-                    color:
-                        var(--ne-excelente-text);
-
-                    border:
-                        1px solid
-                        var(--ne-excelente-text);
-
-                    font-size:
-                        10px;
-
-                }
-
-                .mensaje-error {
-
-                    padding:
-                        9px 11px;
-
-                    border-radius:
-                        7px;
-
-                    background:
-                        var(--ne-riesgo-bg);
-
-                    color:
-                        var(--ne-riesgo-text);
-
-                    border:
-                        1px solid
-                        var(--ne-riesgo-text);
-
-                    font-size:
-                        10px;
 
                 }
 

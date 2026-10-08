@@ -1,15 +1,53 @@
-
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import './Proveedores.css'
+import ModalMensaje from '../components/ModalMensaje'
 
 function Proveedores() {
 
   const [proveedores, setProveedores] = useState([])
   const [cargando, setCargando] = useState(true)
 
+  // =========================================
+  // MODAL
+  // =========================================
+
+  const [modal, setModal] = useState({
+    abierto: false,
+    tipo: 'info',
+    titulo: '',
+    mensaje: '',
+    mostrarCancelar: false,
+    onAceptar: null
+  })
+
+
+  // =========================================
+  // CERRAR MODAL
+  // =========================================
+
+  const cerrarModal = () => {
+
+    setModal({
+      abierto: false,
+      tipo: 'info',
+      titulo: '',
+      mensaje: '',
+      mostrarCancelar: false,
+      onAceptar: null
+    })
+
+  }
+
+
+  // =========================================
+  // OBTENER PROVEEDORES
+  // =========================================
+
   const obtenerProveedores = async () => {
+
     try {
+
       const respuesta = await fetch(
         'http://localhost:8080/api/proveedores'
       )
@@ -19,116 +57,185 @@ function Proveedores() {
       }
 
       const datos = await respuesta.json()
+
       setProveedores(datos)
 
     } catch (error) {
+
       console.error(error)
-      alert('Error al cargar los proveedores')
+
+      setModal({
+        abierto: true,
+        tipo: 'error',
+        titulo: 'Error al cargar proveedores',
+        mensaje: 'No fue posible obtener la información de los proveedores.',
+        mostrarCancelar: false,
+        onAceptar: cerrarModal
+      })
 
     } finally {
+
       setCargando(false)
+
     }
   }
+
+
+  // =========================================
+  // CARGAR AL INICIAR
+  // =========================================
 
   useEffect(() => {
+
     obtenerProveedores()
+
   }, [])
 
-  const eliminarProveedor = async (id) => {
 
-    const confirmar = window.confirm(
-      '¿Seguro que deseas eliminar este proveedor?'
-    )
+  // =========================================
+  // ELIMINAR PROVEEDOR
+  // =========================================
 
-    if (!confirmar) {
-      return
-    }
+  const eliminarProveedor = (id) => {
 
-    try {
+    setModal({
+      abierto: true,
+      tipo: 'eliminar',
+      titulo: '¿Deseas eliminar este proveedor?',
+      mensaje: 'Esta acción no se puede deshacer. El proveedor será eliminado del sistema.',
+      mostrarCancelar: true,
 
-      const respuesta = await fetch(
-        `http://localhost:8080/api/proveedores/${id}`,
-        {
-          method: 'DELETE'
+      onAceptar: async () => {
+
+        try {
+
+          const respuesta = await fetch(
+            `http://localhost:8080/api/proveedores/${id}`,
+            {
+              method: 'DELETE'
+            }
+          )
+
+          if (!respuesta.ok) {
+            throw new Error('No se pudo eliminar el proveedor')
+          }
+
+          setProveedores(proveedoresActuales =>
+            proveedoresActuales.filter(
+              proveedor =>
+                proveedor.idProveedor !== id
+            )
+          )
+
+          setModal({
+            abierto: true,
+            tipo: 'exito',
+            titulo: 'Proveedor eliminado',
+            mensaje: 'El proveedor se eliminó correctamente del sistema.',
+            mostrarCancelar: false,
+            onAceptar: cerrarModal
+          })
+
+        } catch (error) {
+
+          console.error(error)
+
+          setModal({
+            abierto: true,
+            tipo: 'error',
+            titulo: 'Error al eliminar',
+            mensaje: 'No fue posible eliminar el proveedor. Inténtalo nuevamente.',
+            mostrarCancelar: false,
+            onAceptar: cerrarModal
+          })
+
         }
-      )
 
-      if (!respuesta.ok) {
-        throw new Error('No se pudo eliminar el proveedor')
       }
+    })
 
-      setProveedores(proveedoresActuales =>
-        proveedoresActuales.filter(
-          proveedor =>
-            proveedor.idProveedor !== id
-        )
-      )
-
-      alert('Proveedor eliminado correctamente')
-
-    } catch (error) {
-      console.error(error)
-      alert('Error al eliminar el proveedor')
-    }
   }
+
+
+  // =========================================
+  // CARGANDO
+  // =========================================
 
   if (cargando) {
+
     return (
+
       <div className="proveedores-loading">
+
         <div className="proveedores-spinner"></div>
-        <span>Cargando proveedores...</span>
+
+        <span>
+          Cargando proveedores...
+        </span>
+
       </div>
+
     )
+
   }
 
+
+  // =========================================
+  // INTERFAZ
+  // =========================================
+
   return (
+
     <div className="proveedores-page">
 
- 
- 
-{/* ENCABEZADO */}
 
-<div className="proveedores-header">
+      {/* =========================================
+          ENCABEZADO
+      ========================================= */}
 
-  <div className="proveedores-header-content">
+      <div className="proveedores-header">
 
-    <span className="proveedores-subtitulo">
-      ADMINISTRACIÓN DE PROVEEDORES
-    </span>
+        <div className="proveedores-header-content">
 
-    <h1>
-      Proveedores
-    </h1>
+          <span className="proveedores-subtitulo">
+            ADMINISTRACIÓN DE PROVEEDORES
+          </span>
 
-    <div className="proveedores-titulo-linea"></div>
+          <h1>
+            Proveedores
+          </h1>
 
-    <p>
-      Administra y consulta la información de los proveedores registrados.
-    </p>
+          <div className="proveedores-titulo-linea"></div>
 
-  </div>
+          <p>
+            Administra y consulta la información de los proveedores registrados.
+          </p>
 
-  <Link
-    to="/registrar-proveedor"
-    className="proveedores-btn-primary"
-  >
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <path d="M12 5v14" />
-      <path d="M5 12h14" />
-    </svg>
-
-    Registrar proveedor
-  </Link>
-
-</div>
+        </div>
 
 
+        <Link
+          to="/registrar-proveedor"
+          className="proveedores-btn-primary"
+        >
 
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+
+            <path d="M12 5v14" />
+            <path d="M5 12h14" />
+
+          </svg>
+
+          Registrar proveedor
+
+        </Link>
+
+      </div>
 
 
       {/* =========================================
@@ -144,9 +251,11 @@ function Proveedores() {
           </strong>
 
           <span>
+
             {proveedores.length === 1
               ? 'proveedor registrado'
               : 'proveedores registrados'}
+
           </span>
 
         </div>
@@ -170,28 +279,35 @@ function Proveedores() {
               stroke="currentColor"
               strokeWidth="1.6"
             >
+
               <path d="M3 21h18" />
               <path d="M5 21V7l7-4 7 4v14" />
               <path d="M9 21v-5h6v5" />
               <path d="M9 10h.01" />
               <path d="M15 10h.01" />
+
             </svg>
 
           </div>
+
 
           <h2>
             No hay proveedores registrados
           </h2>
 
+
           <p>
             Registra un proveedor para comenzar a administrar tu información.
           </p>
+
 
           <Link
             to="/registrar-proveedor"
             className="proveedores-btn-primary"
           >
+
             Registrar proveedor
+
           </Link>
 
         </div>
@@ -207,7 +323,10 @@ function Proveedores() {
               key={proveedor.idProveedor}
             >
 
-              {/* FOTO */}
+
+              {/* =========================================
+                  FOTO
+              ========================================= */}
 
               <div className="proveedor-foto-container">
 
@@ -234,7 +353,9 @@ function Proveedores() {
               </div>
 
 
-              {/* INFORMACIÓN */}
+              {/* =========================================
+                  INFORMACIÓN
+              ========================================= */}
 
               <div className="proveedor-main">
 
@@ -251,6 +372,7 @@ function Proveedores() {
                     </span>
 
                   </div>
+
 
                   <span
                     className={
@@ -269,9 +391,12 @@ function Proveedores() {
                 </div>
 
 
-                {/* DATOS */}
+                {/* =========================================
+                    DATOS
+                ========================================= */}
 
                 <div className="proveedor-info">
+
 
                   <div className="proveedor-info-item">
 
@@ -296,7 +421,9 @@ function Proveedores() {
                       className="info-value"
                       title={proveedor.correo}
                     >
+
                       {proveedor.correo || 'No registrado'}
+
                     </span>
 
                   </div>
@@ -309,7 +436,9 @@ function Proveedores() {
                     </span>
 
                     <span className="info-value">
+
                       {proveedor.telefono || 'No registrado'}
+
                     </span>
 
                   </div>
@@ -322,7 +451,9 @@ function Proveedores() {
                     </span>
 
                     <span className="info-value">
+
                       {proveedor.rfc || 'No registrado'}
+
                     </span>
 
                   </div>
@@ -332,9 +463,14 @@ function Proveedores() {
               </div>
 
 
-              {/* ACCIONES */}
+              {/* =========================================
+                  ACCIONES
+              ========================================= */}
 
               <div className="proveedor-actions">
+
+
+                {/* EDITAR */}
 
                 <Link
                   to={`/editar-proveedor/${proveedor.idProveedor}`}
@@ -347,14 +483,21 @@ function Proveedores() {
                     stroke="currentColor"
                     strokeWidth="1.8"
                   >
+
                     <path d="M12 20h9" />
-                    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" />
+
+                    <path
+                      d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"
+                    />
+
                   </svg>
 
                   Editar
 
                 </Link>
 
+
+                {/* ELIMINAR */}
 
                 <button
                   className="proveedor-btn proveedor-btn-delete"
@@ -371,11 +514,17 @@ function Proveedores() {
                     stroke="currentColor"
                     strokeWidth="1.8"
                   >
+
                     <path d="M3 6h18" />
+
                     <path d="M8 6V4h8v2" />
+
                     <path d="M19 6l-1 15H6L5 6" />
+
                     <path d="M10 11v6" />
+
                     <path d="M14 11v6" />
+
                   </svg>
 
                   Eliminar
@@ -392,8 +541,26 @@ function Proveedores() {
 
       )}
 
+
+      {/* =========================================
+          MODAL DE MENSAJES
+      ========================================= */}
+
+      <ModalMensaje
+        abierto={modal.abierto}
+        tipo={modal.tipo}
+        titulo={modal.titulo}
+        mensaje={modal.mensaje}
+        mostrarCancelar={modal.mostrarCancelar}
+        onCancelar={cerrarModal}
+        onAceptar={modal.onAceptar || cerrarModal}
+      />
+
+
     </div>
+
   )
+
 }
 
 export default Proveedores

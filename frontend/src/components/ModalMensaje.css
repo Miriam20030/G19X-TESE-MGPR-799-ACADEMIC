@@ -1,0 +1,370 @@
+/* =========================================================
+   MODAL DE MENSAJES
+   ========================================================= */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0, 0, 0, 0.55);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 9999;
+
+    backdrop-filter: blur(4px);
+}
+
+/* =========================================================
+   CONTENEDOR
+   ========================================================= */
+
+.modal-mensaje {
+    width: 420px;
+    max-width: 90%;
+
+    background: #ffffff;
+
+    border-radius: 18px;
+
+    padding: 30px;
+
+    text-align: center;
+
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.25);
+
+    animation: aparecerModal 0.2s ease;
+
+    transition:
+        background 0.3s ease,
+        color 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+/* =========================================================
+   ICONO
+   ========================================================= */
+
+.modal-icono {
+    width: 65px;
+    height: 65px;
+
+    margin: 0 auto 18px;
+
+    border-radius: 50%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 30px;
+    font-weight: bold;
+}
+
+/* =========================================================
+   TITULO
+   ========================================================= */
+
+.modal-mensaje h2 {
+    margin: 0 0 10px;
+
+    font-size: 23px;
+
+    color: #1f2937;
+
+    transition: color 0.3s ease;
+}
+
+/* =========================================================
+   MENSAJE
+   ========================================================= */
+
+.modal-mensaje p {
+    margin: 0 auto 25px;
+
+    color: #6b7280;
+
+    font-size: 15px;
+
+    line-height: 1.5;
+
+    transition: color 0.3s ease;
+
+    white-space: pre-line;
+}
+
+/* =========================================================
+   BOTONES
+   ========================================================= */
+
+.modal-botones {
+    display: flex;
+
+    justify-content: center;
+
+    gap: 12px;
+}
+
+.modal-btn {
+    border: none;
+
+    padding: 11px 24px;
+
+    border-radius: 10px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.modal-btn:hover {
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   ÉXITO
+   ========================================================= */
+
+.modal-exito .modal-icono {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+/* =========================================================
+   ACEPTAR
+   ========================================================= */
+
+.modal-btn.aceptar {
+    background: #2563eb;
+    color: white;
+}
+
+.modal-btn.aceptar:hover {
+    background: #1d4ed8;
+}
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+.modal-error .modal-icono {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* =========================================================
+   ADVERTENCIA
+   ========================================================= */
+
+.modal-advertencia .modal-icono {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+/* =========================================================
+   INFORMACIÓN
+   ========================================================= */
+
+.modal-info .modal-icono {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+/* =========================================================
+   ELIMINAR
+   ========================================================= */
+
+.modal-eliminar .modal-icono {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.modal-btn.eliminar {
+    background: #dc2626;
+    color: white;
+}
+
+.modal-btn.eliminar:hover {
+    background: #b91c1c;
+}
+
+/* =========================================================
+   CANCELAR
+   ========================================================= */
+
+.modal-btn.cancelar {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.modal-btn.cancelar:hover {
+    background: #d1d5db;
+}
+
+/* =========================================================
+   ANIMACIÓN
+   ========================================================= */
+
+@keyframes aparecerModal {
+
+    from {
+        opacity: 0;
+        transform: scale(0.92);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+}
+
+/* =========================================================
+   MODO OSCURO
+   ========================================================= */
+
+/*
+   Se contemplan las clases más comunes utilizadas
+   por el sistema para activar el modo oscuro.
+*/
+
+.dark .modal-mensaje,
+.modo-oscuro .modal-mensaje,
+.dark-mode .modal-mensaje,
+body.dark .modal-mensaje,
+body.modo-oscuro .modal-mensaje,
+body.dark-mode .modal-mensaje {
+    background: #1f2937;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.55);
+}
+
+.dark .modal-mensaje h2,
+.modo-oscuro .modal-mensaje h2,
+.dark-mode .modal-mensaje h2,
+body.dark .modal-mensaje h2,
+body.modo-oscuro .modal-mensaje h2,
+body.dark-mode .modal-mensaje h2 {
+    color: #f9fafb;
+}
+
+.dark .modal-mensaje p,
+.modo-oscuro .modal-mensaje p,
+.dark-mode .modal-mensaje p,
+body.dark .modal-mensaje p,
+body.modo-oscuro .modal-mensaje p,
+body.dark-mode .modal-mensaje p {
+    color: #d1d5db;
+}
+
+/* =========================================================
+   ICONOS EN MODO OSCURO
+   ========================================================= */
+
+.dark .modal-exito .modal-icono,
+.modo-oscuro .modal-exito .modal-icono,
+.dark-mode .modal-exito .modal-icono,
+body.dark .modal-exito .modal-icono,
+body.modo-oscuro .modal-exito .modal-icono,
+body.dark-mode .modal-exito .modal-icono {
+    background: rgba(22, 163, 74, 0.18);
+    color: #4ade80;
+}
+
+.dark .modal-error .modal-icono,
+.modo-oscuro .modal-error .modal-icono,
+.dark-mode .modal-error .modal-icono,
+body.dark .modal-error .modal-icono,
+body.modo-oscuro .modal-error .modal-icono,
+body.dark-mode .modal-error .modal-icono {
+    background: rgba(220, 38, 38, 0.18);
+    color: #f87171;
+}
+
+.dark .modal-advertencia .modal-icono,
+.modo-oscuro .modal-advertencia .modal-icono,
+.dark-mode .modal-advertencia .modal-icono,
+body.dark .modal-advertencia .modal-icono,
+body.modo-oscuro .modal-advertencia .modal-icono,
+body.dark-mode .modal-advertencia .modal-icono {
+    background: rgba(217, 119, 6, 0.18);
+    color: #fbbf24;
+}
+
+.dark .modal-info .modal-icono,
+.modo-oscuro .modal-info .modal-icono,
+.dark-mode .modal-info .modal-icono,
+body.dark .modal-info .modal-icono,
+body.modo-oscuro .modal-info .modal-icono,
+body.dark-mode .modal-info .modal-icono {
+    background: rgba(37, 99, 235, 0.18);
+    color: #60a5fa;
+}
+
+.dark .modal-eliminar .modal-icono,
+.modo-oscuro .modal-eliminar .modal-icono,
+.dark-mode .modal-eliminar .modal-icono,
+body.dark .modal-eliminar .modal-icono,
+body.modo-oscuro .modal-eliminar .modal-icono,
+body.dark-mode .modal-eliminar .modal-icono {
+    background: rgba(220, 38, 38, 0.18);
+    color: #f87171;
+}
+
+/* =========================================================
+   BOTÓN CANCELAR EN MODO OSCURO
+   ========================================================= */
+
+.dark .modal-btn.cancelar,
+.modo-oscuro .modal-btn.cancelar,
+.dark-mode .modal-btn.cancelar,
+body.dark .modal-btn.cancelar,
+body.modo-oscuro .modal-btn.cancelar,
+body.dark-mode .modal-btn.cancelar {
+    background: #374151;
+    color: #f3f4f6;
+}
+
+.dark .modal-btn.cancelar:hover,
+.modo-oscuro .modal-btn.cancelar:hover,
+.dark-mode .modal-btn.cancelar:hover,
+body.dark .modal-btn.cancelar:hover,
+body.modo-oscuro .modal-btn.cancelar:hover,
+body.dark-mode .modal-btn.cancelar:hover {
+    background: #4b5563;
+}
+
+/* =========================================================
+   OVERLAY EN MODO OSCURO
+   ========================================================= */
+
+.dark .modal-overlay,
+.modo-oscuro .modal-overlay,
+.dark-mode .modal-overlay,
+body.dark .modal-overlay,
+body.modo-oscuro .modal-overlay,
+body.dark-mode .modal-overlay {
+    background: rgba(0, 0, 0, 0.70);
+}
+
+/* =========================================================
+   ACCESIBILIDAD
+   ========================================================= */
+
+.modal-btn:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, 0.35);
+    outline-offset: 2px;
+}
