@@ -1,222 +1,222 @@
+
 import { useState } from 'react'
 import './Login.css'
 
 function Login({ onLogin }) {
-  const [usuario, setUsuario] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [cargando, setCargando] = useState(false)
+    const [usuario, setUsuario] = useState('')
+    const [password, setPassword] = useState('')
+    const [error, setError] = useState('')
+    const [cargando, setCargando] = useState(false)
 
-  const iniciarSesion = async (e) => {
-    e.preventDefault()
+    // ==========================================
+    // INICIAR SESIÓN
+    // ==========================================
 
-    if (!usuario || !password) {
-      setError('Ingresa tu usuario y contraseña')
-      return
-    }
+    const iniciarSesion = async (e) => {
+        e.preventDefault()
 
-    setError('')
-    setCargando(true)
-
-    try {
-      const respuesta = await fetch(
-        'http://localhost:8080/api/auth/login',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            usuario,
-            password
-          })
+        if (!usuario.trim() || !password) {
+            setError('Ingresa tu usuario y contraseña')
+            return
         }
-      )
 
-      const data = await respuesta.json()
+        setError('')
+        setCargando(true)
 
-      if (!respuesta.ok) {
-        setError(
-          data.mensaje ||
-          'Usuario o contraseña incorrectos'
-        )
-        return
-      }
+        try {
+            const respuesta = await fetch(
+                'http://localhost:8080/api/auth/login',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        usuario,
+                        password
+                    })
+                }
+            )
 
-      localStorage.setItem(
-  'usuario',
-  data.usuario
-)
+            const data = await respuesta.json()
 
-      onLogin(data)
+            if (!respuesta.ok) {
+                setError(
+                    data.mensaje ||
+                    'Usuario o contraseña incorrectos'
+                )
+                return
+            }
 
-    } catch (error) {
-      setError(
-        'No se pudo conectar con el servidor'
-      )
+            // Guardar el usuario que inició sesión
+            localStorage.setItem(
+                'usuario',
+                data.usuario
+            )
 
-    } finally {
-      setCargando(false)
+            // Notificar el inicio de sesión
+            onLogin(data)
+
+        } catch (error) {
+            setError(
+                'No se pudo conectar con el servidor'
+            )
+        } finally {
+            setCargando(false)
+        }
     }
-  }
 
-  return (
-    <div className="login-page">
+    // ==========================================
+    // DISEÑO DEL LOGIN
+    // ==========================================
 
-      {/* ==========================================
-          PANEL DE BIENVENIDA
-      ========================================== */}
+    return (
+        <div className="login-page">
 
-      <div className="welcome-panel">
+            {/* PANEL DE BIENVENIDA */}
 
-        <div className="welcome-content">
+            <div className="welcome-panel">
+                <div className="welcome-content">
 
-          <div className="welcome-icon">
-            ✓
-          </div>
+                    <div className="welcome-icon">
+                        ✓
+                    </div>
 
-          <h1>Bienvenido</h1>
+                    <h1>
+                        Bienvenido
+                    </h1>
 
-          <h2>
-            Sistema de Evaluación
-            <br />
-            de Proveedores
-          </h2>
+                    <h2>
+                        Sistema de Evaluación
+                        <br />
+                        de Proveedores
+                    </h2>
 
-          <p>
-            Gestiona, evalúa y supervisa el desempeño
-            de tus proveedores desde un solo lugar.
-          </p>
+                    <p>
+                        Gestiona, evalúa y supervisa el desempeño
+                        de tus proveedores desde un solo lugar.
+                    </p>
 
-          <div className="welcome-line"></div>
+                    <div className="welcome-line"></div>
 
-          <span className="welcome-footer">
-            Gestión eficiente • Evaluación • Control
-          </span>
+                    <span className="welcome-footer">
+                        Gestión eficiente • Evaluación • Control
+                    </span>
+
+                </div>
+            </div>
+
+            {/* PANEL DE INICIO DE SESIÓN */}
+
+            <div className="login-panel">
+                <div className="login-card">
+
+                    {/* ENCABEZADO */}
+
+                    <div className="login-header">
+
+                        <div className="login-icon">
+                        </div>
+
+                        <h2>
+                            Iniciar sesión
+                        </h2>
+
+                        <p>
+                            Ingresa tus datos para continuar
+                        </p>
+
+                    </div>
+
+                    {/* FORMULARIO */}
+
+                    <form onSubmit={iniciarSesion}>
+
+                        {/* USUARIO */}
+
+                        <div className="input-group">
+
+                            <label>
+                                Usuario
+                            </label>
+
+                            <div className="input-wrapper">
+
+                                <span></span>
+
+                                <input
+                                    type="text"
+                                    placeholder="Ingresa tu usuario"
+                                    value={usuario}
+                                    onChange={(e) =>
+                                        setUsuario(e.target.value)
+                                    }
+                                    autoComplete="username"
+                                />
+
+                            </div>
+
+                        </div>
+
+                        {/* CONTRASEÑA */}
+
+                        <div className="input-group">
+
+                            <label>
+                                Contraseña
+                            </label>
+
+                            <div className="input-wrapper">
+
+                                <span></span>
+
+                                <input
+                                    type="password"
+                                    placeholder="Ingresa tu contraseña"
+                                    value={password}
+                                    onChange={(e) =>
+                                        setPassword(e.target.value)
+                                    }
+                                    autoComplete="current-password"
+                                />
+
+                            </div>
+
+                        </div>
+
+                        {/* MENSAJE DE ERROR */}
+
+                        {error && (
+                            <div className="login-error" role="alert">
+                                ⚠️ {error}
+                            </div>
+                        )}
+
+                        {/* BOTÓN DE INICIO DE SESIÓN */}
+
+                        <button
+                            type="submit"
+                            className="login-button"
+                            disabled={cargando}
+                        >
+                            {cargando
+                                ? 'Ingresando...'
+                                : 'Iniciar sesión'}
+                        </button>
+
+                    </form>
+
+                    {/* PIE DE PÁGINA */}
+
+                    <div className="login-footer">
+                        Sistema de Evaluación de Proveedores
+                    </div>
+
+                </div>
+            </div>
 
         </div>
-
-      </div>
-
-
-      {/* ==========================================
-          PANEL DE LOGIN
-      ========================================== */}
-
-      <div className="login-panel">
-
-        <div className="login-card">
-
-          <div className="login-header">
-
-            <div className="login-icon">
-            </div>
-
-            <h2>Iniciar sesión</h2>
-
-            <p>
-              Ingresa tus datos para continuar
-            </p>
-
-          </div>
-
-
-          {/* ========================================
-              FORMULARIO
-          ======================================== */}
-
-          <form onSubmit={iniciarSesion}>
-
-            <div className="input-group">
-
-              <label>
-                Usuario
-              </label>
-
-              <div className="input-wrapper">
-
-                <span></span>
-
-                <input
-                  type="text"
-                  placeholder="Ingresa tu usuario"
-                  value={usuario}
-                  onChange={(e) =>
-                    setUsuario(e.target.value)
-                  }
-                />
-
-              </div>
-
-            </div>
-
-
-            <div className="input-group">
-
-              <label>
-                Contraseña
-              </label>
-
-              <div className="input-wrapper">
-
-                <span></span>
-
-                <input
-                  type="password"
-                  placeholder="Ingresa tu contraseña"
-                  value={password}
-                  onChange={(e) =>
-                    setPassword(e.target.value)
-                  }
-                />
-
-              </div>
-
-            </div>
-
-
-            {/* ======================================
-                MENSAJE DE ERROR
-            ====================================== */}
-
-            {error && (
-              <div className="login-error">
-                ⚠️ {error}
-              </div>
-            )}
-
-
-            {/* ======================================
-                BOTÓN
-            ====================================== */}
-
-            <button
-              type="submit"
-              className="login-button"
-              disabled={cargando}
-            >
-              {cargando
-                ? 'Ingresando...'
-                : 'Iniciar sesión'}
-            </button>
-
-          </form>
-
-
-          {/* ========================================
-              FOOTER
-          ======================================== */}
-
-          <div className="login-footer">
-            Sistema de Evaluación de Proveedores
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-  )
+    )
 }
 
 export default Login

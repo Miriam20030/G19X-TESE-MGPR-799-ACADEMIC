@@ -1,10 +1,10 @@
+
 package com.evaluacionproveedores.backend.controller;
 
 import com.evaluacionproveedores.backend.model.Usuario;
 import com.evaluacionproveedores.backend.repository.UsuarioRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -24,13 +24,22 @@ public class AuthController {
         this.usuarioRepository = usuarioRepository;
     }
 
+    // =========================================================
+    // GENERAR HASH
+    // =========================================================
+
     @GetMapping("/hash")
-public String generarHash() {
-    return passwordEncoder.encode("Admin123");
-}
+    public String generarHash() {
+        return passwordEncoder.encode("Admin123");
+    }
+
+    // =========================================================
+    // INICIAR SESIÓN
+    // =========================================================
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> datos) {
+    public ResponseEntity<?> login(
+            @RequestBody Map<String, String> datos) {
 
         String usuario = datos.get("usuario");
         String password = datos.get("password");
@@ -44,7 +53,9 @@ public String generarHash() {
         }
 
         Usuario usuarioEncontrado =
-                usuarioRepository.findByUsuario(usuario).orElse(null);
+                usuarioRepository
+                        .findByUsuario(usuario)
+                        .orElse(null);
 
         if (usuarioEncontrado == null) {
             return ResponseEntity.status(401)
@@ -62,10 +73,11 @@ public String generarHash() {
                     ));
         }
 
-        boolean passwordCorrecta = passwordEncoder.matches(
-                password,
-                usuarioEncontrado.getPassword()
-        );
+        boolean passwordCorrecta =
+                passwordEncoder.matches(
+                        password,
+                        usuarioEncontrado.getPassword()
+                );
 
         if (!passwordCorrecta) {
             return ResponseEntity.status(401)
@@ -77,15 +89,34 @@ public String generarHash() {
 
         Map<String, Object> respuesta = new HashMap<>();
 
-        respuesta.put("mensaje", "Inicio de sesión correcto");
-        respuesta.put("idUsuario", usuarioEncontrado.getIdUsuario());
-        respuesta.put("usuario", usuarioEncontrado.getUsuario());
-        respuesta.put("nombre", usuarioEncontrado.getNombre());
+        respuesta.put(
+                "mensaje",
+                "Inicio de sesión correcto"
+        );
+
+        respuesta.put(
+                "idUsuario",
+                usuarioEncontrado.getIdUsuario()
+        );
+
+        respuesta.put(
+                "usuario",
+                usuarioEncontrado.getUsuario()
+        );
+
+        respuesta.put(
+                "nombre",
+                usuarioEncontrado.getNombre()
+        );
 
         return ResponseEntity.ok(respuesta);
     }
 
-            @PostMapping("/cambiar-password")
+    // =========================================================
+    // CAMBIAR CONTRASEÑA
+    // =========================================================
+
+    @PostMapping("/cambiar-password")
     public ResponseEntity<?> cambiarPassword(
             @RequestBody Map<String, String> datos) {
 
@@ -93,9 +124,14 @@ public String generarHash() {
         String passwordActual = datos.get("passwordActual");
         String nuevaPassword = datos.get("nuevaPassword");
 
-        // Validar que todos los datos estén presentes
-        if (usuario == null || passwordActual == null || nuevaPassword == null ||
-                usuario.isBlank() || passwordActual.isBlank() || nuevaPassword.isBlank()) {
+        // Validar campos
+
+        if (usuario == null ||
+                passwordActual == null ||
+                nuevaPassword == null ||
+                usuario.isBlank() ||
+                passwordActual.isBlank() ||
+                nuevaPassword.isBlank()) {
 
             return ResponseEntity.badRequest()
                     .body(Map.of(
@@ -104,9 +140,12 @@ public String generarHash() {
                     ));
         }
 
-        // Buscar el usuario
+        // Buscar usuario
+
         Usuario usuarioEncontrado =
-                usuarioRepository.findByUsuario(usuario).orElse(null);
+                usuarioRepository
+                        .findByUsuario(usuario)
+                        .orElse(null);
 
         if (usuarioEncontrado == null) {
             return ResponseEntity.status(404)
@@ -117,10 +156,12 @@ public String generarHash() {
         }
 
         // Verificar contraseña actual
-        boolean passwordCorrecta = passwordEncoder.matches(
-                passwordActual,
-                usuarioEncontrado.getPassword()
-        );
+
+        boolean passwordCorrecta =
+                passwordEncoder.matches(
+                        passwordActual,
+                        usuarioEncontrado.getPassword()
+                );
 
         if (!passwordCorrecta) {
             return ResponseEntity.status(401)
@@ -130,7 +171,8 @@ public String generarHash() {
                     ));
         }
 
-        // Validar longitud mínima
+        // Validar longitud
+
         if (nuevaPassword.length() < 8) {
             return ResponseEntity.badRequest()
                     .body(Map.of(
@@ -139,13 +181,17 @@ public String generarHash() {
                     ));
         }
 
-        // Encriptar la nueva contraseña
+        // Encriptar contraseña
+
         String nuevaPasswordEncriptada =
                 passwordEncoder.encode(nuevaPassword);
 
-        usuarioEncontrado.setPassword(nuevaPasswordEncriptada);
+        usuarioEncontrado.setPassword(
+                nuevaPasswordEncriptada
+        );
 
-        // Guardar cambios en la base de datos
+        // Guardar cambios
+
         usuarioRepository.save(usuarioEncontrado);
 
         return ResponseEntity.ok(
@@ -155,9 +201,4 @@ public String generarHash() {
                 )
         );
     }
-
-
-
-
-
 }
