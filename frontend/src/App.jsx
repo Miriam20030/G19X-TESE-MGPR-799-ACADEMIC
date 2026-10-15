@@ -1586,6 +1586,10 @@ function App() {
     return (
       <Login
         onLogin={(datosUsuario) => {
+          // Al iniciar sesión, establecer siempre la ruta de Inicio.
+          // BrowserRouter se monta después de autenticar al usuario,
+          // por lo que leerá la ruta "/" al renderizar la aplicación.
+          window.history.replaceState(null, '', '/')
           setUsuario(datosUsuario)
         }}
       />
