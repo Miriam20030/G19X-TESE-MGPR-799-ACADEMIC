@@ -25,15 +25,6 @@ public class AuthController {
     }
 
     // =========================================================
-    // GENERAR HASH
-    // =========================================================
-
-    @GetMapping("/hash")
-    public String generarHash() {
-        return passwordEncoder.encode("Admin123");
-    }
-
-    // =========================================================
     // INICIAR SESIÓN
     // =========================================================
 
@@ -44,7 +35,9 @@ public class AuthController {
         String usuario = datos.get("usuario");
         String password = datos.get("password");
 
-        if (usuario == null || password == null) {
+        if (usuario == null || password == null ||
+                usuario.isBlank() || password.isBlank()) {
+
             return ResponseEntity.badRequest()
                     .body(Map.of(
                             "mensaje",
@@ -65,7 +58,7 @@ public class AuthController {
                     ));
         }
 
-        if (!usuarioEncontrado.getActivo()) {
+        if (!Boolean.TRUE.equals(usuarioEncontrado.getActivo())) {
             return ResponseEntity.status(401)
                     .body(Map.of(
                             "mensaje",
@@ -124,7 +117,7 @@ public class AuthController {
         String passwordActual = datos.get("passwordActual");
         String nuevaPassword = datos.get("nuevaPassword");
 
-        // Validar campos
+        // Validar campos obligatorios
 
         if (usuario == null ||
                 passwordActual == null ||
@@ -171,7 +164,7 @@ public class AuthController {
                     ));
         }
 
-        // Validar longitud
+        // Validar longitud de la nueva contraseña
 
         if (nuevaPassword.length() < 8) {
             return ResponseEntity.badRequest()
@@ -181,7 +174,7 @@ public class AuthController {
                     ));
         }
 
-        // Encriptar contraseña
+        // Encriptar la nueva contraseña
 
         String nuevaPasswordEncriptada =
                 passwordEncoder.encode(nuevaPassword);
