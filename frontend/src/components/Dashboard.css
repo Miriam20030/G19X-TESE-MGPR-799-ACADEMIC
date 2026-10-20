@@ -1,0 +1,73 @@
+/* =========================================================
+   Dashboard.css
+   Estilos externos del panel principal
+   ========================================================= */
+
+.dashboard-container {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  transition: color 0.2s ease;
+}
+
+.dashboard-container *,
+.dashboard-container *::before,
+.dashboard-container *::after {
+  box-sizing: border-box;
+}
+
+.dashboard-container h1,
+.dashboard-container h2,
+.dashboard-container h3,
+.dashboard-container p {
+  overflow-wrap: anywhere;
+}
+
+.dashboard-container .dashboard-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  width: 100%;
+}
+
+.dashboard-container .dashboard-summary-cards .card {
+  min-width: 0;
+  padding: 22px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-container .dashboard-summary-cards .card:hover {
+  transform: translateY(-2px);
+}
+
+.dashboard-container .dashboard-summary-cards .card span {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.dashboard-container .dashboard-summary-cards .card strong {
+  font-size: clamp(24px, 2.5vw, 32px);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1000px) {
+  .dashboard-container .dashboard-summary-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .dashboard-container .dashboard-summary-cards {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .dashboard-container .dashboard-summary-cards .card {
+    padding: 18px;
+  }
+}

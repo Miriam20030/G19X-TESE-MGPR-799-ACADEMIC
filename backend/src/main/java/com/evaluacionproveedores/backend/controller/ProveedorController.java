@@ -2,11 +2,15 @@
 package com.evaluacionproveedores.backend.controller;
 
 import com.evaluacionproveedores.backend.model.Proveedor;
-import com.evaluacionproveedores.backend.repository.ProveedorRepository;
 import com.evaluacionproveedores.backend.repository.EvaluacionRepository;
+import com.evaluacionproveedores.backend.repository.ProveedorRepository;
+
+import jakarta.transaction.Transactional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,13 +27,16 @@ import java.util.UUID;
 @CrossOrigin(origins = "http://localhost:5173")
 public class ProveedorController {
 
+    private static final Logger logger =
+            LoggerFactory.getLogger(ProveedorController.class);
+
     private final ProveedorRepository proveedorRepository;
     private final EvaluacionRepository evaluacionRepository;
 
     public ProveedorController(
             ProveedorRepository proveedorRepository,
-            EvaluacionRepository evaluacionRepository
-    ) {
+            EvaluacionRepository evaluacionRepository) {
+
         this.proveedorRepository = proveedorRepository;
         this.evaluacionRepository = evaluacionRepository;
     }
@@ -37,54 +44,34 @@ public class ProveedorController {
     // ==========================================
     // OBTENER TODOS LOS PROVEEDORES
     // ==========================================
+
     @GetMapping
     public List<Proveedor> obtenerProveedores() {
-
         return proveedorRepository.findAll();
     }
 
     // ==========================================
     // OBTENER UN PROVEEDOR POR ID
     // ==========================================
-    @GetMapping("/{id}")
-    public Proveedor obtenerProveedor(
-            @PathVariable Integer id
-    ) {
 
-        return proveedorRepository
-                .findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("Proveedor no encontrado")
-                );
+    @GetMapping("/{id}")
+    public ResponseEntity<?> obtenerProveedor(
+            @PathVariable Integer id) {
+
+        return proveedorRepository.findById(id)
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // ==========================================
     // REGISTRAR UN PROVEEDOR
     // ==========================================
+
     @PostMapping
     public Proveedor guardarProveedor(
-            @RequestBody Proveedor proveedor
-    ) {
+            @RequestBody Proveedor proveedor) {
 
-        System.out.println(
-                "========== REGISTRANDO PROVEEDOR =========="
-        );
-
-        System.out.println(
-                "Nombre: " + proveedor.getNombre()
-        );
-
-        System.out.println(
-                "Contacto: " + proveedor.getContacto()
-        );
-
-        System.out.println(
-                "Correo: " + proveedor.getCorreo()
-        );
-
-        System.out.println(
-                "==========================================="
-        );
+        logger.info("Solicitud para registrar un proveedor recibida.");
 
         return proveedorRepository.save(proveedor);
     }
@@ -92,17 +79,19 @@ public class ProveedorController {
     // ==========================================
     // EDITAR UN PROVEEDOR
     // ==========================================
+
     @PutMapping("/{id}")
-    public Proveedor editarProveedor(
+    public ResponseEntity<?> editarProveedor(
             @PathVariable Integer id,
-            @RequestBody Proveedor proveedor
-    ) {
+            @RequestBody Proveedor proveedor) {
 
         Proveedor proveedorExistente = proveedorRepository
                 .findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("Proveedor no encontrado")
-                );
+                .orElse(null);
+
+        if (proveedorExistente == null) {
+            return ResponseEntity.notFound().build();
+        }
 
         proveedorExistente.setNombre(proveedor.getNombre());
         proveedorExistente.setContacto(proveedor.getContacto());
@@ -111,170 +100,84 @@ public class ProveedorController {
         proveedorExistente.setRfc(proveedor.getRfc());
         proveedorExistente.setEstado(proveedor.getEstado());
 
-        return proveedorRepository.save(proveedorExistente);
+        return ResponseEntity.ok(
+                proveedorRepository.save(proveedorExistente)
+        );
     }
 
     // ==========================================
     // SUBIR / CAMBIAR FOTO DEL PROVEEDOR
     // ==========================================
+
     @PostMapping("/{id}/foto")
     public ResponseEntity<?> subirFoto(
             @PathVariable Integer id,
-            @RequestParam("foto") MultipartFile foto
-    ) {
+            @RequestParam("foto") MultipartFile foto) {
 
-        System.out.println();
-        System.out.println(
-                "========== FOTO RECIBIDA =========="
-        );
-
-        System.out.println(
-                "ID proveedor: " + id
-        );
-
-        System.out.println(
-                "Nombre foto: " + foto.getOriginalFilename()
-        );
-
-        System.out.println(
-                "Tipo foto: " + foto.getContentType()
-        );
-
-        System.out.println(
-                "Tamaño foto: " + foto.getSize()
-        );
-
-        System.out.println(
-                "==================================="
-        );
-
-        System.out.println();
+        if (foto == null || foto.isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body("No se seleccionó ninguna imagen.");
+        }
 
         try {
-
-            // ==========================================
-            // BUSCAR PROVEEDOR
-            // ==========================================
-
             Proveedor proveedor = proveedorRepository
                     .findById(id)
-                    .orElseThrow(() ->
-                            new RuntimeException(
-                                    "Proveedor no encontrado"
-                            )
-                    );
+                    .orElse(null);
 
-            System.out.println(
-                    "Proveedor encontrado: " +
-                    proveedor.getNombre()
-            );
-
-            // ==========================================
-            // VERIFICAR FOTO
-            // ==========================================
-
-            if (foto.isEmpty()) {
-
-                System.out.println(
-                        "ERROR: La foto está vacía."
-                );
-
-                return ResponseEntity.badRequest()
-                        .body(
-                                "No se seleccionó ninguna imagen"
-                        );
+            if (proveedor == null) {
+                return ResponseEntity.notFound().build();
             }
 
-            // ==========================================
-            // CREAR CARPETA
-            // ==========================================
+            // Crear carpeta de imágenes si no existe.
 
             Path carpeta = Paths.get(
                     "uploads",
                     "proveedores"
-            ).toAbsolutePath();
+            ).toAbsolutePath().normalize();
 
-            System.out.println(
-                    "Carpeta de imágenes:"
-            );
+            Files.createDirectories(carpeta);
 
-            System.out.println(carpeta);
+            // Obtener una extensión permitida.
 
-            if (!Files.exists(carpeta)) {
-
-                System.out.println(
-                        "La carpeta no existe."
-                );
-
-                System.out.println(
-                        "Creando carpeta..."
-                );
-
-                Files.createDirectories(carpeta);
-
-                System.out.println(
-                        "Carpeta creada correctamente."
-                );
-            }
-
-            // ==========================================
-            // OBTENER EXTENSIÓN
-            // ==========================================
-
-            String nombreOriginal =
-                    foto.getOriginalFilename();
+            String nombreOriginal = foto.getOriginalFilename();
 
             String extension = "";
 
-            if (
-                    nombreOriginal != null &&
-                    nombreOriginal.contains(".")
-            ) {
+            if (nombreOriginal != null) {
+                int punto = nombreOriginal.lastIndexOf('.');
 
-                extension =
-                        nombreOriginal.substring(
-                                nombreOriginal.lastIndexOf(".")
-                        );
+                if (punto >= 0) {
+                    extension = nombreOriginal
+                            .substring(punto)
+                            .toLowerCase(java.util.Locale.ROOT);
+                }
             }
 
-            // ==========================================
-            // CREAR NOMBRE DEL ARCHIVO
-            // ==========================================
+            if (!List.of(".jpg", ".jpeg", ".png", ".webp")
+                    .contains(extension)) {
 
-            String nombreArchivo =
-                    "proveedor_" +
-                    id +
-                    "_" +
-                    UUID.randomUUID() +
-                    extension;
+                return ResponseEntity.badRequest()
+                        .body("Formato de imagen no permitido.");
+            }
 
-            System.out.println(
-                    "Nombre nuevo de la imagen: " +
-                    nombreArchivo
-            );
+            // Generar un nombre de archivo único.
 
-            // ==========================================
-            // CREAR RUTA FINAL
-            // ==========================================
+            String nombreArchivo = "proveedor_"
+                    + id
+                    + "_"
+                    + UUID.randomUUID()
+                    + extension;
 
-            Path rutaArchivo =
-                    carpeta.resolve(nombreArchivo);
+            Path rutaArchivo = carpeta
+                    .resolve(nombreArchivo)
+                    .normalize();
 
-            System.out.println(
-                    "Ruta final de la imagen:"
-            );
+            if (!rutaArchivo.startsWith(carpeta)) {
+                return ResponseEntity.badRequest()
+                        .body("Ruta de archivo no válida.");
+            }
 
-            System.out.println(
-                    rutaArchivo.toAbsolutePath()
-            );
-
-            // ==========================================
-            // GUARDAR ARCHIVO
-            // ==========================================
-
-            System.out.println(
-                    "Guardando imagen..."
-            );
+            // Guardar la imagen.
 
             Files.copy(
                     foto.getInputStream(),
@@ -282,203 +185,117 @@ public class ProveedorController {
                     StandardCopyOption.REPLACE_EXISTING
             );
 
-            System.out.println(
-                    "Imagen guardada correctamente."
-            );
+            // Guardar la URL en la base de datos.
 
-            // ==========================================
-            // GUARDAR URL EN LA BASE DE DATOS
-            // ==========================================
-
-            String urlFoto =
-                    "/uploads/proveedores/" +
-                    nombreArchivo;
-
-            System.out.println(
-                    "URL que se guardará en la BD:"
-            );
-
-            System.out.println(urlFoto);
+            String urlFoto = "/uploads/proveedores/"
+                    + nombreArchivo;
 
             proveedor.setFotoUrl(urlFoto);
+            Proveedor proveedorGuardado =
+                    proveedorRepository.save(proveedor);
 
-            proveedorRepository.save(proveedor);
-
-            System.out.println(
-                    "Proveedor actualizado en la BD."
+            logger.info(
+                    "Imagen de proveedor guardada. ID: {}",
+                    id
             );
 
-            System.out.println();
-
-            System.out.println(
-                    "========== FOTO GUARDADA =========="
-            );
-
-            System.out.println(
-                    "Proveedor: " +
-                    proveedor.getNombre()
-            );
-
-            System.out.println(
-                    "ID: " +
-                    proveedor.getIdProveedor()
-            );
-
-            System.out.println(
-                    "Foto: " +
-                    urlFoto
-            );
-
-            System.out.println(
-                    "==================================="
-            );
-
-            System.out.println();
-
-            return ResponseEntity.ok(proveedor);
+            return ResponseEntity.ok(proveedorGuardado);
 
         } catch (IOException e) {
-
-            System.out.println();
-
-            System.out.println(
-                    "========== ERROR AL GUARDAR FOTO =========="
+            logger.error(
+                    "No se pudo guardar la imagen del proveedor. ID: {}",
+                    id,
+                    e
             );
 
-            e.printStackTrace();
-
-            System.out.println(
-                    "============================================"
-            );
-
-            System.out.println();
-
-            return ResponseEntity
-                    .internalServerError()
-                    .body(
-                            "Error al guardar la imagen: " +
-                            e.getMessage()
-                    );
+            return ResponseEntity.internalServerError()
+                    .body("No se pudo guardar la imagen.");
         }
     }
 
     // ==========================================
-    // ELIMINAR UN PROVEEDOR
+    // ELIMINAR UN PROVEEDOR Y SU INFORMACIÓN
     // ==========================================
-    // ==========================================
-// ELIMINAR UN PROVEEDOR Y TODA SU INFORMACIÓN
-// ==========================================
-@DeleteMapping("/{id}")
-@Transactional
-public ResponseEntity<?> eliminarProveedor(
-        @PathVariable Integer id
-) {
 
-    System.out.println(
-            "========== DELETE RECIBIDO =========="
-    );
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity<?> eliminarProveedor(
+            @PathVariable Integer id) {
 
-    System.out.println(
-            "ID recibido: " + id
-    );
+        try {
+            Proveedor proveedor = proveedorRepository
+                    .findById(id)
+                    .orElse(null);
 
-    try {
-
-        // ==========================================
-        // BUSCAR PROVEEDOR
-        // ==========================================
-
-        Proveedor proveedor = proveedorRepository
-                .findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Proveedor no encontrado"
-                        )
-                );
-
-        // ==========================================
-        // ELIMINAR FOTO DEL DISCO
-        // ==========================================
-
-        if (proveedor.getFotoUrl() != null &&
-                !proveedor.getFotoUrl().isBlank()) {
-
-            String nombreArchivo =
-                    proveedor.getFotoUrl()
-                            .substring(
-                                    proveedor.getFotoUrl()
-                                            .lastIndexOf("/") + 1
-                            );
-
-            Path rutaFoto = Paths.get(
-                    "uploads",
-                    "proveedores",
-                    nombreArchivo
-            ).toAbsolutePath();
-
-            System.out.println(
-                    "Ruta de foto: " + rutaFoto
-            );
-
-            if (Files.exists(rutaFoto)) {
-
-                Files.delete(rutaFoto);
-
-                System.out.println(
-                        "Foto eliminada correctamente."
-                );
+            if (proveedor == null) {
+                return ResponseEntity.notFound().build();
             }
+
+            // Eliminar la foto del disco, si existe.
+
+            if (proveedor.getFotoUrl() != null
+                    && !proveedor.getFotoUrl().isBlank()) {
+
+                String nombreArchivo = proveedor.getFotoUrl()
+                        .substring(
+                                proveedor.getFotoUrl().lastIndexOf("/") + 1
+                        );
+
+                Path carpeta = Paths.get(
+                        "uploads",
+                        "proveedores"
+                ).toAbsolutePath().normalize();
+
+                Path rutaFoto = carpeta
+                        .resolve(nombreArchivo)
+                        .normalize();
+
+                if (!rutaFoto.startsWith(carpeta)) {
+                    return ResponseEntity.badRequest()
+                            .body("La ruta de la imagen no es válida.");
+                }
+
+                if (Files.exists(rutaFoto)) {
+                    Files.delete(rutaFoto);
+                }
+            }
+
+            // Eliminar evaluaciones relacionadas.
+
+            evaluacionRepository.deleteByIdProveedor(id);
+
+            // Eliminar proveedor.
+
+            proveedorRepository.delete(proveedor);
+
+            logger.info(
+                    "Proveedor y sus evaluaciones eliminados. ID: {}",
+                    id
+            );
+
+            return ResponseEntity.ok(
+                    "Proveedor y toda su información fueron eliminados correctamente."
+            );
+
+        } catch (IOException e) {
+            logger.error(
+                    "No se pudo eliminar la foto del proveedor. ID: {}",
+                    id,
+                    e
+            );
+
+            return ResponseEntity.internalServerError()
+                    .body("No se pudo eliminar la foto del proveedor.");
+
+        } catch (Exception e) {
+            logger.error(
+                    "Error al eliminar el proveedor. ID: {}",
+                    id,
+                    e
+            );
+
+            return ResponseEntity.internalServerError()
+                    .body("Ocurrió un error al eliminar el proveedor.");
         }
-
-        // ==========================================
-        // ELIMINAR EVALUACIONES
-        // ==========================================
-
-        evaluacionRepository.deleteByIdProveedor(id);
-
-        System.out.println(
-                "Evaluaciones eliminadas correctamente."
-        );
-
-        // ==========================================
-        // ELIMINAR PROVEEDOR
-        // ==========================================
-
-        proveedorRepository.delete(proveedor);
-
-        System.out.println(
-                "Proveedor eliminado correctamente."
-        );
-
-        System.out.println(
-                "====================================="
-        );
-
-        return ResponseEntity.ok(
-                "Proveedor y toda su información fueron eliminados correctamente"
-        );
-
-    } catch (IOException e) {
-
-        e.printStackTrace();
-
-        return ResponseEntity
-                .internalServerError()
-                .body(
-                        "No se pudo eliminar la foto: "
-                                + e.getMessage()
-                );
-
-    } catch (Exception e) {
-
-        e.printStackTrace();
-
-        return ResponseEntity
-                .internalServerError()
-                .body(
-                        "Error al eliminar el proveedor: "
-                                + e.getMessage()
-                );
     }
-}
 }
