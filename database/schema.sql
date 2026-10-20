@@ -3,15 +3,17 @@
    BASE DE DATOS: EvaluacionProveedores
    ========================================================= */
 
-
-CREATE DATABASE EvaluacionProveedores;
+IF DB_ID(N'EvaluacionProveedores') IS NULL
+BEGIN
+    CREATE DATABASE EvaluacionProveedores;
+END;
 GO
 
 USE EvaluacionProveedores;
 GO
 
 /* =========================================================
-   TABLA: Proveedores
+   1. TABLA: Proveedores
    ========================================================= */
 
 IF OBJECT_ID(N'dbo.Proveedores', N'U') IS NULL
@@ -31,7 +33,7 @@ END;
 GO
 
 /* =========================================================
-   TABLA: Usuarios
+   2. TABLA: Usuarios
    ========================================================= */
 
 IF OBJECT_ID(N'dbo.Usuarios', N'U') IS NULL
@@ -49,7 +51,7 @@ END;
 GO
 
 /* =========================================================
-   TABLA: Evaluaciones
+   3. TABLA: Evaluaciones
    ========================================================= */
 
 IF OBJECT_ID(N'dbo.Evaluaciones', N'U') IS NULL
@@ -78,7 +80,7 @@ END;
 GO
 
 /* =========================================================
-   DATOS SEMILLA: Administrador
+   4. DATOS SEMILLA: Administrador
    ========================================================= */
 
 IF NOT EXISTS
