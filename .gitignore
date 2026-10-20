@@ -23,3 +23,12 @@ backend/.env
 # Sistema
 .DS_Store
 Thumbs.db
+
+
+
+# Archivos temporales de Python
+__pycache__/
+*.py[cod]
+
+# Fotos subidas por los proveedores
+backend/uploads/
