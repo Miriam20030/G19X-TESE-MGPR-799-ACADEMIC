@@ -12,7 +12,7 @@ import Evaluaciones from './pages/Evaluaciones'
 import NuevaEvaluacion from './pages/NuevaEvaluacion'
 import Alertas from './pages/Alertas'
 import Configuracion from './pages/Configuracion'
-import Reportes from './pages/reportes'
+import Reportes from './pages/Reportes'
 import Login from './components/Login'
 
 /* =====================================================
