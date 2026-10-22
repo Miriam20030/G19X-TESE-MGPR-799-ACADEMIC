@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './Login.css'
+import API_URL from '../config/api'
 
 function Login({ onLogin }) {
     const [usuario, setUsuario] = useState('')
@@ -24,7 +25,7 @@ function Login({ onLogin }) {
 
         try {
             const respuesta = await fetch(
-                'http://localhost:8080/api/auth/login',
+                `${API_URL}/api/auth/login`,
                 {
                     method: 'POST',
                     credentials: 'include',

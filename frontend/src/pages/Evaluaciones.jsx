@@ -1,10 +1,9 @@
+
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import NuevaEvaluacion from './NuevaEvaluacion'
+import API_URL from '../config/api'
 
 function Evaluaciones() {
-
-    const navigate = useNavigate()
 
     const [evaluaciones, setEvaluaciones] = useState([])
     const [proveedores, setProveedores] = useState([])
@@ -33,14 +32,14 @@ function Evaluaciones() {
             ] = await Promise.all([
 
                 fetch(
-                    'http://localhost:8080/api/evaluaciones',
+                    `${API_URL}/api/evaluaciones`,
                     {
                         credentials: 'include'
                     }
                 ),
 
                 fetch(
-                    'http://localhost:8080/api/proveedores',
+                    `${API_URL}/api/proveedores`,
                     {
                         credentials: 'include'
                     }
@@ -64,13 +63,12 @@ function Evaluaciones() {
                 await respuestaProveedores.json()
 
             setEvaluaciones(datosEvaluaciones)
-
             setProveedores(datosProveedores)
 
         } catch (error) {
 
             console.error(
-                'Error:',
+                'Error al obtener los datos:',
                 error
             )
 
@@ -184,15 +182,12 @@ function Evaluaciones() {
                 <div className="indicador-progress">
 
                     <div
-                        className={
-                            `indicador-progress-bar ${clase}`
-                        }
+                        className={`indicador-progress-bar ${clase}`}
                         style={{
-                            width:
-                                `${Math.min(
-                                    Math.max(valor, 0),
-                                    100
-                                )}%`
+                            width: `${Math.min(
+                                Math.max(Number(valor) || 0, 0),
+                                100
+                            )}%`
                         }}
                     />
 
@@ -226,39 +221,25 @@ function Evaluaciones() {
         const suma = evaluaciones.reduce(
             (acumulado, evaluacion) =>
                 acumulado +
-                Number(
-                    evaluacion.calificacionFinal || 0
-                ),
+                Number(evaluacion.calificacionFinal || 0),
             0
         )
 
-        const excelentes =
-            evaluaciones.filter(
-                evaluacion =>
-                    (
-                        evaluacion.clasificacion || ''
-                    ).toLowerCase() === 'excelente'
-            ).length
+        const excelentes = evaluaciones.filter(
+            evaluacion =>
+                (evaluacion.clasificacion || '').toLowerCase() === 'excelente'
+        ).length
 
-        const riesgo =
-            evaluaciones.filter(
-                evaluacion =>
-                    (
-                        evaluacion.clasificacion || ''
-                    ).toLowerCase() === 'riesgo'
-            ).length
+        const riesgo = evaluaciones.filter(
+            evaluacion =>
+                (evaluacion.clasificacion || '').toLowerCase() === 'riesgo'
+        ).length
 
         return {
-
             total,
-
-            promedio:
-                (suma / total).toFixed(1),
-
+            promedio: (suma / total).toFixed(1),
             excelentes,
-
             riesgo
-
         }
 
     }, [evaluaciones])
@@ -274,18 +255,12 @@ function Evaluaciones() {
 
                 const coincideProveedor =
                     filtroProveedor === '' ||
-                    String(
-                        evaluacion.idProveedor
-                    ) ===
-                    String(
-                        filtroProveedor
-                    )
+                    String(evaluacion.idProveedor) ===
+                    String(filtroProveedor)
 
                 const coincideClasificacion =
                     filtroClasificacion === '' ||
-                    (
-                        evaluacion.clasificacion || ''
-                    ).toLowerCase() ===
+                    (evaluacion.clasificacion || '').toLowerCase() ===
                     filtroClasificacion.toLowerCase()
 
                 return (
@@ -309,22 +284,13 @@ function Evaluaciones() {
     const formatearFecha = (fecha) => {
 
         if (!fecha) {
-
             return 'Sin fecha'
-
         }
 
-        const fechaObj =
-            new Date(fecha)
+        const fechaObj = new Date(fecha)
 
-        if (
-            isNaN(
-                fechaObj.getTime()
-            )
-        ) {
-
+        if (isNaN(fechaObj.getTime())) {
             return fecha
-
         }
 
         return fechaObj.toLocaleDateString(
@@ -343,9 +309,7 @@ function Evaluaciones() {
     // =========================================================
 
     const cerrarNuevaEvaluacion = () => {
-
         setMostrarNuevaEvaluacion(false)
-
     }
 
     // =========================================================
@@ -355,7 +319,6 @@ function Evaluaciones() {
     const evaluacionGuardada = async () => {
 
         setMostrarNuevaEvaluacion(false)
-
         setCargando(true)
 
         await obtenerDatos()
@@ -385,62 +348,35 @@ function Evaluaciones() {
                 <style>{`
 
                     .evaluaciones-page {
-
                         min-height: 100vh;
-
                         padding: 28px;
-
                         background: var(--ev-bg);
-
                         color: var(--ev-text);
-
                     }
 
                     .evaluaciones-loading {
-
                         min-height: 60vh;
-
                         display: flex;
-
                         flex-direction: column;
-
                         align-items: center;
-
                         justify-content: center;
-
                         gap: 12px;
-
                         color: var(--ev-muted);
-
                     }
 
                     .loading-spinner {
-
                         width: 30px;
-
                         height: 30px;
-
                         border: 3px solid var(--ev-border);
-
-                        border-top-color:
-                            var(--ev-primary);
-
+                        border-top-color: var(--ev-primary);
                         border-radius: 50%;
-
-                        animation:
-                            ev-spin
-                            0.8s
-                            linear
-                            infinite;
-
+                        animation: ev-spin 0.8s linear infinite;
                     }
 
                     @keyframes ev-spin {
-
                         to {
                             transform: rotate(360deg);
                         }
-
                     }
 
                 `}</style>
@@ -455,9 +391,7 @@ function Evaluaciones() {
 
         <div className="evaluaciones-page">
 
-            {/* =====================================================
-                ENCABEZADO
-            ====================================================== */}
+            {/* ENCABEZADO */}
 
             <div className="evaluaciones-header">
 
@@ -475,18 +409,14 @@ function Evaluaciones() {
 
                 <button
                     className="btn-nueva-evaluacion-top"
-                    onClick={() =>
-                        setMostrarNuevaEvaluacion(true)
-                    }
+                    onClick={() => setMostrarNuevaEvaluacion(true)}
                 >
                     Nueva evaluación
                 </button>
 
             </div>
 
-            {/* =====================================================
-                ESTADÍSTICAS
-            ====================================================== */}
+            {/* ESTADÍSTICAS */}
 
             <div className="estadisticas-grid">
 
@@ -524,12 +454,7 @@ function Evaluaciones() {
                         Excelentes
                     </span>
 
-                    <strong
-                        className="
-                            estadistica-valor
-                            estadistica-verde
-                        "
-                    >
+                    <strong className="estadistica-valor estadistica-verde">
                         {estadisticas.excelentes}
                     </strong>
 
@@ -541,12 +466,7 @@ function Evaluaciones() {
                         En riesgo
                     </span>
 
-                    <strong
-                        className="
-                            estadistica-valor
-                            estadistica-rojo
-                        "
-                    >
+                    <strong className="estadistica-valor estadistica-rojo">
                         {estadisticas.riesgo}
                     </strong>
 
@@ -554,9 +474,7 @@ function Evaluaciones() {
 
             </div>
 
-            {/* =====================================================
-                FILTROS
-            ====================================================== */}
+            {/* FILTROS */}
 
             <div className="filtros-container">
 
@@ -568,33 +486,23 @@ function Evaluaciones() {
 
                     <select
                         value={filtroProveedor}
-                        onChange={(e) =>
-                            setFiltroProveedor(
-                                e.target.value
-                            )
-                        }
+                        onChange={(e) => setFiltroProveedor(e.target.value)}
                     >
 
                         <option value="">
                             Todos los proveedores
                         </option>
 
-                        {proveedores.map(
-                            proveedor => (
+                        {proveedores.map(proveedor => (
 
-                                <option
-                                    key={
-                                        proveedor.idProveedor
-                                    }
-                                    value={
-                                        proveedor.idProveedor
-                                    }
-                                >
-                                    {proveedor.nombre}
-                                </option>
+                            <option
+                                key={proveedor.idProveedor}
+                                value={proveedor.idProveedor}
+                            >
+                                {proveedor.nombre}
+                            </option>
 
-                            )
-                        )}
+                        ))}
 
                     </select>
 
@@ -608,11 +516,7 @@ function Evaluaciones() {
 
                     <select
                         value={filtroClasificacion}
-                        onChange={(e) =>
-                            setFiltroClasificacion(
-                                e.target.value
-                            )
-                        }
+                        onChange={(e) => setFiltroClasificacion(e.target.value)}
                     >
 
                         <option value="">
@@ -641,9 +545,7 @@ function Evaluaciones() {
 
             </div>
 
-            {/* =====================================================
-                LISTA DE EVALUACIONES
-            ====================================================== */}
+            {/* LISTA DE EVALUACIONES */}
 
             <div className="evaluaciones-lista">
 
@@ -663,258 +565,182 @@ function Evaluaciones() {
 
                 ) : (
 
-                    evaluacionesFiltradas.map(
-                        evaluacion => {
+                    evaluacionesFiltradas.map(evaluacion => {
 
-                            const estilo =
-                                obtenerEstiloClasificacion(
-                                    evaluacion.clasificacion
-                                )
+                        const estilo = obtenerEstiloClasificacion(
+                            evaluacion.clasificacion
+                        )
 
-                            const riesgoIA =
-                                evaluacion.riesgoIA || 'Sin análisis'
+                        const riesgoIA =
+                            evaluacion.riesgoIA || 'Sin análisis'
 
-                            const probabilidadRiesgoAlto =
-                                evaluacion.probabilidadRiesgoAlto ?? null
+                        const probabilidadRiesgoAlto =
+                            evaluacion.probabilidadRiesgoAlto ?? null
 
-                            return (
+                        const claseRiesgoIA =
+                            riesgoIA.toLowerCase().replace(/\s+/g, '-')
 
-                                <div
-                                    className="evaluacion-card"
-                                    key={
-                                        evaluacion.idEvaluacion
-                                    }
-                                >
+                        return (
 
-                                    {/* =====================================
-                                        CABECERA
-                                    ====================================== */}
+                            <div
+                                className="evaluacion-card"
+                                key={evaluacion.idEvaluacion}
+                            >
 
-                                    <div
-                                        className="
-                                            evaluacion-card-header
-                                        "
-                                    >
+                                {/* CABECERA */}
 
-                                        <div
-                                            className="
-                                                evaluacion-proveedor
-                                            "
-                                        >
+                                <div className="evaluacion-card-header">
 
-                                            <h3>
-                                                {
-                                                    obtenerNombreProveedor(
-                                                        evaluacion.idProveedor
-                                                    )
-                                                }
-                                            </h3>
+                                    <div className="evaluacion-proveedor">
 
-                                            <span
-                                                className="
-                                                    evaluacion-fecha
-                                                "
-                                            >
-                                                Evaluación realizada el{' '}
-                                                {
-                                                    formatearFecha(
-                                                        evaluacion.fechaEvaluacion
-                                                    )
-                                                }
-                                            </span>
+                                        <h3>
+                                            {obtenerNombreProveedor(
+                                                evaluacion.idProveedor
+                                            )}
+                                        </h3>
 
-                                        </div>
-
-                                        <span
-                                            className={
-                                                `
-                                                clasificacion-badge
-                                                ${estilo.clase}
-                                                `
-                                            }
-                                        >
-                                            {estilo.texto}
+                                        <span className="evaluacion-fecha">
+                                            Evaluación realizada el{' '}
+                                            {formatearFecha(evaluacion.fechaEvaluacion)}
                                         </span>
 
                                     </div>
 
-                                    {/* =====================================
-                                        CONTENIDO
-                                    ====================================== */}
-
-                                    <div
-                                        className="
-                                            evaluacion-contenido
-                                        "
+                                    <span
+                                        className={`clasificacion-badge ${estilo.clase}`}
                                     >
-
-                                        {/* CALIFICACIÓN */}
-
-                                        <div
-                                            className="
-                                                calificacion-final
-                                            "
-                                        >
-
-                                            <span className="numero">
-
-                                                {Number(
-                                                    evaluacion.calificacionFinal || 0
-                                                ).toFixed(1)}
-
-                                            </span>
-
-                                            <span className="texto">
-                                                Calificación final
-                                            </span>
-
-                                        </div>
-
-                                        {/* INDICADORES */}
-
-                                        <div
-                                            className="
-                                                indicadores-grid
-                                            "
-                                        >
-
-                                            <IndicadorCompacto
-                                                nombre="Entregas"
-                                                valor={Number(
-                                                    evaluacion.cumplimientoEntregas || 0
-                                                )}
-                                            />
-
-                                            <IndicadorCompacto
-                                                nombre="Calidad"
-                                                valor={Number(
-                                                    evaluacion.calidad || 0
-                                                )}
-                                            />
-
-                                            <IndicadorCompacto
-                                                nombre="Costos"
-                                                valor={Number(
-                                                    evaluacion.costos || 0
-                                                )}
-                                            />
-
-                                            <IndicadorCompacto
-                                                nombre="Respuesta"
-                                                valor={Number(
-                                                    evaluacion.tiempoRespuesta || 0
-                                                )}
-                                            />
-
-                                            <IndicadorCompacto
-                                                nombre="Incidencias"
-                                                valor={Number(
-                                                    evaluacion.incidencias || 0
-                                                )}
-                                            />
-
-                                        </div>
-
-                                    </div>
-
-                                    {/* =====================================
-                                        RECOMENDACIÓN IA
-                                    ====================================== */}
-
-                                    <div
-                                        className="
-                                            analisis-ia
-                                        "
-                                    >
-
-                                        <div className="analisis-ia-header">
-
-                                            <h4>
-                                                 Análisis de Inteligencia Artificial
-                                            </h4>
-
-                                        </div>
-
-                                        <div className="analisis-ia-datos">
-
-                                            <div className="dato-ia">
-                                                <span className="dato-ia-label">
-                                                    Riesgo detectado
-                                                </span>
-
-                                                <span
-                                                    className={`riesgo-ia-badge riesgo-ia-${
-                                                        riesgoIA.toLowerCase()
-                                                    }`}
-                                                >
-                                                    {riesgoIA}
-                                                </span>
-                                            </div>
-
-                                            <div className="dato-ia">
-                                                <span className="dato-ia-label">
-                                                    Probabilidad de riesgo alto
-                                                </span>
-
-                                                <span className="probabilidad-ia">
-                                                    {
-                                                        probabilidadRiesgoAlto !== null
-                                                            ? `${Number(
-                                                                probabilidadRiesgoAlto
-                                                            ).toFixed(0)}%`
-                                                            : 'Sin dato'
-                                                    }
-                                                </span>
-                                            </div>
-
-                                        </div>
-
-                                        {evaluacion.recomendacion && (
-
-                                            <div
-                                                className="
-                                                    recomendacion-ia
-                                                "
-                                            >
-
-                                                <h4>
-                                                    Recomendación de IA
-                                                </h4>
-
-                                                <p>
-                                                    {
-                                                        evaluacion.recomendacion
-                                                    }
-                                                </p>
-
-                                            </div>
-
-                                        )}
-
-                                    </div>
-
-                                    {/* =====================================
-                                        ACCIONES
-                                    ====================================== */}
-
-                                    
+                                        {estilo.texto}
+                                    </span>
 
                                 </div>
 
-                            )
+                                {/* CONTENIDO */}
 
-                        }
-                    )
+                                <div className="evaluacion-contenido">
+
+                                    <div className="calificacion-final">
+
+                                        <span className="numero">
+                                            {Number(
+                                                evaluacion.calificacionFinal || 0
+                                            ).toFixed(1)}
+                                        </span>
+
+                                        <span className="texto">
+                                            Calificación final
+                                        </span>
+
+                                    </div>
+
+                                    <div className="indicadores-grid">
+
+                                        <IndicadorCompacto
+                                            nombre="Entregas"
+                                            valor={Number(evaluacion.cumplimientoEntregas || 0)}
+                                        />
+
+                                        <IndicadorCompacto
+                                            nombre="Calidad"
+                                            valor={Number(evaluacion.calidad || 0)}
+                                        />
+
+                                        <IndicadorCompacto
+                                            nombre="Costos"
+                                            valor={Number(evaluacion.costos || 0)}
+                                        />
+
+                                        <IndicadorCompacto
+                                            nombre="Respuesta"
+                                            valor={Number(evaluacion.tiempoRespuesta || 0)}
+                                        />
+
+                                        <IndicadorCompacto
+                                            nombre="Incidencias"
+                                            valor={Number(evaluacion.incidencias || 0)}
+                                        />
+
+                                    </div>
+
+                                </div>
+
+                                {/* ANÁLISIS IA */}
+
+                                <div className="analisis-ia">
+
+                                    <div className="analisis-ia-header">
+
+                                        <h4>
+                                            Análisis de Inteligencia Artificial
+                                        </h4>
+
+                                    </div>
+
+                                    <div className="analisis-ia-datos">
+
+                                        <div className="dato-ia">
+
+                                            <span className="dato-ia-label">
+                                                Riesgo detectado
+                                            </span>
+
+                                            <span
+                                                className={`riesgo-ia-badge riesgo-ia-${claseRiesgoIA}`}
+                                            >
+                                                {riesgoIA}
+                                            </span>
+
+                                        </div>
+
+                                        <div className="dato-ia">
+
+                                            <span className="dato-ia-label">
+                                                Probabilidad de riesgo alto
+                                            </span>
+
+                                            <span className="probabilidad-ia">
+
+                                                {probabilidadRiesgoAlto !== null
+                                                    ? `${Number(
+                                                        probabilidadRiesgoAlto
+                                                    ).toFixed(0)}%`
+                                                    : 'Sin dato'
+                                                }
+
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                    {evaluacion.recomendacion && (
+
+                                        <div className="recomendacion-ia">
+
+                                            <h4>
+                                                Recomendación de IA
+                                            </h4>
+
+                                            <p>
+                                                {evaluacion.recomendacion}
+                                            </p>
+
+                                        </div>
+
+                                    )}
+
+                                </div>
+
+                            </div>
+
+                        )
+
+                    })
 
                 )}
 
             </div>
 
-            
-
-            {/* =====================================================
-                MODAL NUEVA EVALUACIÓN
-            ====================================================== */}
+            {/* MODAL NUEVA EVALUACIÓN */}
 
             {mostrarNuevaEvaluacion && (
 
@@ -925,16 +751,13 @@ function Evaluaciones() {
 
                     <div
                         className="modal-nueva-evaluacion"
-                        onClick={(e) =>
-                            e.stopPropagation()
-                        }
+                        onClick={(e) => e.stopPropagation()}
                     >
 
                         <button
+                            type="button"
                             className="modal-cerrar"
-                            onClick={
-                                cerrarNuevaEvaluacion
-                            }
+                            onClick={cerrarNuevaEvaluacion}
                             aria-label="Cerrar"
                         >
                             ×
@@ -942,12 +765,8 @@ function Evaluaciones() {
 
                         <NuevaEvaluacion
                             proveedores={proveedores}
-                            onCancelar={
-                                cerrarNuevaEvaluacion
-                            }
-                            onGuardado={
-                                evaluacionGuardada
-                            }
+                            onCancelar={cerrarNuevaEvaluacion}
+                            onGuardado={evaluacionGuardada}
                         />
 
                     </div>
@@ -956,1650 +775,648 @@ function Evaluaciones() {
 
             )}
 
-            {/* =====================================================
-                ESTILOS
-            ====================================================== */}
+            {/* ESTILOS */}
 
             <style>{`
 
-                /* =====================================================
-                   VARIABLES
-                ====================================================== */
-
                 .evaluaciones-page {
-
                     --ev-bg: #f5f7fb;
                     --ev-card: #ffffff;
                     --ev-soft: #f8fafc;
                     --ev-border: #e2e8f0;
-
                     --ev-text: #1e293b;
                     --ev-muted: #64748b;
-
                     --ev-primary: #2563eb;
                     --ev-primary-hover: #1d4ed8;
-
-                    --ev-shadow:
-                        rgba(15, 23, 42, 0.07);
-
+                    --ev-shadow: rgba(15, 23, 42, 0.07);
                     --ev-progress-bg: #e5e7eb;
-
                     --ev-ai-bg: #eff6ff;
                     --ev-ai-border: #bfdbfe;
                     --ev-ai-title: #1d4ed8;
-
                     --ev-excelente-bg: #dcfce7;
                     --ev-excelente-text: #166534;
                     --ev-excelente-border: #bbf7d0;
-
                     --ev-bueno-bg: #dbeafe;
                     --ev-bueno-text: #1d4ed8;
                     --ev-bueno-border: #bfdbfe;
-
                     --ev-regular-bg: #fef3c7;
                     --ev-regular-text: #92400e;
                     --ev-regular-border: #fde68a;
-
                     --ev-riesgo-bg: #fee2e2;
                     --ev-riesgo-text: #b91c1c;
                     --ev-riesgo-border: #fecaca;
 
                     min-height: 100vh;
-
                     padding: 24px;
-
-                    background:
-                        var(--ev-bg);
-
-                    color:
-                        var(--ev-text);
-
+                    background: var(--ev-bg);
+                    color: var(--ev-text);
                     box-sizing: border-box;
-
-                    transition:
-                        background 0.25s ease,
-                        color 0.25s ease;
-
+                    transition: background 0.25s ease, color 0.25s ease;
                 }
-
-
-                /* =====================================================
-                   MODO OSCURO
-                ====================================================== */
 
                 body.dark .evaluaciones-page,
                 body.dark-mode .evaluaciones-page,
                 body[data-theme="dark"] .evaluaciones-page {
-
                     --ev-bg: #0f172a;
                     --ev-card: #1e293b;
                     --ev-soft: #162033;
                     --ev-border: #334155;
-
                     --ev-text: #f1f5f9;
                     --ev-muted: #94a3b8;
-
                     --ev-primary: #60a5fa;
                     --ev-primary-hover: #93c5fd;
-
-                    --ev-shadow:
-                        rgba(0, 0, 0, 0.25);
-
-                    --ev-progress-bg:
-                        #334155;
-
-                    --ev-ai-bg:
-                        #172554;
-
-                    --ev-ai-border:
-                        #1e40af;
-
-                    --ev-ai-title:
-                        #93c5fd;
-
-                    --ev-excelente-bg:
-                        #14532d;
-
-                    --ev-excelente-text:
-                        #bbf7d0;
-
-                    --ev-excelente-border:
-                        #166534;
-
-                    --ev-bueno-bg:
-                        #1e3a8a;
-
-                    --ev-bueno-text:
-                        #bfdbfe;
-
-                    --ev-bueno-border:
-                        #1d4ed8;
-
-                    --ev-regular-bg:
-                        #78350f;
-
-                    --ev-regular-text:
-                        #fde68a;
-
-                    --ev-regular-border:
-                        #92400e;
-
-                    --ev-riesgo-bg:
-                        #7f1d1d;
-
-                    --ev-riesgo-text:
-                        #fecaca;
-
-                    --ev-riesgo-border:
-                        #991b1b;
-
+                    --ev-shadow: rgba(0, 0, 0, 0.25);
+                    --ev-progress-bg: #334155;
+                    --ev-ai-bg: #172554;
+                    --ev-ai-border: #1e40af;
+                    --ev-ai-title: #93c5fd;
+                    --ev-excelente-bg: #14532d;
+                    --ev-excelente-text: #bbf7d0;
+                    --ev-excelente-border: #166534;
+                    --ev-bueno-bg: #1e3a8a;
+                    --ev-bueno-text: #bfdbfe;
+                    --ev-bueno-border: #1d4ed8;
+                    --ev-regular-bg: #78350f;
+                    --ev-regular-text: #fde68a;
+                    --ev-regular-border: #92400e;
+                    --ev-riesgo-bg: #7f1d1d;
+                    --ev-riesgo-text: #fecaca;
+                    --ev-riesgo-border: #991b1b;
                 }
 
-
-                /* =====================================================
-                   ENCABEZADO
-                ====================================================== */
-
                 .evaluaciones-header {
-
                     display: flex;
-
-                    justify-content:
-                        space-between;
-
+                    justify-content: space-between;
                     align-items: center;
-
                     gap: 20px;
-
                     margin-bottom: 18px;
-
                 }
 
                 .evaluaciones-header-text {
-
                     flex: 1;
-
                 }
 
                 .evaluaciones-header h1 {
-
-                    margin:
-                        0 0 5px;
-
-                    font-size:
-                        25px;
-
-                    font-weight:
-                        700;
-
-                    color:
-                        var(--ev-text);
-
+                    margin: 0 0 5px;
+                    font-size: 25px;
+                    font-weight: 700;
+                    color: var(--ev-text);
                 }
 
                 .evaluaciones-header p {
-
                     margin: 0;
-
-                    font-size:
-                        13px;
-
-                    color:
-                        var(--ev-muted);
-
+                    font-size: 13px;
+                    color: var(--ev-muted);
                 }
 
-
-                /* =====================================================
-                   BOTÓN NUEVA EVALUACIÓN
-                ====================================================== */
-
                 .btn-nueva-evaluacion-top {
-
                     border: none;
-
-                    background:
-                        var(--ev-primary);
-
+                    background: var(--ev-primary);
                     color: white;
-
-                    padding:
-                        9px 15px;
-
-                    border-radius:
-                        7px;
-
-                    font-size:
-                        12px;
-
-                    font-weight:
-                        600;
-
-                    cursor:
-                        pointer;
-
-                    white-space:
-                        nowrap;
-
-                    transition:
-                        background 0.2s ease,
-                        transform 0.2s ease;
-
+                    padding: 9px 15px;
+                    border-radius: 7px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    white-space: nowrap;
+                    transition: background 0.2s ease, transform 0.2s ease;
                 }
 
                 .btn-nueva-evaluacion-top:hover {
-
-                    background:
-                        var(--ev-primary-hover);
-
-                    transform:
-                        translateY(-1px);
-
+                    background: var(--ev-primary-hover);
+                    transform: translateY(-1px);
                 }
 
-
-                /* =====================================================
-                   ESTADÍSTICAS PEQUEÑAS
-                ====================================================== */
-
                 .estadisticas-grid {
-
                     display: grid;
-
-                    grid-template-columns:
-                        repeat(
-                            4,
-                            minmax(0, 1fr)
-                        );
-
-                    gap:
-                        10px;
-
-                    margin-bottom:
-                        16px;
-
+                    grid-template-columns: repeat(4, minmax(0, 1fr));
+                    gap: 10px;
+                    margin-bottom: 16px;
                 }
 
                 .estadistica-card {
-
-                    background:
-                        var(--ev-card);
-
-                    border:
-                        1px solid
-                        var(--ev-border);
-
-                    border-radius:
-                        9px;
-
-                    padding:
-                        11px 13px;
-
-                    min-height:
-                        70px;
-
-                    box-shadow:
-                        0 2px 7px
-                        var(--ev-shadow);
-
-                    box-sizing:
-                        border-box;
-
+                    background: var(--ev-card);
+                    border: 1px solid var(--ev-border);
+                    border-radius: 9px;
+                    padding: 11px 13px;
+                    min-height: 70px;
+                    box-shadow: 0 2px 7px var(--ev-shadow);
+                    box-sizing: border-box;
                 }
 
                 .estadistica-label {
-
-                    display:
-                        block;
-
-                    font-size:
-                        10px;
-
-                    color:
-                        var(--ev-muted);
-
-                    margin-bottom:
-                        3px;
-
+                    display: block;
+                    font-size: 10px;
+                    color: var(--ev-muted);
+                    margin-bottom: 3px;
                 }
 
                 .estadistica-valor {
-
-                    display:
-                        inline-block;
-
-                    font-size:
-                        20px;
-
-                    line-height:
-                        1;
-
-                    font-weight:
-                        700;
-
-                    color:
-                        var(--ev-text);
-
+                    display: inline-block;
+                    font-size: 20px;
+                    line-height: 1;
+                    font-weight: 700;
+                    color: var(--ev-text);
                 }
 
                 .estadistica-extra {
-
-                    display:
-                        inline-block;
-
-                    margin-left:
-                        4px;
-
-                    font-size:
-                        9px;
-
-                    color:
-                        var(--ev-muted);
-
+                    display: inline-block;
+                    margin-left: 4px;
+                    font-size: 9px;
+                    color: var(--ev-muted);
                 }
 
                 .estadistica-verde {
-
-                    color:
-                        #10b981;
-
+                    color: #10b981;
                 }
 
                 .estadistica-rojo {
-
-                    color:
-                        #ef4444;
-
+                    color: #ef4444;
                 }
 
-
-                /* =====================================================
-                   FILTROS
-                ====================================================== */
-
                 .filtros-container {
-
-                    display:
-                        flex;
-
-                    gap:
-                        12px;
-
-                    background:
-                        var(--ev-card);
-
-                    border:
-                        1px solid
-                        var(--ev-border);
-
-                    border-radius:
-                        10px;
-
-                    padding:
-                        13px;
-
-                    margin-bottom:
-                        16px;
-
-                    box-shadow:
-                        0 2px 7px
-                        var(--ev-shadow);
-
+                    display: flex;
+                    gap: 12px;
+                    background: var(--ev-card);
+                    border: 1px solid var(--ev-border);
+                    border-radius: 10px;
+                    padding: 13px;
+                    margin-bottom: 16px;
+                    box-shadow: 0 2px 7px var(--ev-shadow);
                 }
 
                 .filtro-grupo {
-
-                    display:
-                        flex;
-
-                    flex-direction:
-                        column;
-
-                    gap:
-                        4px;
-
-                    min-width:
-                        190px;
-
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                    min-width: 190px;
                 }
 
                 .filtro-grupo label {
-
-                    font-size:
-                        10px;
-
-                    font-weight:
-                        600;
-
-                    color:
-                        var(--ev-muted);
-
+                    font-size: 10px;
+                    font-weight: 600;
+                    color: var(--ev-muted);
                 }
 
                 .filtro-grupo select {
-
-                    width:
-                        100%;
-
-                    padding:
-                        7px 9px;
-
-                    border-radius:
-                        6px;
-
-                    border:
-                        1px solid
-                        var(--ev-border);
-
-                    background:
-                        var(--ev-soft);
-
-                    color:
-                        var(--ev-text);
-
-                    font-size:
-                        11px;
-
-                    outline:
-                        none;
-
+                    width: 100%;
+                    padding: 7px 9px;
+                    border-radius: 6px;
+                    border: 1px solid var(--ev-border);
+                    background: var(--ev-soft);
+                    color: var(--ev-text);
+                    font-size: 11px;
+                    outline: none;
                 }
 
                 .filtro-grupo select:focus {
-
-                    border-color:
-                        var(--ev-primary);
-
+                    border-color: var(--ev-primary);
                 }
-
-
-                /* =====================================================
-                   LISTA
-                ====================================================== */
 
                 .evaluaciones-lista {
-
-                    width:
-                        100%;
-
+                    width: 100%;
                 }
 
-
-                /* =====================================================
-                   CUADRO DE EVALUACIÓN
-                ====================================================== */
-
                 .evaluacion-card {
-
-                    background:
-                        var(--ev-card);
-
-                    border:
-                        1px solid
-                        var(--ev-border);
-
-                    border-radius:
-                        10px;
-
-                    padding:
-                        14px 16px;
-
-                    margin-bottom:
-                        10px;
-
-                    box-shadow:
-                        0 2px 7px
-                        var(--ev-shadow);
-
-                    transition:
-                        transform 0.2s ease,
-                        box-shadow 0.2s ease;
-
-                    box-sizing:
-                        border-box;
-
+                    background: var(--ev-card);
+                    border: 1px solid var(--ev-border);
+                    border-radius: 10px;
+                    padding: 14px 16px;
+                    margin-bottom: 10px;
+                    box-shadow: 0 2px 7px var(--ev-shadow);
+                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                    box-sizing: border-box;
                 }
 
                 .evaluacion-card:hover {
-
-                    transform:
-                        translateY(-1px);
-
-                    box-shadow:
-                        0 4px 12px
-                        var(--ev-shadow);
-
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px var(--ev-shadow);
                 }
 
-
-                /* =====================================================
-                   CABECERA
-                ====================================================== */
-
                 .evaluacion-card-header {
-
-                    display:
-                        flex;
-
-                    justify-content:
-                        space-between;
-
-                    align-items:
-                        center;
-
-                    gap:
-                        12px;
-
-                    margin-bottom:
-                        10px;
-
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 12px;
+                    margin-bottom: 10px;
                 }
 
                 .evaluacion-proveedor {
-
-                    display:
-                        flex;
-
-                    flex-direction:
-                        column;
-
-                    gap:
-                        2px;
-
-                    min-width:
-                        0;
-
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                    min-width: 0;
                 }
 
                 .evaluacion-proveedor h3 {
-
-                    margin:
-                        0;
-
-                    font-size:
-                        15px;
-
-                    font-weight:
-                        650;
-
-                    color:
-                        var(--ev-text);
-
+                    margin: 0;
+                    font-size: 15px;
+                    font-weight: 650;
+                    color: var(--ev-text);
                 }
 
                 .evaluacion-fecha {
-
-                    font-size:
-                        10px;
-
-                    color:
-                        var(--ev-muted);
-
+                    font-size: 10px;
+                    color: var(--ev-muted);
                 }
 
-
-                /* =====================================================
-                   CLASIFICACIÓN
-                ====================================================== */
-
                 .clasificacion-badge {
-
-                    display:
-                        inline-flex;
-
-                    align-items:
-                        center;
-
-                    justify-content:
-                        center;
-
-                    padding:
-                        5px 9px;
-
-                    border-radius:
-                        999px;
-
-                    font-size:
-                        9px;
-
-                    font-weight:
-                        700;
-
-                    border:
-                        1px solid;
-
-                    white-space:
-                        nowrap;
-
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 5px 9px;
+                    border-radius: 999px;
+                    font-size: 9px;
+                    font-weight: 700;
+                    border: 1px solid;
+                    white-space: nowrap;
                 }
 
                 .clasificacion-excelente {
-
-                    background:
-                        var(--ev-excelente-bg);
-
-                    color:
-                        var(--ev-excelente-text);
-
-                    border-color:
-                        var(--ev-excelente-border);
-
+                    background: var(--ev-excelente-bg);
+                    color: var(--ev-excelente-text);
+                    border-color: var(--ev-excelente-border);
                 }
 
                 .clasificacion-bueno {
-
-                    background:
-                        var(--ev-bueno-bg);
-
-                    color:
-                        var(--ev-bueno-text);
-
-                    border-color:
-                        var(--ev-bueno-border);
-
+                    background: var(--ev-bueno-bg);
+                    color: var(--ev-bueno-text);
+                    border-color: var(--ev-bueno-border);
                 }
 
                 .clasificacion-regular {
-
-                    background:
-                        var(--ev-regular-bg);
-
-                    color:
-                        var(--ev-regular-text);
-
-                    border-color:
-                        var(--ev-regular-border);
-
+                    background: var(--ev-regular-bg);
+                    color: var(--ev-regular-text);
+                    border-color: var(--ev-regular-border);
                 }
 
                 .clasificacion-riesgo {
-
-                    background:
-                        var(--ev-riesgo-bg);
-
-                    color:
-                        var(--ev-riesgo-text);
-
-                    border-color:
-                        var(--ev-riesgo-border);
-
+                    background: var(--ev-riesgo-bg);
+                    color: var(--ev-riesgo-text);
+                    border-color: var(--ev-riesgo-border);
                 }
-
-
-                /* =====================================================
-                   CONTENIDO
-                ====================================================== */
 
                 .evaluacion-contenido {
-
-                    display:
-                        grid;
-
-                    grid-template-columns:
-                        125px 1fr;
-
-                    gap:
-                        14px;
-
-                    align-items:
-                        center;
-
+                    display: grid;
+                    grid-template-columns: 125px 1fr;
+                    gap: 14px;
+                    align-items: center;
                 }
 
-
-                /* =====================================================
-                   CALIFICACIÓN
-                ====================================================== */
-
                 .calificacion-final {
-
-                    display:
-                        flex;
-
-                    flex-direction:
-                        column;
-
-                    justify-content:
-                        center;
-
-                    align-items:
-                        center;
-
-                    min-height:
-                        82px;
-
-                    padding:
-                        9px;
-
-                    border-radius:
-                        8px;
-
-                    background:
-                        var(--ev-soft);
-
-                    border:
-                        1px solid
-                        var(--ev-border);
-
-                    box-sizing:
-                        border-box;
-
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 82px;
+                    padding: 9px;
+                    border-radius: 8px;
+                    background: var(--ev-soft);
+                    border: 1px solid var(--ev-border);
+                    box-sizing: border-box;
                 }
 
                 .calificacion-final .numero {
-
-                    font-size:
-                        25px;
-
-                    font-weight:
-                        700;
-
-                    line-height:
-                        1;
-
-                    color:
-                        var(--ev-primary);
-
+                    font-size: 25px;
+                    font-weight: 700;
+                    line-height: 1;
+                    color: var(--ev-primary);
                 }
 
                 .calificacion-final .texto {
-
-                    font-size:
-                        9px;
-
-                    color:
-                        var(--ev-muted);
-
-                    margin-top:
-                        4px;
-
-                    text-align:
-                        center;
-
+                    font-size: 9px;
+                    color: var(--ev-muted);
+                    margin-top: 4px;
+                    text-align: center;
                 }
 
-
-                /* =====================================================
-                   INDICADORES
-                ====================================================== */
-
                 .indicadores-grid {
-
-                    display:
-                        grid;
-
-                    grid-template-columns:
-                        repeat(
-                            5,
-                            minmax(0, 1fr)
-                        );
-
-                    gap:
-                        7px;
-
+                    display: grid;
+                    grid-template-columns: repeat(5, minmax(0, 1fr));
+                    gap: 7px;
                 }
 
                 .indicador-compacto {
-
-                    background:
-                        var(--ev-soft);
-
-                    border:
-                        1px solid
-                        var(--ev-border);
-
-                    border-radius:
-                        7px;
-
-                    padding:
-                        7px;
-
-                    min-width:
-                        0;
-
-                    box-sizing:
-                        border-box;
-
+                    background: var(--ev-soft);
+                    border: 1px solid var(--ev-border);
+                    border-radius: 7px;
+                    padding: 7px;
+                    min-width: 0;
+                    box-sizing: border-box;
                 }
 
                 .indicador-header {
-
-                    display:
-                        flex;
-
-                    justify-content:
-                        space-between;
-
-                    align-items:
-                        center;
-
-                    gap:
-                        4px;
-
-                    margin-bottom:
-                        5px;
-
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 4px;
+                    margin-bottom: 5px;
                 }
 
                 .indicador-nombre {
-
-                    font-size:
-                        9px;
-
-                    line-height:
-                        1.2;
-
-                    color:
-                        var(--ev-muted);
-
-                    overflow:
-                        hidden;
-
-                    text-overflow:
-                        ellipsis;
-
-                    white-space:
-                        nowrap;
-
+                    font-size: 9px;
+                    line-height: 1.2;
+                    color: var(--ev-muted);
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
                 }
 
                 .indicador-valor {
-
-                    font-size:
-                        9px;
-
-                    font-weight:
-                        700;
-
-                    color:
-                        var(--ev-text);
-
-                    white-space:
-                        nowrap;
-
+                    font-size: 9px;
+                    font-weight: 700;
+                    color: var(--ev-text);
+                    white-space: nowrap;
                 }
 
                 .indicador-progress {
-
-                    width:
-                        100%;
-
-                    height:
-                        4px;
-
-                    background:
-                        var(--ev-progress-bg);
-
-                    border-radius:
-                        10px;
-
-                    overflow:
-                        hidden;
-
+                    width: 100%;
+                    height: 4px;
+                    background: var(--ev-progress-bg);
+                    border-radius: 10px;
+                    overflow: hidden;
                 }
 
                 .indicador-progress-bar {
-
-                    height:
-                        100%;
-
-                    border-radius:
-                        10px;
-
-                    transition:
-                        width 0.3s ease;
-
+                    height: 100%;
+                    border-radius: 10px;
+                    transition: width 0.3s ease;
                 }
 
                 .indicador-progress-bar.alto {
-
-                    background:
-                        #10b981;
-
+                    background: #10b981;
                 }
 
                 .indicador-progress-bar.bueno {
-
-                    background:
-                        #3b82f6;
-
+                    background: #3b82f6;
                 }
 
                 .indicador-progress-bar.regular {
-
-                    background:
-                        #f59e0b;
-
+                    background: #f59e0b;
                 }
 
                 .indicador-progress-bar.bajo {
-
-                    background:
-                        #ef4444;
-
+                    background: #ef4444;
                 }
 
-
-                /* =====================================================
-                   ANÁLISIS IA
-                ====================================================== */
-
                 .analisis-ia {
-
-                    margin-top:
-                        9px;
-
-                    padding:
-                        10px 11px;
-
-                    border-radius:
-                        8px;
-
-                    background:
-                        var(--ev-ai-bg);
-
-                    border:
-                        1px solid
-                        var(--ev-ai-border);
-
+                    margin-top: 9px;
+                    padding: 10px 11px;
+                    border-radius: 8px;
+                    background: var(--ev-ai-bg);
+                    border: 1px solid var(--ev-ai-border);
                 }
 
                 .analisis-ia-header {
-
-                    margin-bottom:
-                        8px;
-
+                    margin-bottom: 8px;
                 }
 
                 .analisis-ia-header h4 {
-
-                    margin:
-                        0;
-
-                    font-size:
-                        11px;
-
-                    color:
-                        var(--ev-ai-title);
-
-                    font-weight:
-                        700;
-
+                    margin: 0;
+                    font-size: 11px;
+                    color: var(--ev-ai-title);
+                    font-weight: 700;
                 }
 
                 .analisis-ia-datos {
-
-                    display:
-                        grid;
-
-                    grid-template-columns:
-                        repeat(2, minmax(0, 1fr));
-
-                    gap:
-                        8px;
-
+                    display: grid;
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                    gap: 8px;
                 }
 
                 .dato-ia {
-
-                    display:
-                        flex;
-
-                    align-items:
-                        center;
-
-                    justify-content:
-                        space-between;
-
-                    gap:
-                        8px;
-
-                    padding:
-                        7px 9px;
-
-                    border-radius:
-                        7px;
-
-                    background:
-                        var(--ev-card);
-
-                    border:
-                        1px solid
-                        var(--ev-border);
-
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 8px;
+                    padding: 7px 9px;
+                    border-radius: 7px;
+                    background: var(--ev-card);
+                    border: 1px solid var(--ev-border);
                 }
 
                 .dato-ia-label {
-
-                    font-size:
-                        9px;
-
-                    color:
-                        var(--ev-muted);
-
+                    font-size: 9px;
+                    color: var(--ev-muted);
                 }
 
                 .probabilidad-ia {
-
-                    font-size:
-                        11px;
-
-                    font-weight:
-                        700;
-
-                    color:
-                        var(--ev-text);
-
+                    font-size: 11px;
+                    font-weight: 700;
+                    color: var(--ev-text);
                 }
 
                 .riesgo-ia-badge {
-
-                    display:
-                        inline-flex;
-
-                    align-items:
-                        center;
-
-                    justify-content:
-                        center;
-
-                    padding:
-                        4px 8px;
-
-                    border-radius:
-                        999px;
-
-                    font-size:
-                        9px;
-
-                    font-weight:
-                        700;
-
-                    border:
-                        1px solid;
-
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 4px 8px;
+                    border-radius: 999px;
+                    font-size: 9px;
+                    font-weight: 700;
+                    border: 1px solid;
                 }
 
                 .riesgo-ia-bajo {
-
                     background: #dcfce7;
                     color: #166534;
                     border-color: #bbf7d0;
-
                 }
 
                 .riesgo-ia-medio {
-
                     background: #fef3c7;
                     color: #92400e;
                     border-color: #fde68a;
-
                 }
 
                 .riesgo-ia-alto {
-
                     background: #fee2e2;
                     color: #b91c1c;
                     border-color: #fecaca;
-
                 }
 
-
-                /* =====================================================
-                   RECOMENDACIÓN IA
-                ====================================================== */
+                .riesgo-ia-sin-análisis,
+                .riesgo-ia-sin-análisis {
+                    background: var(--ev-soft);
+                    color: var(--ev-muted);
+                    border-color: var(--ev-border);
+                }
 
                 .recomendacion-ia {
-
-                    margin-top:
-                        9px;
-
-                    padding:
-                        9px 11px;
-
-                    border-radius:
-                        8px;
-
-                    background:
-                        var(--ev-ai-bg);
-
-                    border:
-                        1px solid
-                        var(--ev-ai-border);
-
+                    margin-top: 9px;
+                    padding: 9px 11px;
+                    border-radius: 8px;
+                    background: var(--ev-ai-bg);
+                    border: 1px solid var(--ev-ai-border);
                 }
 
                 .recomendacion-ia h4 {
-
-                    margin:
-                        0 0 3px;
-
-                    font-size:
-                        10px;
-
-                    color:
-                        var(--ev-ai-title);
-
+                    margin: 0 0 3px;
+                    font-size: 10px;
+                    color: var(--ev-ai-title);
                 }
 
                 .recomendacion-ia p {
-
-                    margin:
-                        0;
-
-                    font-size:
-                        10px;
-
-                    line-height:
-                        1.4;
-
-                    color:
-                        var(--ev-text);
-
+                    margin: 0;
+                    font-size: 10px;
+                    line-height: 1.4;
+                    color: var(--ev-text);
                 }
-
-
-                /* =====================================================
-                   ACCIONES
-                ====================================================== */
-
-                .evaluacion-acciones {
-
-                    display:
-                        flex;
-
-                    justify-content:
-                        flex-end;
-
-                    gap:
-                        7px;
-
-                    margin-top:
-                        9px;
-
-                }
-
-                .btn-ver-detalle {
-
-                    border:
-                        1px solid
-                        var(--ev-border);
-
-                    background:
-                        var(--ev-soft);
-
-                    color:
-                        var(--ev-text);
-
-                    padding:
-                        6px 10px;
-
-                    border-radius:
-                        6px;
-
-                    font-size:
-                        10px;
-
-                    font-weight:
-                        600;
-
-                    cursor:
-                        pointer;
-
-                    transition:
-                        background 0.2s ease,
-                        border-color 0.2s ease;
-
-                }
-
-                .btn-ver-detalle:hover {
-
-                    border-color:
-                        var(--ev-primary);
-
-                    color:
-                        var(--ev-primary);
-
-                }
-
-
-                /* =====================================================
-                   SIN EVALUACIONES
-                ====================================================== */
 
                 .sin-evaluaciones {
-
-                    background:
-                        var(--ev-card);
-
-                    border:
-                        1px solid
-                        var(--ev-border);
-
-                    border-radius:
-                        10px;
-
-                    padding:
-                        35px 20px;
-
-                    text-align:
-                        center;
-
+                    background: var(--ev-card);
+                    border: 1px solid var(--ev-border);
+                    border-radius: 10px;
+                    padding: 35px 20px;
+                    text-align: center;
                 }
 
                 .sin-evaluaciones h3 {
-
-                    margin:
-                        0 0 5px;
-
-                    font-size:
-                        15px;
-
-                    color:
-                        var(--ev-text);
-
+                    margin: 0 0 5px;
+                    font-size: 15px;
+                    color: var(--ev-text);
                 }
 
                 .sin-evaluaciones p {
-
-                    margin:
-                        0;
-
-                    font-size:
-                        11px;
-
-                    color:
-                        var(--ev-muted);
-
+                    margin: 0;
+                    font-size: 11px;
+                    color: var(--ev-muted);
                 }
-
-
-                /* =====================================================
-                   BOTÓN REGRESAR
-                ====================================================== */
-
-                .acciones-finales {
-
-                    margin-top:
-                        16px;
-
-                }
-
-                .btn-regresar {
-
-                    border:
-                        1px solid
-                        var(--ev-border);
-
-                    background:
-                        var(--ev-card);
-
-                    color:
-                        var(--ev-text);
-
-                    padding:
-                        8px 13px;
-
-                    border-radius:
-                        7px;
-
-                    font-size:
-                        11px;
-
-                    font-weight:
-                        600;
-
-                    cursor:
-                        pointer;
-
-                    transition:
-                        border-color 0.2s ease,
-                        color 0.2s ease;
-
-                }
-
-                .btn-regresar:hover {
-
-                    border-color:
-                        var(--ev-primary);
-
-                    color:
-                        var(--ev-primary);
-
-                }
-
-
-                /* =====================================================
-                   MODAL
-                ====================================================== */
 
                 .modal-overlay {
-
-                    position:
-                        fixed;
-
-                    inset:
-                        0;
-
-                    z-index:
-                        9999;
-
-                    display:
-                        flex;
-
-                    align-items:
-                        center;
-
-                    justify-content:
-                        center;
-
-                    padding:
-                        20px;
-
-                    background:
-                        rgba(
-                            15,
-                            23,
-                            42,
-                            0.60
-                        );
-
-                    backdrop-filter:
-                        blur(4px);
-
-                    box-sizing:
-                        border-box;
-
+                    position: fixed;
+                    inset: 0;
+                    z-index: 9999;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 20px;
+                    background: rgba(15, 23, 42, 0.60);
+                    backdrop-filter: blur(4px);
+                    box-sizing: border-box;
                 }
 
                 .modal-nueva-evaluacion {
-
-                    position:
-                        relative;
-
-                    width:
-                        100%;
-
-                    max-width:
-                        850px;
-
-                    max-height:
-                        92vh;
-
-                    overflow-y:
-                        auto;
-
-                    background:
-                        var(--ev-card);
-
-                    border:
-                        1px solid
-                        var(--ev-border);
-
-                    border-radius:
-                        12px;
-
-                    box-shadow:
-                        0 20px 60px
-                        rgba(
-                            0,
-                            0,
-                            0,
-                            0.30
-                        );
-
-                    box-sizing:
-                        border-box;
-
+                    position: relative;
+                    width: 100%;
+                    max-width: 850px;
+                    max-height: 92vh;
+                    overflow-y: auto;
+                    background: var(--ev-card);
+                    border: 1px solid var(--ev-border);
+                    border-radius: 12px;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.30);
+                    box-sizing: border-box;
                 }
 
                 .modal-cerrar {
-
-                    position:
-                        absolute;
-
-                    top:
-                        12px;
-
-                    right:
-                        14px;
-
-                    z-index:
-                        100;
-
-                    width:
-                        30px;
-
-                    height:
-                        30px;
-
-                    display:
-                        flex;
-
-                    align-items:
-                        center;
-
-                    justify-content:
-                        center;
-
-                    border:
-                        1px solid
-                        var(--ev-border);
-
-                    border-radius:
-                        6px;
-
-                    background:
-                        var(--ev-soft);
-
-                    color:
-                        var(--ev-text);
-
-                    font-size:
-                        20px;
-
-                    line-height:
-                        1;
-
-                    cursor:
-                        pointer;
-
-                    transition:
-                        background 0.2s ease,
-                        color 0.2s ease,
-                        border-color 0.2s ease;
-
+                    position: absolute;
+                    top: 12px;
+                    right: 14px;
+                    z-index: 100;
+                    width: 30px;
+                    height: 30px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border: 1px solid var(--ev-border);
+                    border-radius: 6px;
+                    background: var(--ev-soft);
+                    color: var(--ev-text);
+                    font-size: 20px;
+                    line-height: 1;
+                    cursor: pointer;
+                    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
                 }
 
                 .modal-cerrar:hover {
-
-                    background:
-                        var(--ev-riesgo-bg);
-
-                    color:
-                        var(--ev-riesgo-text);
-
-                    border-color:
-                        var(--ev-riesgo-border);
-
+                    background: var(--ev-riesgo-bg);
+                    color: var(--ev-riesgo-text);
+                    border-color: var(--ev-riesgo-border);
                 }
-
-
-                /* =====================================================
-                   MODO OSCURO MODAL
-                ====================================================== */
 
                 body.dark .modal-overlay,
                 body.dark-mode .modal-overlay,
                 body[data-theme="dark"] .modal-overlay {
-
-                    background:
-                        rgba(
-                            2,
-                            6,
-                            23,
-                            0.72
-                        );
-
+                    background: rgba(2, 6, 23, 0.72);
                 }
 
-
-                /* =====================================================
-                   RESPONSIVE
-                ====================================================== */
-
                 @media (max-width: 1000px) {
-
                     .indicadores-grid {
-
-                        grid-template-columns:
-                            repeat(
-                                3,
-                                minmax(0, 1fr)
-                            );
-
+                        grid-template-columns: repeat(3, minmax(0, 1fr));
                     }
 
                     .evaluacion-contenido {
-
-                        grid-template-columns:
-                            110px 1fr;
-
+                        grid-template-columns: 110px 1fr;
                     }
-
                 }
 
-
                 @media (max-width: 750px) {
-
                     .evaluaciones-page {
-
-                        padding:
-                            16px;
-
+                        padding: 16px;
                     }
 
                     .evaluaciones-header {
-
-                        flex-direction:
-                            column;
-
-                        align-items:
-                            stretch;
-
+                        flex-direction: column;
+                        align-items: stretch;
                     }
 
                     .btn-nueva-evaluacion-top {
-
-                        width:
-                            100%;
-
+                        width: 100%;
                     }
 
                     .estadisticas-grid {
-
-                        grid-template-columns:
-                            repeat(
-                                2,
-                                minmax(0, 1fr)
-                            );
-
+                        grid-template-columns: repeat(2, minmax(0, 1fr));
                     }
 
                     .filtros-container {
-
-                        flex-direction:
-                            column;
-
+                        flex-direction: column;
                     }
 
                     .filtro-grupo {
-
-                        width:
-                            100%;
-
-                        min-width:
-                            0;
-
+                        width: 100%;
+                        min-width: 0;
                     }
 
                     .evaluacion-contenido {
-
-                        grid-template-columns:
-                            1fr;
-
+                        grid-template-columns: 1fr;
                     }
 
                     .calificacion-final {
-
-                        min-height:
-                            70px;
-
+                        min-height: 70px;
                     }
 
                     .indicadores-grid {
-
-                        grid-template-columns:
-                            repeat(
-                                2,
-                                minmax(0, 1fr)
-                            );
-
+                        grid-template-columns: repeat(2, minmax(0, 1fr));
                     }
 
                     .modal-overlay {
-
-                        padding:
-                            10px;
-
+                        padding: 10px;
                     }
 
                     .modal-nueva-evaluacion {
-
-                        max-height:
-                            95vh;
-
-                        border-radius:
-                            10px;
-
+                        max-height: 95vh;
+                        border-radius: 10px;
                     }
-
                 }
 
-
                 @media (max-width: 450px) {
-
                     .estadisticas-grid {
-
-                        grid-template-columns:
-                            1fr;
-
+                        grid-template-columns: 1fr;
                     }
 
                     .indicadores-grid {
-
-                        grid-template-columns:
-                            1fr;
-
+                        grid-template-columns: 1fr;
                     }
 
                     .evaluacion-card-header {
-
-                        align-items:
-                            flex-start;
-
-                        flex-direction:
-                            column;
-
+                        align-items: flex-start;
+                        flex-direction: column;
                     }
 
                     .clasificacion-badge {
-
-                        align-self:
-                            flex-start;
-
+                        align-self: flex-start;
                     }
-
                 }
 
             `}</style>

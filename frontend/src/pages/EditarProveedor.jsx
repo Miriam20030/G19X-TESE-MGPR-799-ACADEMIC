@@ -2,9 +2,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import ModalMensaje from '../components/ModalMensaje'
+import API_URL from '../config/api'
 
 function EditarProveedor() {
-
   const { id } = useParams()
   const navigate = useNavigate()
 
@@ -19,10 +19,6 @@ function EditarProveedor() {
 
   const [cargando, setCargando] = useState(true)
   const [guardando, setGuardando] = useState(false)
-
-  // ==========================================
-  // MODAL
-  // ==========================================
 
   const [modal, setModal] = useState({
     abierto: false,
@@ -53,13 +49,10 @@ function EditarProveedor() {
   // ==========================================
 
   useEffect(() => {
-
     const obtenerProveedor = async () => {
-
       try {
-
         const respuesta = await fetch(
-          `http://localhost:8080/api/proveedores/${id}`,
+          `${API_URL}/api/proveedores/${id}`,
           {
             credentials: 'include'
           }
@@ -79,9 +72,7 @@ function EditarProveedor() {
           rfc: datos.rfc || '',
           estado: datos.estado || ''
         })
-
       } catch (error) {
-
         console.error(error)
 
         setModal({
@@ -93,17 +84,12 @@ function EditarProveedor() {
           textoAceptar: 'Aceptar',
           onAceptar: cerrarModal
         })
-
       } finally {
-
         setCargando(false)
-
       }
-
     }
 
     obtenerProveedor()
-
   }, [id])
 
   // ==========================================
@@ -111,12 +97,10 @@ function EditarProveedor() {
   // ==========================================
 
   const manejarCambio = (e) => {
-
     setProveedor({
       ...proveedor,
       [e.target.name]: e.target.value
     })
-
   }
 
   // ==========================================
@@ -124,15 +108,12 @@ function EditarProveedor() {
   // ==========================================
 
   const guardarCambios = async (e) => {
-
     e.preventDefault()
-
     setGuardando(true)
 
     try {
-
       const respuesta = await fetch(
-        `http://localhost:8080/api/proveedores/${id}`,
+        `${API_URL}/api/proveedores/${id}`,
         {
           method: 'PUT',
           credentials: 'include',
@@ -144,13 +125,11 @@ function EditarProveedor() {
       )
 
       if (!respuesta.ok) {
-
         const mensaje = await respuesta.text()
 
         throw new Error(
           mensaje || 'Error al actualizar el proveedor'
         )
-
       }
 
       setModal({
@@ -165,9 +144,7 @@ function EditarProveedor() {
           navigate('/proveedores')
         }
       })
-
     } catch (error) {
-
       console.error(error)
 
       setModal({
@@ -179,13 +156,9 @@ function EditarProveedor() {
         textoAceptar: 'Aceptar',
         onAceptar: cerrarModal
       })
-
     } finally {
-
       setGuardando(false)
-
     }
-
   }
 
   // ==========================================
@@ -193,7 +166,6 @@ function EditarProveedor() {
   // ==========================================
 
   if (cargando) {
-
     return (
       <>
         <style>{`
@@ -220,7 +192,6 @@ function EditarProveedor() {
         </div>
       </>
     )
-
   }
 
   // ==========================================
@@ -229,9 +200,7 @@ function EditarProveedor() {
 
   return (
     <>
-
       <style>{`
-
         /* VARIABLES */
 
         .editar-page {
@@ -626,19 +595,11 @@ function EditarProveedor() {
             width: 100%;
           }
         }
-
       `}</style>
 
-      {/* PÁGINA */}
-
       <div className="editar-page">
-
-        {/* ENCABEZADO */}
-
         <div className="editar-header">
-
           <div>
-
             <div className="editar-breadcrumb">
               Proveedores / Editar
             </div>
@@ -650,7 +611,6 @@ function EditarProveedor() {
             <p className="editar-subtitle">
               Actualiza la información registrada del proveedor.
             </p>
-
           </div>
 
           <button
@@ -660,17 +620,10 @@ function EditarProveedor() {
           >
             ← Regresar
           </button>
-
         </div>
 
-        {/* TARJETA */}
-
         <div className="editar-card">
-
-          {/* CABECERA */}
-
           <div className="editar-card-header">
-
             <div className="editar-avatar">
               {proveedor.nombre
                 ? proveedor.nombre.charAt(0).toUpperCase()
@@ -678,7 +631,6 @@ function EditarProveedor() {
             </div>
 
             <div>
-
               <h2 className="editar-card-title">
                 {proveedor.nombre || 'Proveedor'}
               </h2>
@@ -686,19 +638,11 @@ function EditarProveedor() {
               <p className="editar-card-subtitle">
                 ID del proveedor: #{id}
               </p>
-
             </div>
-
           </div>
 
-          {/* FORMULARIO */}
-
           <form onSubmit={guardarCambios}>
-
-            {/* INFORMACIÓN DEL PROVEEDOR */}
-
             <div className="editar-section">
-
               <h3 className="editar-section-title">
                 Información del proveedor
               </h3>
@@ -706,9 +650,7 @@ function EditarProveedor() {
               <div className="editar-line"></div>
 
               <div className="editar-grid">
-
                 <div className="editar-field">
-
                   <label className="editar-label" htmlFor="nombre">
                     Nombre del proveedor
                   </label>
@@ -723,11 +665,9 @@ function EditarProveedor() {
                     className="editar-input"
                     placeholder="Nombre del proveedor"
                   />
-
                 </div>
 
                 <div className="editar-field">
-
                   <label className="editar-label" htmlFor="rfc">
                     RFC
                   </label>
@@ -742,17 +682,11 @@ function EditarProveedor() {
                     className="editar-input"
                     placeholder="RFC"
                   />
-
                 </div>
-
               </div>
-
             </div>
 
-            {/* DATOS DE CONTACTO */}
-
             <div className="editar-section">
-
               <h3 className="editar-section-title">
                 Datos de contacto
               </h3>
@@ -760,9 +694,7 @@ function EditarProveedor() {
               <div className="editar-line"></div>
 
               <div className="editar-grid">
-
                 <div className="editar-field">
-
                   <label className="editar-label" htmlFor="contacto">
                     Persona de contacto
                   </label>
@@ -777,11 +709,9 @@ function EditarProveedor() {
                     className="editar-input"
                     placeholder="Nombre del contacto"
                   />
-
                 </div>
 
                 <div className="editar-field">
-
                   <label className="editar-label" htmlFor="telefono">
                     Teléfono
                   </label>
@@ -796,11 +726,9 @@ function EditarProveedor() {
                     className="editar-input"
                     placeholder="Teléfono"
                   />
-
                 </div>
 
                 <div className="editar-field-full">
-
                   <label className="editar-label" htmlFor="correo">
                     Correo electrónico
                   </label>
@@ -815,17 +743,11 @@ function EditarProveedor() {
                     className="editar-input"
                     placeholder="correo@empresa.com"
                   />
-
                 </div>
-
               </div>
-
             </div>
 
-            {/* ESTADO */}
-
             <div className="editar-section">
-
               <h3 className="editar-section-title">
                 Estado del proveedor
               </h3>
@@ -833,9 +755,6 @@ function EditarProveedor() {
               <div className="editar-line"></div>
 
               <div className="editar-estado-container">
-
-                {/* ACTIVO */}
-
                 <label
                   className={`editar-estado-option ${
                     proveedor.estado === 'Activo'
@@ -843,7 +762,6 @@ function EditarProveedor() {
                       : ''
                   }`}
                 >
-
                   <input
                     type="radio"
                     name="estado"
@@ -853,18 +771,12 @@ function EditarProveedor() {
                   />
 
                   <div>
-
                     <strong>Activo</strong>
-
                     <span>
                       El proveedor puede operar normalmente.
                     </span>
-
                   </div>
-
                 </label>
-
-                {/* INACTIVO */}
 
                 <label
                   className={`editar-estado-option ${
@@ -873,7 +785,6 @@ function EditarProveedor() {
                       : ''
                   }`}
                 >
-
                   <input
                     type="radio"
                     name="estado"
@@ -883,25 +794,16 @@ function EditarProveedor() {
                   />
 
                   <div>
-
                     <strong>Inactivo</strong>
-
                     <span>
                       El proveedor no está operando actualmente.
                     </span>
-
                   </div>
-
                 </label>
-
               </div>
-
             </div>
 
-            {/* BOTONES */}
-
             <div className="editar-footer">
-
               <button
                 type="button"
                 onClick={() => navigate('/proveedores')}
@@ -916,20 +818,12 @@ function EditarProveedor() {
                 className="editar-save"
                 disabled={guardando}
               >
-                {guardando
-                  ? 'Guardando...'
-                  : 'Guardar cambios'}
+                {guardando ? 'Guardando...' : 'Guardar cambios'}
               </button>
-
             </div>
-
           </form>
-
         </div>
-
       </div>
-
-      {/* MODAL */}
 
       <ModalMensaje
         abierto={modal.abierto}
@@ -942,7 +836,6 @@ function EditarProveedor() {
         onCancelar={cerrarModal}
         onAceptar={modal.onAceptar || cerrarModal}
       />
-
     </>
   )
 }

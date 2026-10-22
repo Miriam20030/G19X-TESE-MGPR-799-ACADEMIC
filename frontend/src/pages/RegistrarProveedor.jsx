@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import ModalMensaje from '../components/ModalMensaje'
+import API_URL from '../config/api'
 
 function RegistrarProveedor() {
-
   const navigate = useNavigate()
 
   const [proveedor, setProveedor] = useState({
@@ -18,10 +18,6 @@ function RegistrarProveedor() {
   const [foto, setFoto] = useState(null)
   const [vistaPrevia, setVistaPrevia] = useState(null)
 
-  // ==========================================
-  // MODAL
-  // ==========================================
-
   const [modal, setModal] = useState({
     abierto: false,
     tipo: 'info',
@@ -31,13 +27,7 @@ function RegistrarProveedor() {
     onAceptar: null
   })
 
-
-  // ==========================================
-  // CERRAR MODAL
-  // ==========================================
-
   const cerrarModal = () => {
-
     setModal({
       abierto: false,
       tipo: 'info',
@@ -46,1230 +36,631 @@ function RegistrarProveedor() {
       mostrarCancelar: false,
       onAceptar: null
     })
-
   }
-
-
-  // ==========================================
-  // CAMBIAR DATOS
-  // ==========================================
 
   const manejarCambio = (e) => {
+    const { name, value } = e.target
 
-    setProveedor({
-      ...proveedor,
-      [e.target.name]: e.target.value
-    })
-
+    setProveedor((anterior) => ({
+      ...anterior,
+      [name]: value
+    }))
   }
 
-
-  // ==========================================
-  // SELECCIONAR FOTO
-  // ==========================================
-
   const manejarFoto = (e) => {
-
     const archivo = e.target.files[0]
 
-    if (!archivo) {
-      return
-    }
+    if (!archivo) return
 
     if (!archivo.type.startsWith('image/')) {
-
       setModal({
         abierto: true,
         tipo: 'error',
         titulo: 'Archivo no válido',
-        mensaje: 'Por favor selecciona un archivo de imagen válido.',
+        mensaje: 'Selecciona un archivo de imagen válido.',
         mostrarCancelar: false,
-        onAceptar: cerrarModal
+        onAceptar: null
       })
 
+      e.target.value = ''
       return
     }
 
     setFoto(archivo)
-
-    const url = URL.createObjectURL(archivo)
-
-    setVistaPrevia(url)
-
+    setVistaPrevia(URL.createObjectURL(archivo))
   }
-
-
-  // ==========================================
-  // QUITAR FOTO
-  // ==========================================
 
   const quitarFoto = () => {
-
     setFoto(null)
     setVistaPrevia(null)
-
   }
 
-
-  // ==========================================
-  // GUARDAR PROVEEDOR
-  // ==========================================
-
   const guardarProveedor = async (e) => {
-
     e.preventDefault()
 
     try {
-
-      const respuesta = await fetch(
-        'http://localhost:8080/api/proveedores',
-        {
-          method: 'POST',
-
-          headers: {
-            'Content-Type': 'application/json'
-          },
-
-          body: JSON.stringify(proveedor)
-        }
-      )
+      const respuesta = await fetch(`${API_URL}/api/proveedores`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(proveedor)
+      })
 
       if (!respuesta.ok) {
-
-        throw new Error(
-          'No se pudo registrar el proveedor'
-        )
-
+        throw new Error('No se pudo registrar el proveedor.')
       }
 
-      const proveedorGuardado =
-        await respuesta.json()
-
-
-      // ==========================================
-      // SUBIR FOTO
-      // ==========================================
+      const proveedorGuardado = await respuesta.json()
 
       if (foto) {
+        const formularioFoto = new FormData()
+        formularioFoto.append('foto', foto)
 
-        const formularioFoto =
-          new FormData()
-
-        formularioFoto.append(
-          'foto',
-          foto
+        const respuestaFoto = await fetch(
+          `${API_URL}/api/proveedores/${proveedorGuardado.idProveedor}/foto`,
+          {
+            method: 'POST',
+            credentials: 'include',
+            body: formularioFoto
+          }
         )
 
-        const respuestaFoto =
-          await fetch(
-            `http://localhost:8080/api/proveedores/${proveedorGuardado.idProveedor}/foto`,
-            {
-              method: 'POST',
-              body: formularioFoto
-            }
-          )
-
         if (!respuestaFoto.ok) {
-
           throw new Error(
             'El proveedor se registró, pero no se pudo subir la fotografía.'
           )
-
         }
-
       }
-
-
-      // ==========================================
-      // MENSAJE DE ÉXITO
-      // ==========================================
 
       setModal({
         abierto: true,
         tipo: 'exito',
-        titulo: 'Proveedor registrado',
-        mensaje: 'El proveedor se registró correctamente en el sistema.',
+        titulo: '¡Proveedor registrado!',
+        mensaje: 'El proveedor se registró correctamente.',
         mostrarCancelar: false,
-
         onAceptar: () => {
-
           cerrarModal()
-
           navigate('/proveedores')
-
         }
-
       })
-
-
     } catch (error) {
-
-      console.error(error)
-
-
-      // ==========================================
-      // MENSAJE DE ERROR
-      // ==========================================
+      console.error('Error al registrar el proveedor:', error)
 
       setModal({
         abierto: true,
         tipo: 'error',
-        titulo: 'No se pudo registrar',
+        titulo: 'Error al registrar',
         mensaje:
           error.message ||
-          'Ocurrió un error al registrar el proveedor.',
+          'Ocurrió un error al registrar el proveedor. Inténtalo nuevamente.',
         mostrarCancelar: false,
-        onAceptar: cerrarModal
+        onAceptar: null
       })
-
     }
-
   }
 
-
   return (
-
-    <>
-
+    <div className="registrar-page">
       <style>{`
-
-        /* ==================================================
-           VARIABLES
-        ================================================== */
-
         .registrar-page {
-
           --rp-bg: #f6f7f9;
           --rp-card: #ffffff;
           --rp-input: #ffffff;
-          --rp-border: #e4e7ec;
-          --rp-border-input: #d0d5dd;
-
-          --rp-title: #1f2937;
-          --rp-text: #344054;
-          --rp-secondary: #7b8493;
-          --rp-placeholder: #98a2b3;
-
+          --rp-border: #e2e5ec;
+          --rp-title: #202536;
+          --rp-text: #626b7d;
+          --rp-muted: #8991a1;
           --rp-primary: #4f63d8;
           --rp-primary-hover: #4054c4;
+          --rp-danger: #dc3545;
+          --rp-shadow: 0 8px 28px rgba(25, 35, 70, 0.07);
 
-          --rp-footer: #ffffff;
-
-          --rp-photo-bg: #fafbfc;
-          --rp-photo-border: #cbd1da;
-
-          --rp-danger: #b42318;
-
-          width: 100%;
           min-height: 100%;
-
-          padding: 32px 42px 50px;
-
-          box-sizing: border-box;
-
+          padding: 30px;
           background: var(--rp-bg);
-
-          transition:
-            background 0.25s ease,
-            color 0.25s ease;
-
+          color: var(--rp-title);
+          transition: background 0.25s ease, color 0.25s ease;
+          box-sizing: border-box;
         }
-
-
-        /* ==================================================
-           MODO OSCURO
-        ================================================== */
 
         body.dark .registrar-page,
         body.dark-mode .registrar-page,
         body[data-theme="dark"] .registrar-page {
-
-          --rp-bg: #111827;
-          --rp-card: #1f2937;
-          --rp-input: #273244;
-
-          --rp-border: #374151;
-          --rp-border-input: #4b5563;
-
-          --rp-title: #f3f4f6;
-          --rp-text: #e5e7eb;
-          --rp-secondary: #9ca3af;
-          --rp-placeholder: #7f8a9a;
-
+          --rp-bg: #151923;
+          --rp-card: #202633;
+          --rp-input: #171d28;
+          --rp-border: #363e4d;
+          --rp-title: #f0f2f8;
+          --rp-text: #b4bdcc;
+          --rp-muted: #929bad;
           --rp-primary: #6675e8;
-          --rp-primary-hover: #7582ed;
-
-          --rp-footer: #1f2937;
-
-          --rp-photo-bg: #182231;
-          --rp-photo-border: #4b5563;
-
-          --rp-danger: #f87171;
-
+          --rp-primary-hover: #7785f0;
+          --rp-danger: #ff6878;
+          --rp-shadow: 0 8px 28px rgba(0, 0, 0, 0.16);
         }
 
-
-        /* ==================================================
-           ENCABEZADO
-        ================================================== */
-
-        .registrar-header {
-
-          max-width: 1150px;
-
-          margin: 0 auto 28px;
-
+        .registrar-page *,
+        .registrar-page *::before,
+        .registrar-page *::after {
+          box-sizing: border-box;
         }
 
-
-        .breadcrumb {
-
-          display: flex;
-
-          align-items: center;
-
-          gap: 8px;
-
-          margin-bottom: 11px;
-
-          font-size: 13px;
-
-          color: var(--rp-secondary);
-
-        }
-
-
-        .breadcrumb a {
-
-          color: var(--rp-primary);
-
-          text-decoration: none;
-
-          font-weight: 500;
-
-        }
-
-
-        .breadcrumb a:hover {
-
-          text-decoration: underline;
-
-        }
-
-
-        .registrar-header h1 {
-
-          margin: 0;
-
-          color: var(--rp-title);
-
-          font-size: 29px;
-
-          font-weight: 700;
-
-          letter-spacing: -0.3px;
-
-        }
-
-
-        .registrar-header p {
-
-          margin: 7px 0 0;
-
-          color: var(--rp-secondary);
-
-          font-size: 14px;
-
-        }
-
-
-        /* ==================================================
-           TARJETA PRINCIPAL
-        ================================================== */
-
-        .registrar-card {
-
+        .rp-container {
           width: 100%;
-
           max-width: 1150px;
-
           margin: 0 auto;
-
-          background: var(--rp-card);
-
-          border:
-            1px solid var(--rp-border);
-
-          border-radius: 12px;
-
-          box-shadow:
-            0 4px 18px
-            rgba(16, 24, 40, 0.05);
-
-          overflow: hidden;
-
-          transition:
-            background 0.25s ease,
-            border-color 0.25s ease;
-
         }
 
-
-        /* ==================================================
-           SECCIONES
-        ================================================== */
-
-        .registrar-section {
-
-          padding: 30px 36px;
-
-          border-bottom:
-            1px solid var(--rp-border);
-
-        }
-
-
-        .section-title {
-
+        .rp-breadcrumb {
           display: flex;
-
           align-items: center;
-
-          gap: 13px;
-
-          margin-bottom: 27px;
-
-        }
-
-
-        .section-line {
-
-          width: 4px;
-
-          height: 38px;
-
-          border-radius: 4px;
-
-          background: var(--rp-primary);
-
-        }
-
-
-        .section-title h2 {
-
-          margin: 0;
-
-          color: var(--rp-title);
-
-          font-size: 17px;
-
-          font-weight: 650;
-
-        }
-
-
-        .section-title p {
-
-          margin: 4px 0 0;
-
-          color: var(--rp-secondary);
-
-          font-size: 13px;
-
-        }
-
-
-        /* ==================================================
-           FORMULARIO
-        ================================================== */
-
-        .form-grid {
-
-          display: grid;
-
-          grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-
-          gap: 21px 26px;
-
-        }
-
-
-        .form-field {
-
-          display: flex;
-
-          flex-direction: column;
-
-        }
-
-
-        .form-field label {
-
-          margin-bottom: 7px;
-
-          color: var(--rp-text);
-
-          font-size: 13px;
-
-          font-weight: 600;
-
-        }
-
-
-        .required {
-
-          margin-left: 3px;
-
-          color: #d92d20;
-
-        }
-
-
-        .form-field input,
-
-        .form-field select {
-
-          width: 100%;
-
-          height: 45px;
-
-          box-sizing: border-box;
-
-          padding: 0 13px;
-
-          border:
-            1px solid var(--rp-border-input);
-
-          border-radius: 7px;
-
-          outline: none;
-
-          background: var(--rp-input);
-
-          color: var(--rp-text);
-
-          font-size: 14px;
-
-          transition:
-            border-color 0.18s ease,
-            box-shadow 0.18s ease,
-            background 0.25s ease;
-
-        }
-
-
-        .form-field input::placeholder {
-
-          color: var(--rp-placeholder);
-
-        }
-
-
-        .form-field input:hover,
-
-        .form-field select:hover {
-
-          border-color: var(--rp-primary);
-
-        }
-
-
-        .form-field input:focus,
-
-        .form-field select:focus {
-
-          border-color: var(--rp-primary);
-
-          box-shadow:
-            0 0 0 3px
-            rgba(79, 99, 216, 0.12);
-
-        }
-
-
-        .form-field select {
-
-          cursor: pointer;
-
-        }
-
-
-        /* ==================================================
-           FOTO - VACÍA
-        ================================================== */
-
-        .photo-area {
-
-          width: 100%;
-
-        }
-
-
-        .photo-empty {
-
-          min-height: 225px;
-
-          box-sizing: border-box;
-
-          border:
-            1px dashed var(--rp-photo-border);
-
-          border-radius: 9px;
-
-          background: var(--rp-photo-bg);
-
-          display: flex;
-
-          flex-direction: column;
-
-          align-items: center;
-
-          justify-content: center;
-
-          text-align: center;
-
-          cursor: pointer;
-
-          transition:
-            border-color 0.2s ease,
-            background 0.25s ease;
-
-        }
-
-
-        .photo-empty:hover {
-
-          border-color: var(--rp-primary);
-
-        }
-
-
-        /* ==================================================
-           ICONO DE CÁMARA
-        ================================================== */
-
-        .photo-symbol {
-
-          width: 48px;
-
-          height: 48px;
-
-          border:
-            1px solid var(--rp-border-input);
-
-          border-radius: 8px;
-
-          background: var(--rp-input);
-
-          display: flex;
-
-          align-items: center;
-
-          justify-content: center;
-
-          margin-bottom: 14px;
-
-        }
-
-
-        .camera-icon {
-
-          position: relative;
-
-          width: 20px;
-
-          height: 14px;
-
-          border:
-            2px solid var(--rp-secondary);
-
-          border-radius: 3px;
-
-          box-sizing: border-box;
-
-        }
-
-
-        .camera-icon::before {
-
-          content: '';
-
-          position: absolute;
-
-          width: 7px;
-
-          height: 4px;
-
-          top: -6px;
-
-          left: 4px;
-
-          border:
-            2px solid var(--rp-secondary);
-
-          border-bottom: none;
-
-          border-radius: 3px 3px 0 0;
-
-          box-sizing: border-box;
-
-        }
-
-
-        .camera-icon::after {
-
-          content: '';
-
-          position: absolute;
-
-          width: 6px;
-
-          height: 6px;
-
-          top: 2px;
-
-          left: 5px;
-
-          border:
-            2px solid var(--rp-secondary);
-
-          border-radius: 50%;
-
-          box-sizing: border-box;
-
-        }
-
-
-        .photo-empty h3 {
-
-          margin: 0;
-
-          color: var(--rp-text);
-
-          font-size: 15px;
-
-          font-weight: 600;
-
-        }
-
-
-        .photo-empty p {
-
-          margin: 6px 0 15px;
-
-          color: var(--rp-secondary);
-
-          font-size: 13px;
-
-        }
-
-
-        .select-photo {
-
-          display: inline-flex;
-
-          align-items: center;
-
-          justify-content: center;
-
-          padding: 9px 17px;
-
-          border-radius: 7px;
-
-          background: var(--rp-primary);
-
-          color: #ffffff;
-
-          font-size: 13px;
-
-          font-weight: 600;
-
-        }
-
-
-        .photo-empty small {
-
-          margin-top: 11px;
-
-          color: var(--rp-secondary);
-
-          font-size: 11px;
-
-        }
-
-
-        /* ==================================================
-           FOTO SELECCIONADA
-        ================================================== */
-
-        .photo-selected {
-
-          display: flex;
-
-          align-items: center;
-
-          gap: 24px;
-
-          padding: 18px;
-
-          border:
-            1px solid var(--rp-border);
-
-          border-radius: 9px;
-
-          background: var(--rp-photo-bg);
-
-        }
-
-
-        .photo-preview {
-
-          width: 155px;
-
-          height: 155px;
-
-          flex-shrink: 0;
-
-          overflow: hidden;
-
-          border-radius: 8px;
-
-          background: var(--rp-input);
-
-          border:
-            1px solid var(--rp-border);
-
-        }
-
-
-        .photo-preview img {
-
-          width: 100%;
-
-          height: 100%;
-
-          object-fit: cover;
-
-          display: block;
-
-        }
-
-
-        .photo-details {
-
-          flex: 1;
-
-        }
-
-
-        .photo-details h3 {
-
-          margin: 0 0 7px;
-
-          color: var(--rp-text);
-
-          font-size: 15px;
-
-          font-weight: 600;
-
-        }
-
-
-        .photo-details p {
-
-          margin: 0 0 18px;
-
-          color: var(--rp-secondary);
-
-          font-size: 13px;
-
-          word-break: break-word;
-
-        }
-
-
-        .photo-actions {
-
-          display: flex;
-
-          align-items: center;
-
+          flex-wrap: wrap;
           gap: 9px;
-
-        }
-
-
-        .change-photo {
-
-          display: inline-flex;
-
-          align-items: center;
-
-          justify-content: center;
-
-          padding: 9px 15px;
-
-          border-radius: 7px;
-
-          background: var(--rp-primary);
-
-          color: #ffffff;
-
+          margin-bottom: 22px;
+          color: var(--rp-muted);
           font-size: 13px;
-
-          font-weight: 600;
-
-          cursor: pointer;
-
         }
 
-
-        .remove-photo {
-
-          padding: 8px 15px;
-
-          border:
-            1px solid var(--rp-border-input);
-
-          border-radius: 7px;
-
-          background: var(--rp-input);
-
-          color: var(--rp-danger);
-
-          font-size: 13px;
-
-          font-weight: 600;
-
-          cursor: pointer;
-
-        }
-
-
-        .remove-photo:hover {
-
-          border-color: var(--rp-danger);
-
-        }
-
-
-        /* ==================================================
-           FOOTER
-        ================================================== */
-
-        .form-footer {
-
-          padding: 20px 36px;
-
-          display: flex;
-
-          justify-content: flex-end;
-
-          align-items: center;
-
-          gap: 10px;
-
-          background: var(--rp-footer);
-
-          transition:
-            background 0.25s ease;
-
-        }
-
-
-        /* ==================================================
-           CANCELAR
-        ================================================== */
-
-        .cancel-button {
-
-          height: 42px;
-
-          padding: 0 19px;
-
-          display: flex;
-
-          align-items: center;
-
-          justify-content: center;
-
-          box-sizing: border-box;
-
-          border:
-            1px solid var(--rp-border-input);
-
-          border-radius: 7px;
-
-          background: var(--rp-input);
-
-          color: var(--rp-text);
-
+        .rp-breadcrumb a {
+          color: var(--rp-primary);
           text-decoration: none;
-
-          font-size: 13px;
-
           font-weight: 600;
-
-          transition: 0.18s ease;
-
+          transition: color 0.2s ease;
         }
 
-
-        .cancel-button:hover {
-
-          border-color: var(--rp-primary);
-
+        .rp-breadcrumb a:hover {
+          color: var(--rp-primary-hover);
+          text-decoration: underline;
         }
 
+        .rp-breadcrumb-separator {
+          color: var(--rp-muted);
+        }
 
-        /* ==================================================
-           GUARDAR
-        ================================================== */
+        .rp-header {
+          margin-bottom: 25px;
+        }
 
-        .save-button {
+        .rp-header h1 {
+          margin: 0 0 9px;
+          color: var(--rp-title);
+          font-size: clamp(24px, 3vw, 30px);
+          font-weight: 750;
+          letter-spacing: -0.7px;
+        }
 
-          height: 42px;
+        .rp-header p {
+          max-width: 700px;
+          margin: 0;
+          color: var(--rp-text);
+          font-size: 14px;
+          line-height: 1.7;
+        }
 
-          padding: 0 20px;
+        .rp-card {
+          overflow: hidden;
+          background: var(--rp-card);
+          border: 1px solid var(--rp-border);
+          border-radius: 16px;
+          box-shadow: var(--rp-shadow);
+          transition: background 0.25s ease, border-color 0.25s ease;
+        }
 
+        .rp-card-heading {
+          padding: 23px 28px;
+          border-bottom: 1px solid var(--rp-border);
+        }
+
+        .rp-card-heading h2 {
+          margin: 0 0 6px;
+          color: var(--rp-title);
+          font-size: 17px;
+          font-weight: 700;
+        }
+
+        .rp-card-heading p {
+          margin: 0;
+          color: var(--rp-text);
+          font-size: 13px;
+          line-height: 1.6;
+        }
+
+        .rp-form {
+          padding: 28px;
+        }
+
+        .rp-section {
+          margin-bottom: 30px;
+        }
+
+        .rp-section:last-of-type {
+          margin-bottom: 0;
+        }
+
+        .rp-section-title {
           display: flex;
-
           align-items: center;
+          gap: 10px;
+          margin: 0 0 20px;
+          color: var(--rp-title);
+          font-size: 15px;
+          font-weight: 700;
+        }
 
+        .rp-section-icon {
+          display: inline-flex;
+          align-items: center;
           justify-content: center;
+          width: 32px;
+          height: 32px;
+          flex-shrink: 0;
+          border-radius: 9px;
+          background: rgba(79, 99, 216, 0.11);
+          color: var(--rp-primary);
+          font-size: 16px;
+        }
 
-          border: none;
+        .rp-form-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 21px 24px;
+        }
 
-          border-radius: 7px;
+        .rp-form-field {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          min-width: 0;
+        }
 
-          background: var(--rp-primary);
+        .rp-form-field.full-width {
+          grid-column: 1 / -1;
+        }
 
-          color: #ffffff;
-
+        .rp-form-field label {
+          color: var(--rp-title);
           font-size: 13px;
+          font-weight: 650;
+        }
 
-          font-weight: 600;
+        .rp-required {
+          color: var(--rp-danger);
+          margin-left: 3px;
+        }
 
+        .rp-form-field input,
+        .rp-form-field select {
+          width: 100%;
+          min-height: 45px;
+          padding: 11px 13px;
+          border: 1px solid var(--rp-border);
+          border-radius: 9px;
+          outline: none;
+          background: var(--rp-input);
+          color: var(--rp-title);
+          font-family: inherit;
+          font-size: 13px;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .rp-form-field input::placeholder {
+          color: var(--rp-muted);
+          opacity: 1;
+        }
+
+        .rp-form-field input:focus,
+        .rp-form-field select:focus {
+          border-color: var(--rp-primary);
+          box-shadow: 0 0 0 3px rgba(79, 99, 216, 0.12);
+        }
+
+        .rp-form-field select {
           cursor: pointer;
-
-          transition: 0.18s ease;
-
         }
 
+        .rp-field-help {
+          color: var(--rp-muted);
+          font-size: 12px;
+          line-height: 1.5;
+        }
 
-        .save-button:hover {
+        .rp-photo-area {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          align-items: center;
+          gap: 22px;
+          padding: 20px;
+          border: 1px dashed var(--rp-border);
+          border-radius: 12px;
+          background: var(--rp-bg);
+        }
 
+        .rp-photo-description {
+          display: flex;
+          align-items: flex-start;
+          gap: 14px;
+          min-width: 0;
+        }
+
+        .rp-photo-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 44px;
+          height: 44px;
+          flex-shrink: 0;
+          border-radius: 12px;
+          background: rgba(79, 99, 216, 0.11);
+          color: var(--rp-primary);
+          font-size: 21px;
+        }
+
+        .rp-photo-description h3 {
+          margin: 2px 0 6px;
+          color: var(--rp-title);
+          font-size: 14px;
+          font-weight: 700;
+        }
+
+        .rp-photo-description p {
+          margin: 0;
+          color: var(--rp-text);
+          font-size: 12px;
+          line-height: 1.6;
+        }
+
+        .rp-photo-actions {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .rp-photo-preview {
+          position: relative;
+          width: 76px;
+          height: 76px;
+          flex-shrink: 0;
+        }
+
+        .rp-photo-preview img {
+          display: block;
+          width: 100%;
+          height: 100%;
+          border: 1px solid var(--rp-border);
+          border-radius: 12px;
+          object-fit: cover;
+        }
+
+        .rp-remove-photo {
+          position: absolute;
+          top: -8px;
+          right: -8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 24px;
+          height: 24px;
+          padding: 0;
+          border: 2px solid var(--rp-card);
+          border-radius: 50%;
+          background: var(--rp-danger);
+          color: #fff;
+          font-size: 15px;
+          cursor: pointer;
+        }
+
+        .rp-upload-button {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          min-height: 42px;
+          padding: 10px 15px;
+          border: 1px solid var(--rp-border);
+          border-radius: 9px;
+          background: var(--rp-card);
+          color: var(--rp-title);
+          font-family: inherit;
+          font-size: 12px;
+          font-weight: 650;
+          cursor: pointer;
+          transition: border-color 0.2s ease, background 0.2s ease;
+          white-space: nowrap;
+        }
+
+        .rp-upload-button:hover {
+          border-color: var(--rp-primary);
+          background: var(--rp-bg);
+        }
+
+        .rp-upload-button input {
+          display: none;
+        }
+
+        .rp-form-footer {
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 12px;
+          margin-top: 30px;
+          padding-top: 23px;
+          border-top: 1px solid var(--rp-border);
+        }
+
+        .rp-button {
+          display: inline-flex;
+          justify-content: center;
+          align-items: center;
+          gap: 9px;
+          min-height: 44px;
+          padding: 11px 20px;
+          border: 1px solid transparent;
+          border-radius: 9px;
+          font-family: inherit;
+          font-size: 13px;
+          font-weight: 700;
+          text-decoration: none;
+          cursor: pointer;
+          transition: background 0.2s ease, border-color 0.2s ease,
+            transform 0.2s ease;
+        }
+
+        .rp-button:active {
+          transform: translateY(1px);
+        }
+
+        .rp-button-secondary {
+          border-color: var(--rp-border);
+          background: var(--rp-card);
+          color: var(--rp-text);
+        }
+
+        .rp-button-secondary:hover {
+          border-color: var(--rp-muted);
+          background: var(--rp-bg);
+          color: var(--rp-title);
+        }
+
+        .rp-button-primary {
+          background: var(--rp-primary);
+          color: #ffffff;
+        }
+
+        .rp-button-primary:hover {
           background: var(--rp-primary-hover);
-
         }
-
-
-        /* ==================================================
-           RESPONSIVE
-        ================================================== */
 
         @media (max-width: 850px) {
-
           .registrar-page {
-
-            padding: 22px 18px 40px;
-
+            padding: 22px 18px;
           }
 
+          .rp-form,
+          .rp-card-heading {
+            padding: 22px;
+          }
 
-          .form-grid {
-
+          .rp-photo-area {
             grid-template-columns: 1fr;
-
           }
 
-
-          .registrar-section {
-
-            padding: 25px 20px;
-
+          .rp-photo-actions {
+            justify-content: flex-start;
+            flex-wrap: wrap;
           }
-
-
-          .form-footer {
-
-            padding: 20px;
-
-            flex-direction: column-reverse;
-
-          }
-
-
-          .cancel-button,
-
-          .save-button {
-
-            width: 100%;
-
-          }
-
-
-          .photo-selected {
-
-            flex-direction: column;
-
-            align-items: center;
-
-            text-align: center;
-
-          }
-
-
-          .photo-actions {
-
-            justify-content: center;
-
-          }
-
         }
 
+        @media (max-width: 560px) {
+          .registrar-page {
+            padding: 18px 12px;
+          }
+
+          .rp-form,
+          .rp-card-heading {
+            padding: 18px;
+          }
+
+          .rp-form-grid {
+            grid-template-columns: 1fr;
+            gap: 18px;
+          }
+
+          .rp-form-field.full-width {
+            grid-column: auto;
+          }
+
+          .rp-photo-description {
+            flex-direction: column;
+          }
+
+          .rp-form-footer {
+            flex-direction: column-reverse;
+            align-items: stretch;
+          }
+
+          .rp-form-footer .rp-button {
+            width: 100%;
+          }
+        }
       `}</style>
 
+      <div className="rp-container">
+        <nav className="rp-breadcrumb">
+          <Link to="/proveedores">Proveedores</Link>
+          <span className="rp-breadcrumb-separator">/</span>
+          <span>Registrar proveedor</span>
+        </nav>
 
-      {/* ==================================================
-          PÁGINA
-      ================================================== */}
+        <header className="rp-header">
+          <h1>Registrar proveedor</h1>
+          <p>
+            Registra un nuevo proveedor para mantener actualizada la información
+            y facilitar el seguimiento de su desempeño.
+          </p>
+        </header>
 
-      <div className="registrar-page">
-
-
-        {/* ==================================================
-            ENCABEZADO
-        ================================================== */}
-
-        <div className="registrar-header">
-
-          <div className="breadcrumb">
-
-            <Link to="/proveedores">
-              Proveedores
-            </Link>
-
-            <span>/</span>
-
-            <span>
-              Registrar proveedor
-            </span>
-
+        <div className="rp-card">
+          <div className="rp-card-heading">
+            <h2>Información del proveedor</h2>
+            <p>
+              Completa los campos necesarios para dar de alta al proveedor en el
+              sistema.
+            </p>
           </div>
 
+          <form className="rp-form" onSubmit={guardarProveedor}>
+            <section className="rp-section">
+              <h3 className="rp-section-title">
+                <span className="rp-section-icon">▤</span>
+                Datos generales
+              </h3>
 
-          <h1>
-            Registrar proveedor
-          </h1>
-
-
-          <p>
-            Ingresa la información del nuevo proveedor.
-          </p>
-
-        </div>
-
-
-        {/* ==================================================
-            TARJETA
-        ================================================== */}
-
-        <div className="registrar-card">
-
-          <form onSubmit={guardarProveedor}>
-
-
-            {/* ==================================================
-                INFORMACIÓN GENERAL
-            ================================================== */}
-
-            <div className="registrar-section">
-
-              <div className="section-title">
-
-                <div className="section-line"></div>
-
-                <div>
-
-                  <h2>
-                    Información del proveedor
-                  </h2>
-
-                  <p>
-                    Datos generales y de contacto.
-                  </p>
-
-                </div>
-
-              </div>
-
-
-              <div className="form-grid">
-
-
-                <div className="form-field">
-
-                  <label>
-
+              <div className="rp-form-grid">
+                <div className="rp-form-field">
+                  <label htmlFor="nombre">
                     Nombre del proveedor
-
-                    <span className="required">
-                      *
-                    </span>
-
+                    <span className="rp-required">*</span>
                   </label>
 
                   <input
+                    id="nombre"
                     type="text"
                     name="nombre"
                     value={proveedor.nombre}
                     onChange={manejarCambio}
-                    placeholder="Ej. Tech Solutions MX"
+                    placeholder="Ej. Distribuidora del Centro"
                     required
                   />
-
                 </div>
 
-
-                <div className="form-field">
-
-                  <label>
-
+                <div className="rp-form-field">
+                  <label htmlFor="contacto">
                     Persona de contacto
-
-                    <span className="required">
-                      *
-                    </span>
-
+                    <span className="rp-required">*</span>
                   </label>
 
                   <input
+                    id="contacto"
                     type="text"
                     name="contacto"
                     value={proveedor.contacto}
                     onChange={manejarCambio}
-                    placeholder="Ej. Laura Martínez"
+                    placeholder="Nombre del contacto"
                     required
                   />
-
                 </div>
 
-
-                <div className="form-field">
-
-                  <label>
-
+                <div className="rp-form-field">
+                  <label htmlFor="correo">
                     Correo electrónico
-
-                    <span className="required">
-                      *
-                    </span>
-
+                    <span className="rp-required">*</span>
                   </label>
 
                   <input
+                    id="correo"
                     type="email"
                     name="correo"
                     value={proveedor.correo}
@@ -1277,285 +668,152 @@ function RegistrarProveedor() {
                     placeholder="contacto@empresa.com"
                     required
                   />
-
                 </div>
 
-
-                <div className="form-field">
-
-                  <label>
-
+                <div className="rp-form-field">
+                  <label htmlFor="telefono">
                     Teléfono
-
-                    <span className="required">
-                      *
-                    </span>
-
+                    <span className="rp-required">*</span>
                   </label>
 
                   <input
+                    id="telefono"
                     type="tel"
                     name="telefono"
                     value={proveedor.telefono}
                     onChange={manejarCambio}
-                    placeholder="55 1234 5678"
+                    placeholder="Número de teléfono"
                     required
                   />
-
                 </div>
 
-
-                <div className="form-field">
-
-                  <label>
-
+                <div className="rp-form-field">
+                  <label htmlFor="rfc">
                     RFC
-
-                    <span className="required">
-                      *
-                    </span>
-
+                    <span className="rp-required">*</span>
                   </label>
 
                   <input
+                    id="rfc"
                     type="text"
                     name="rfc"
                     value={proveedor.rfc}
                     onChange={manejarCambio}
-                    placeholder="ABC123456789"
-                    maxLength="13"
+                    placeholder="RFC del proveedor"
                     required
                   />
-
                 </div>
 
-
-                <div className="form-field">
-
-                  <label>
-
-                    Estado
-
-                    <span className="required">
-                      *
-                    </span>
-
+                <div className="rp-form-field">
+                  <label htmlFor="estado">
+                    Estado del proveedor
+                    <span className="rp-required">*</span>
                   </label>
 
                   <select
+                    id="estado"
                     name="estado"
                     value={proveedor.estado}
                     onChange={manejarCambio}
+                    required
                   >
-
-                    <option value="Activo">
-                      Activo
-                    </option>
-
-                    <option value="Inactivo">
-                      Inactivo
-                    </option>
-
+                    <option value="Activo">Activo</option>
+                    <option value="Inactivo">Inactivo</option>
                   </select>
+                </div>
+              </div>
+            </section>
 
+            <section className="rp-section">
+              <h3 className="rp-section-title">
+                <span className="rp-section-icon">▧</span>
+                Fotografía del proveedor
+              </h3>
+
+              <div className="rp-photo-area">
+                <div className="rp-photo-description">
+                  <div className="rp-photo-icon">▧</div>
+
+                  <div>
+                    <h3>Agrega una fotografía</h3>
+                    <p>
+                      Puedes seleccionar una imagen para identificar al
+                      proveedor. Este campo es opcional.
+                    </p>
+                  </div>
                 </div>
 
-
-              </div>
-
-            </div>
-
-
-            {/* ==================================================
-                FOTOGRAFÍA
-            ================================================== */}
-
-            <div className="registrar-section">
-
-              <div className="section-title">
-
-                <div className="section-line"></div>
-
-                <div>
-
-                  <h2>
-                    Fotografía del proveedor
-                  </h2>
-
-                  <p>
-                    Imagen utilizada para identificar al proveedor.
-                  </p>
-
-                </div>
-
-              </div>
-
-
-              <div className="photo-area">
-
-
-                {vistaPrevia ? (
-
-                  <div className="photo-selected">
-
-
-                    <div className="photo-preview">
-
+                <div className="rp-photo-actions">
+                  {vistaPrevia && (
+                    <div className="rp-photo-preview">
                       <img
                         src={vistaPrevia}
-                        alt="Vista previa del proveedor"
+                        alt="Vista previa de la fotografía del proveedor"
                       />
 
+                      <button
+                        type="button"
+                        className="rp-remove-photo"
+                        onClick={quitarFoto}
+                        aria-label="Quitar fotografía"
+                        title="Quitar fotografía"
+                      >
+                        ×
+                      </button>
                     </div>
+                  )}
 
-
-                    <div className="photo-details">
-
-                      <h3>
-                        Fotografía seleccionada
-                      </h3>
-
-
-                      <p>
-                        {foto?.name}
-                      </p>
-
-
-                      <div className="photo-actions">
-
-
-                        <label className="change-photo">
-
-                          Cambiar fotografía
-
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={manejarFoto}
-                            hidden
-                          />
-
-                        </label>
-
-
-                        <button
-                          type="button"
-                          className="remove-photo"
-                          onClick={quitarFoto}
-                        >
-                          Quitar fotografía
-                        </button>
-
-
-                      </div>
-
-                    </div>
-
-                  </div>
-
-
-                ) : (
-
-
-                  <label className="photo-empty">
-
-
-                    <div className="photo-symbol">
-
-                      <div className="camera-icon"></div>
-
-                    </div>
-
-
-                    <h3>
-                      Seleccionar fotografía
-                    </h3>
-
-
-                    <p>
-                      Agrega una imagen del proveedor.
-                    </p>
-
-
-                    <span className="select-photo">
-                      Seleccionar archivo
-                    </span>
-
-
-                    <small>
-                      Formatos permitidos: JPG, JPEG y PNG
-                    </small>
-
+                  <label className="rp-upload-button">
+                    <span>↑</span>
+                    {foto ? 'Cambiar fotografía' : 'Seleccionar imagen'}
 
                     <input
                       type="file"
                       accept="image/*"
                       onChange={manejarFoto}
-                      hidden
                     />
-
-
                   </label>
-
-                )}
-
+                </div>
               </div>
 
-            </div>
+              {foto && (
+                <p className="rp-field-help" style={{ marginTop: 10 }}>
+                  Archivo seleccionado: {foto.name}
+                </p>
+              )}
+            </section>
 
-
-            {/* ==================================================
-                BOTONES
-            ================================================== */}
-
-            <div className="form-footer">
-
-
+            <div className="rp-form-footer">
               <Link
                 to="/proveedores"
-                className="cancel-button"
+                className="rp-button rp-button-secondary"
               >
                 Cancelar
               </Link>
 
-
               <button
                 type="submit"
-                className="save-button"
+                className="rp-button rp-button-primary"
               >
+                <span>✓</span>
                 Guardar proveedor
               </button>
-
-
             </div>
-
-
           </form>
-
         </div>
-
-
-        {/* ==================================================
-            MODAL
-        ================================================== */}
-
-        <ModalMensaje
-          abierto={modal.abierto}
-          tipo={modal.tipo}
-          titulo={modal.titulo}
-          mensaje={modal.mensaje}
-          mostrarCancelar={modal.mostrarCancelar}
-          onCancelar={cerrarModal}
-          onAceptar={modal.onAceptar || cerrarModal}
-        />
-
-
       </div>
 
-    </>
-
+      <ModalMensaje
+        abierto={modal.abierto}
+        tipo={modal.tipo}
+        titulo={modal.titulo}
+        mensaje={modal.mensaje}
+        mostrarCancelar={modal.mostrarCancelar}
+        onAceptar={modal.onAceptar || cerrarModal}
+        onCancelar={cerrarModal}
+      />
+    </div>
   )
-
 }
 
 export default RegistrarProveedor

@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from 'react'
+import API_URL from '../config/api'
 import './Alertas.css'
 
 function Alertas() {
@@ -17,14 +18,14 @@ function Alertas() {
         try {
 
             const respuestaEvaluaciones = await fetch(
-                'http://localhost:8080/api/evaluaciones',
+                `${API_URL}/api/evaluaciones`,
                 {
                     credentials: 'include'
                 }
             )
 
             const respuestaProveedores = await fetch(
-                'http://localhost:8080/api/proveedores',
+                `${API_URL}/api/proveedores`,
                 {
                     credentials: 'include'
                 }
@@ -320,9 +321,12 @@ function Alertas() {
 
                                         style={{
                                             width: `${Math.min(
-                                                Number(
-                                                    evaluacion.calificacionFinal
-                                                ) || 0,
+                                                Math.max(
+                                                    Number(
+                                                        evaluacion.calificacionFinal
+                                                    ) || 0,
+                                                    0
+                                                ),
                                                 100
                                             )}%`
                                         }}

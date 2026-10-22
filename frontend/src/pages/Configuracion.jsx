@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from 'react'
+import API_URL from '../config/api'
 
 function Configuracion({
     modoOscuro,
@@ -24,12 +25,10 @@ function Configuracion({
     // ==========================================
 
     useEffect(() => {
-
         document.body.classList.toggle(
             'dark-mode',
             modoOscuro
         )
-
     }, [modoOscuro])
 
 
@@ -38,12 +37,10 @@ function Configuracion({
     // ==========================================
 
     useEffect(() => {
-
         localStorage.setItem(
             'modoOscuro',
             modoOscuro
         )
-
     }, [modoOscuro])
 
 
@@ -52,7 +49,6 @@ function Configuracion({
     // ==========================================
 
     const cambiarPassword = async (e) => {
-
         e.preventDefault()
 
         // Limpiar mensajes anteriores
@@ -70,7 +66,6 @@ function Configuracion({
             !nuevaPassword ||
             !confirmarPassword
         ) {
-
             setErrorPassword(
                 'Todos los campos son obligatorios.'
             )
@@ -84,7 +79,6 @@ function Configuracion({
         // ==========================================
 
         if (nuevaPassword.length < 8) {
-
             setErrorPassword(
                 'La nueva contraseña debe tener al menos 8 caracteres.'
             )
@@ -98,7 +92,6 @@ function Configuracion({
         // ==========================================
 
         if (nuevaPassword !== confirmarPassword) {
-
             setErrorPassword(
                 'Las nuevas contraseñas no coinciden.'
             )
@@ -115,9 +108,7 @@ function Configuracion({
             localStorage.getItem('usuario') ||
             localStorage.getItem('username')
 
-
         if (!usuario) {
-
             setErrorPassword(
                 'No se encontró el usuario de la sesión.'
             )
@@ -140,7 +131,7 @@ function Configuracion({
             // ==========================================
 
             const respuesta = await fetch(
-                'http://localhost:8080/api/auth/cambiar-password',
+                `${API_URL}/api/auth/cambiar-password`,
                 {
                     method: 'POST',
 
@@ -151,15 +142,9 @@ function Configuracion({
                     },
 
                     body: JSON.stringify({
-
                         usuario: usuario,
-
-                        passwordActual:
-                            passwordActual,
-
-                        nuevaPassword:
-                            nuevaPassword
-
+                        passwordActual: passwordActual,
+                        nuevaPassword: nuevaPassword
                     })
                 }
             )
@@ -177,7 +162,6 @@ function Configuracion({
             // ==========================================
 
             if (!respuesta.ok) {
-
                 setErrorPassword(
                     datos.mensaje ||
                     'No fue posible cambiar la contraseña.'
@@ -230,9 +214,7 @@ function Configuracion({
 
     return (
 
-        <div
-            className="configuracion-page"
-        >
+        <div className="configuracion-page">
 
             <style>{`
 
@@ -337,8 +319,7 @@ function Configuracion({
 
                     background: var(--cfg-card);
 
-                    border:
-                        1px solid var(--cfg-border);
+                    border: 1px solid var(--cfg-border);
 
                     border-radius: 14px;
 
@@ -414,8 +395,7 @@ function Configuracion({
 
                     padding: 20px 0;
 
-                    border-top:
-                        1px solid var(--cfg-border);
+                    border-top: 1px solid var(--cfg-border);
 
                 }
 
@@ -467,8 +447,7 @@ function Configuracion({
 
                     padding: 10px 18px;
 
-                    border:
-                        1px solid var(--cfg-border);
+                    border: 1px solid var(--cfg-border);
 
                     border-radius: 8px;
 
@@ -492,11 +471,9 @@ function Configuracion({
 
                 .btn-modo:hover {
 
-                    border-color:
-                        var(--cfg-primary);
+                    border-color: var(--cfg-primary);
 
-                    background:
-                        var(--cfg-primary);
+                    background: var(--cfg-primary);
 
                     color: white;
 
@@ -505,8 +482,7 @@ function Configuracion({
 
                 .btn-modo:active {
 
-                    transform:
-                        scale(0.97);
+                    transform: scale(0.97);
 
                 }
 
@@ -521,8 +497,7 @@ function Configuracion({
 
                     padding-top: 25px;
 
-                    border-top:
-                        1px solid var(--cfg-border);
+                    border-top: 1px solid var(--cfg-border);
 
                 }
 
@@ -557,18 +532,15 @@ function Configuracion({
 
                     box-sizing: border-box;
 
-                    border:
-                        1px solid var(--cfg-border);
+                    border: 1px solid var(--cfg-border);
 
                     border-radius: 8px;
 
                     outline: none;
 
-                    background:
-                        var(--cfg-soft);
+                    background: var(--cfg-soft);
 
-                    color:
-                        var(--cfg-text);
+                    color: var(--cfg-text);
 
                     font-size: 14px;
 
@@ -581,20 +553,17 @@ function Configuracion({
 
                 .password-group input::placeholder {
 
-                    color:
-                        var(--cfg-text-secondary);
+                    color: var(--cfg-text-secondary);
 
                 }
 
 
                 .password-group input:focus {
 
-                    border-color:
-                        var(--cfg-primary);
+                    border-color: var(--cfg-primary);
 
                     box-shadow:
-                        0 0 0 3px
-                        rgba(37, 99, 235, 0.12);
+                        0 0 0 3px rgba(37, 99, 235, 0.12);
 
                 }
 
@@ -617,8 +586,7 @@ function Configuracion({
 
                     cursor: pointer;
 
-                    background:
-                        var(--cfg-primary);
+                    background: var(--cfg-primary);
 
                     color: white;
 
@@ -642,8 +610,7 @@ function Configuracion({
 
                 .btn-password:active {
 
-                    transform:
-                        scale(0.98);
+                    transform: scale(0.98);
 
                 }
 
@@ -669,15 +636,11 @@ function Configuracion({
 
                     border-radius: 8px;
 
-                    background:
-                        rgba(220, 38, 38, 0.10);
+                    background: rgba(220, 38, 38, 0.10);
 
-                    color:
-                        var(--cfg-danger);
+                    color: var(--cfg-danger);
 
-                    border:
-                        1px solid
-                        rgba(220, 38, 38, 0.20);
+                    border: 1px solid rgba(220, 38, 38, 0.20);
 
                     font-size: 14px;
 
@@ -692,15 +655,11 @@ function Configuracion({
 
                     border-radius: 8px;
 
-                    background:
-                        rgba(22, 163, 74, 0.10);
+                    background: rgba(22, 163, 74, 0.10);
 
-                    color:
-                        var(--cfg-success);
+                    color: var(--cfg-success);
 
-                    border:
-                        1px solid
-                        rgba(22, 163, 74, 0.20);
+                    border: 1px solid rgba(22, 163, 74, 0.20);
 
                     font-size: 14px;
 
@@ -717,8 +676,7 @@ function Configuracion({
 
                     padding-top: 20px;
 
-                    border-top:
-                        1px solid var(--cfg-border);
+                    border-top: 1px solid var(--cfg-border);
 
                 }
 
@@ -925,9 +883,7 @@ function Configuracion({
                             type="password"
                             value={passwordActual}
                             onChange={(e) =>
-                                setPasswordActual(
-                                    e.target.value
-                                )
+                                setPasswordActual(e.target.value)
                             }
                             placeholder="Ingresa tu contraseña actual"
                             autoComplete="current-password"
@@ -950,9 +906,7 @@ function Configuracion({
                             type="password"
                             value={nuevaPassword}
                             onChange={(e) =>
-                                setNuevaPassword(
-                                    e.target.value
-                                )
+                                setNuevaPassword(e.target.value)
                             }
                             placeholder="Mínimo 8 caracteres"
                             autoComplete="new-password"
@@ -975,9 +929,7 @@ function Configuracion({
                             type="password"
                             value={confirmarPassword}
                             onChange={(e) =>
-                                setConfirmarPassword(
-                                    e.target.value
-                                )
+                                setConfirmarPassword(e.target.value)
                             }
                             placeholder="Repite la nueva contraseña"
                             autoComplete="new-password"

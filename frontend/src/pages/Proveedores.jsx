@@ -1,7 +1,9 @@
+
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import './Proveedores.css'
 import ModalMensaje from '../components/ModalMensaje'
+import API_URL from '../config/api'
 
 function Proveedores() {
 
@@ -21,7 +23,6 @@ function Proveedores() {
     onAceptar: null
   })
 
-
   // =========================================
   // CERRAR MODAL
   // =========================================
@@ -39,7 +40,6 @@ function Proveedores() {
 
   }
 
-
   // =========================================
   // OBTENER PROVEEDORES
   // =========================================
@@ -49,7 +49,7 @@ function Proveedores() {
     try {
 
       const respuesta = await fetch(
-        'http://localhost:8080/api/proveedores',
+        `${API_URL}/api/proveedores`,
         {
           credentials: 'include'
         }
@@ -81,8 +81,8 @@ function Proveedores() {
       setCargando(false)
 
     }
-  }
 
+  }
 
   // =========================================
   // CARGAR AL INICIAR
@@ -93,7 +93,6 @@ function Proveedores() {
     obtenerProveedores()
 
   }, [])
-
 
   // =========================================
   // ELIMINAR PROVEEDOR
@@ -113,7 +112,7 @@ function Proveedores() {
         try {
 
           const respuesta = await fetch(
-            `http://localhost:8080/api/proveedores/${id}`,
+            `${API_URL}/api/proveedores/${id}`,
             {
               method: 'DELETE',
               credentials: 'include'
@@ -160,7 +159,6 @@ function Proveedores() {
 
   }
 
-
   // =========================================
   // CARGANDO
   // =========================================
@@ -183,7 +181,6 @@ function Proveedores() {
 
   }
 
-
   // =========================================
   // INTERFAZ
   // =========================================
@@ -191,7 +188,6 @@ function Proveedores() {
   return (
 
     <div className="proveedores-page">
-
 
       {/* =========================================
           ENCABEZADO
@@ -217,7 +213,6 @@ function Proveedores() {
 
         </div>
 
-
         <Link
           to="/registrar-proveedor"
           className="proveedores-btn-primary"
@@ -240,7 +235,6 @@ function Proveedores() {
         </Link>
 
       </div>
-
 
       {/* =========================================
           CONTADOR
@@ -265,7 +259,6 @@ function Proveedores() {
         </div>
 
       </div>
-
 
       {/* =========================================
           LISTA DE PROVEEDORES
@@ -294,16 +287,13 @@ function Proveedores() {
 
           </div>
 
-
           <h2>
             No hay proveedores registrados
           </h2>
 
-
           <p>
             Registra un proveedor para comenzar a administrar tu información.
           </p>
-
 
           <Link
             to="/registrar-proveedor"
@@ -327,7 +317,6 @@ function Proveedores() {
               key={proveedor.idProveedor}
             >
 
-
               {/* =========================================
                   FOTO
               ========================================= */}
@@ -337,7 +326,7 @@ function Proveedores() {
                 {proveedor.fotoUrl ? (
 
                   <img
-                    src={`http://localhost:8080${proveedor.fotoUrl}`}
+                    src={`${API_URL}${proveedor.fotoUrl}`}
                     alt={`Fotografía de ${proveedor.nombre}`}
                     className="proveedor-foto"
                   />
@@ -355,7 +344,6 @@ function Proveedores() {
                 )}
 
               </div>
-
 
               {/* =========================================
                   INFORMACIÓN
@@ -377,7 +365,6 @@ function Proveedores() {
 
                   </div>
 
-
                   <span
                     className={
                       proveedor.estado === 'Activo'
@@ -394,13 +381,11 @@ function Proveedores() {
 
                 </div>
 
-
                 {/* =========================================
                     DATOS
                 ========================================= */}
 
                 <div className="proveedor-info">
-
 
                   <div className="proveedor-info-item">
 
@@ -413,7 +398,6 @@ function Proveedores() {
                     </span>
 
                   </div>
-
 
                   <div className="proveedor-info-item">
 
@@ -432,7 +416,6 @@ function Proveedores() {
 
                   </div>
 
-
                   <div className="proveedor-info-item">
 
                     <span className="info-label">
@@ -446,7 +429,6 @@ function Proveedores() {
                     </span>
 
                   </div>
-
 
                   <div className="proveedor-info-item">
 
@@ -466,13 +448,11 @@ function Proveedores() {
 
               </div>
 
-
               {/* =========================================
                   ACCIONES
               ========================================= */}
 
               <div className="proveedor-actions">
-
 
                 {/* EDITAR */}
 
@@ -500,10 +480,10 @@ function Proveedores() {
 
                 </Link>
 
-
                 {/* ELIMINAR */}
 
                 <button
+                  type="button"
                   className="proveedor-btn proveedor-btn-delete"
                   onClick={() =>
                     eliminarProveedor(
@@ -545,7 +525,6 @@ function Proveedores() {
 
       )}
 
-
       {/* =========================================
           MODAL DE MENSAJES
       ========================================= */}
@@ -559,7 +538,6 @@ function Proveedores() {
         onCancelar={cerrarModal}
         onAceptar={modal.onAceptar || cerrarModal}
       />
-
 
     </div>
 
