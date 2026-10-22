@@ -33,11 +33,17 @@ function Evaluaciones() {
             ] = await Promise.all([
 
                 fetch(
-                    'http://localhost:8080/api/evaluaciones'
+                    'http://localhost:8080/api/evaluaciones',
+                    {
+                        credentials: 'include'
+                    }
                 ),
 
                 fetch(
-                    'http://localhost:8080/api/proveedores'
+                    'http://localhost:8080/api/proveedores',
+                    {
+                        credentials: 'include'
+                    }
                 )
 
             ])

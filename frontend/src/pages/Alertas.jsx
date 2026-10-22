@@ -17,11 +17,17 @@ function Alertas() {
         try {
 
             const respuestaEvaluaciones = await fetch(
-                'http://localhost:8080/api/evaluaciones'
+                'http://localhost:8080/api/evaluaciones',
+                {
+                    credentials: 'include'
+                }
             )
 
             const respuestaProveedores = await fetch(
-                'http://localhost:8080/api/proveedores'
+                'http://localhost:8080/api/proveedores',
+                {
+                    credentials: 'include'
+                }
             )
 
             if (
@@ -47,7 +53,6 @@ function Alertas() {
         }
     }
 
-
     // Obtener el nombre del proveedor
     const obtenerNombreProveedor = (idProveedor) => {
 
@@ -59,7 +64,6 @@ function Alertas() {
             ? proveedor.nombre
             : 'Proveedor no encontrado'
     }
-
 
     // Formatear fecha y hora
     const formatearFecha = (fecha) => {
@@ -87,7 +91,6 @@ function Alertas() {
         )
     }
 
-
     // Obtener solamente las evaluaciones
     // clasificadas como Riesgo o Regular
     const alertas = evaluaciones.filter(
@@ -95,7 +98,6 @@ function Alertas() {
             evaluacion.clasificacion === 'Riesgo' ||
             evaluacion.clasificacion === 'Regular'
     )
-
 
     // Filtrar por nombre del proveedor
     const alertasFiltradas = alertas.filter(
@@ -111,7 +113,6 @@ function Alertas() {
             )
         }
     )
-
 
     return (
 
@@ -137,7 +138,6 @@ function Alertas() {
                 </p>
 
             </header>
-
 
             {/* BUSCADOR */}
 
@@ -175,7 +175,6 @@ function Alertas() {
                 </span>
 
             </div>
-
 
             {/* SIN RESULTADOS */}
 
@@ -252,7 +251,6 @@ function Alertas() {
 
                                 </div>
 
-
                                 {/* PROVEEDOR */}
 
                                 <div className="proveedor-info">
@@ -270,7 +268,6 @@ function Alertas() {
                                     </h2>
 
                                 </div>
-
 
                                 {/* INFORMACIÓN */}
 
@@ -294,7 +291,6 @@ function Alertas() {
 
                                     </div>
 
-
                                     <div>
 
                                         <span>
@@ -310,7 +306,6 @@ function Alertas() {
                                     </div>
 
                                 </div>
-
 
                                 {/* BARRA DE CALIFICACIÓN */}
 
@@ -334,7 +329,6 @@ function Alertas() {
                                     ></div>
 
                                 </div>
-
 
                                 {/* MENSAJE */}
 

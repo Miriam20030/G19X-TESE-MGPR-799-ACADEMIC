@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 
 function Configuracion({
@@ -114,8 +115,6 @@ function Configuracion({
             localStorage.getItem('usuario') ||
             localStorage.getItem('username')
 
-            console.log('Usuario guardado:', usuario)
-
 
         if (!usuario) {
 
@@ -145,6 +144,8 @@ function Configuracion({
                 {
                     method: 'POST',
 
+                    credentials: 'include',
+
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -163,6 +164,10 @@ function Configuracion({
                 }
             )
 
+
+            // ==========================================
+            // LEER RESPUESTA
+            // ==========================================
 
             const datos = await respuesta.json()
 
@@ -218,6 +223,10 @@ function Configuracion({
 
     }
 
+
+    // ==========================================
+    // INTERFAZ
+    // ==========================================
 
     return (
 
@@ -922,6 +931,7 @@ function Configuracion({
                             }
                             placeholder="Ingresa tu contraseña actual"
                             autoComplete="current-password"
+                            required
                         />
 
                     </div>
@@ -946,6 +956,7 @@ function Configuracion({
                             }
                             placeholder="Mínimo 8 caracteres"
                             autoComplete="new-password"
+                            required
                         />
 
                     </div>
@@ -970,6 +981,7 @@ function Configuracion({
                             }
                             placeholder="Repite la nueva contraseña"
                             autoComplete="new-password"
+                            required
                         />
 
                     </div>
@@ -1018,6 +1030,5 @@ function Configuracion({
         </div>
     )
 }
-
 
 export default Configuracion

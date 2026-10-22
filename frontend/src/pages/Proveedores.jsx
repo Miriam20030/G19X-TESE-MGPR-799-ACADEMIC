@@ -49,7 +49,10 @@ function Proveedores() {
     try {
 
       const respuesta = await fetch(
-        'http://localhost:8080/api/proveedores'
+        'http://localhost:8080/api/proveedores',
+        {
+          credentials: 'include'
+        }
       )
 
       if (!respuesta.ok) {
@@ -112,7 +115,8 @@ function Proveedores() {
           const respuesta = await fetch(
             `http://localhost:8080/api/proveedores/${id}`,
             {
-              method: 'DELETE'
+              method: 'DELETE',
+              credentials: 'include'
             }
           )
 

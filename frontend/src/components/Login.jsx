@@ -1,4 +1,3 @@
-
 import { useState } from 'react'
 import './Login.css'
 
@@ -28,11 +27,12 @@ function Login({ onLogin }) {
                 'http://localhost:8080/api/auth/login',
                 {
                     method: 'POST',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        usuario,
+                        usuario: usuario.trim(),
                         password
                     })
                 }
@@ -48,7 +48,8 @@ function Login({ onLogin }) {
                 return
             }
 
-            // Guardar el usuario que inició sesión
+            // Guardar el usuario para la interfaz.
+            // La autenticación real la gestiona el backend.
             localStorage.setItem(
                 'usuario',
                 data.usuario
@@ -111,12 +112,9 @@ function Login({ onLogin }) {
             <div className="login-panel">
                 <div className="login-card">
 
-                    {/* ENCABEZADO */}
-
                     <div className="login-header">
 
-                        <div className="login-icon">
-                        </div>
+                        <div className="login-icon"></div>
 
                         <h2>
                             Iniciar sesión
@@ -127,8 +125,6 @@ function Login({ onLogin }) {
                         </p>
 
                     </div>
-
-                    {/* FORMULARIO */}
 
                     <form onSubmit={iniciarSesion}>
 
@@ -205,8 +201,6 @@ function Login({ onLogin }) {
                         </button>
 
                     </form>
-
-                    {/* PIE DE PÁGINA */}
 
                     <div className="login-footer">
                         Sistema de Evaluación de Proveedores

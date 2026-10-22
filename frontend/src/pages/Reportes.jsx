@@ -19,11 +19,17 @@ function Reportes() {
         try {
 
             const respuestaProveedores = await fetch(
-                'http://localhost:8080/api/proveedores'
+                'http://localhost:8080/api/proveedores',
+                {
+                    credentials: 'include'
+                }
             )
 
             const respuestaEvaluaciones = await fetch(
-                'http://localhost:8080/api/evaluaciones'
+                'http://localhost:8080/api/evaluaciones',
+                {
+                    credentials: 'include'
+                }
             )
 
             if (

@@ -36,7 +36,6 @@ function EditarProveedor() {
   })
 
   const cerrarModal = () => {
-
     setModal({
       abierto: false,
       tipo: 'info',
@@ -47,9 +46,7 @@ function EditarProveedor() {
       textoAceptar: 'Aceptar',
       onAceptar: null
     })
-
   }
-
 
   // ==========================================
   // OBTENER PROVEEDOR
@@ -62,7 +59,10 @@ function EditarProveedor() {
       try {
 
         const respuesta = await fetch(
-          `http://localhost:8080/api/proveedores/${id}`
+          `http://localhost:8080/api/proveedores/${id}`,
+          {
+            credentials: 'include'
+          }
         )
 
         if (!respuesta.ok) {
@@ -106,7 +106,6 @@ function EditarProveedor() {
 
   }, [id])
 
-
   // ==========================================
   // MANEJAR CAMBIOS
   // ==========================================
@@ -119,7 +118,6 @@ function EditarProveedor() {
     })
 
   }
-
 
   // ==========================================
   // GUARDAR CAMBIOS
@@ -137,6 +135,7 @@ function EditarProveedor() {
         `http://localhost:8080/api/proveedores/${id}`,
         {
           method: 'PUT',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json'
           },
@@ -148,7 +147,9 @@ function EditarProveedor() {
 
         const mensaje = await respuesta.text()
 
-        throw new Error(mensaje)
+        throw new Error(
+          mensaje || 'Error al actualizar el proveedor'
+        )
 
       }
 
@@ -187,9 +188,8 @@ function EditarProveedor() {
 
   }
 
-
   // ==========================================
-  // INTERFAZ
+  // INTERFAZ DE CARGA
   // ==========================================
 
   if (cargando) {
@@ -197,36 +197,22 @@ function EditarProveedor() {
     return (
       <>
         <style>{`
-
           .editar-loading {
-
             min-height: 100vh;
-
             display: flex;
-
             justify-content: center;
-
             align-items: center;
-
             background: #f6f7f9;
-
             color: #687386;
-
             font-size: 14px;
-
           }
-
 
           body.dark .editar-loading,
           body.dark-mode .editar-loading,
           body[data-theme="dark"] .editar-loading {
-
             background: #111827;
-
             color: #9ca3af;
-
           }
-
         `}</style>
 
         <div className="editar-loading">
@@ -237,19 +223,18 @@ function EditarProveedor() {
 
   }
 
+  // ==========================================
+  // INTERFAZ PRINCIPAL
+  // ==========================================
 
   return (
-
     <>
 
       <style>{`
 
-        /* ==================================================
-           VARIABLES
-        ================================================== */
+        /* VARIABLES */
 
         .editar-page {
-
           --ep-bg: #f6f7f9;
           --ep-card: #ffffff;
           --ep-input: #ffffff;
@@ -278,30 +263,21 @@ function EditarProveedor() {
           --ep-inactive-bg: #fef2f2;
 
           width: 100%;
-
           min-height: 100vh;
-
           padding: 32px;
-
           box-sizing: border-box;
-
           background: var(--ep-bg);
 
           transition:
             background 0.25s ease,
             color 0.25s ease;
-
         }
 
-
-        /* ==================================================
-           MODO OSCURO
-        ================================================== */
+        /* MODO OSCURO */
 
         body.dark .editar-page,
         body.dark-mode .editar-page,
         body[data-theme="dark"] .editar-page {
-
           --ep-bg: #111827;
           --ep-card: #1f2937;
           --ep-input: #111827;
@@ -328,622 +304,336 @@ function EditarProveedor() {
 
           --ep-inactive-border: #ef4444;
           --ep-inactive-bg: #450a0a;
-
         }
 
-
-        /* ==================================================
-           ENCABEZADO
-        ================================================== */
+        /* ENCABEZADO */
 
         .editar-header {
-
           max-width: 950px;
-
           margin: 0 auto 24px;
-
           display: flex;
-
           justify-content: space-between;
-
           align-items: flex-end;
-
           gap: 20px;
-
         }
-
 
         .editar-breadcrumb {
-
           margin-bottom: 8px;
-
           color: var(--ep-muted);
-
           font-size: 13px;
-
         }
-
 
         .editar-title {
-
           margin: 0;
-
           color: var(--ep-title);
-
           font-size: 29px;
-
           font-weight: 700;
-
         }
-
 
         .editar-subtitle {
-
           margin: 6px 0 0;
-
           color: var(--ep-secondary);
-
           font-size: 14px;
-
         }
 
-
-        /* ==================================================
-           BOTÓN REGRESAR
-        ================================================== */
+        /* BOTÓN REGRESAR */
 
         .editar-back {
-
           padding: 10px 17px;
-
-          border:
-            1px solid var(--ep-border);
-
+          border: 1px solid var(--ep-border);
           border-radius: 8px;
-
           background: var(--ep-card);
-
           color: var(--ep-secondary);
-
           font-size: 14px;
-
           font-weight: 600;
-
           cursor: pointer;
-
           white-space: nowrap;
-
           transition: 0.18s ease;
-
         }
-
 
         .editar-back:hover {
-
           border-color: #4f63d8;
-
         }
 
-
-        /* ==================================================
-           TARJETA
-        ================================================== */
+        /* TARJETA */
 
         .editar-card {
-
           max-width: 950px;
-
           margin: 0 auto;
-
           background: var(--ep-card);
-
-          border:
-            1px solid var(--ep-border);
-
+          border: 1px solid var(--ep-border);
           border-radius: 14px;
-
-          box-shadow:
-            0 5px 20px
-            rgba(31, 41, 55, 0.08);
-
+          box-shadow: 0 5px 20px rgba(31, 41, 55, 0.08);
           overflow: hidden;
 
           transition:
             background 0.25s ease,
             border-color 0.25s ease;
-
         }
 
-
-        /* ==================================================
-           CABECERA DEL PROVEEDOR
-        ================================================== */
+        /* CABECERA DEL PROVEEDOR */
 
         .editar-card-header {
-
           display: flex;
-
           align-items: center;
-
           gap: 15px;
-
           padding: 24px 30px;
-
-          border-bottom:
-            1px solid var(--ep-border-light);
-
+          border-bottom: 1px solid var(--ep-border-light);
         }
-
 
         .editar-avatar {
-
           width: 52px;
-
           height: 52px;
-
           border-radius: 12px;
-
           background: var(--ep-avatar-bg);
-
           color: var(--ep-avatar-text);
-
           display: flex;
-
           align-items: center;
-
           justify-content: center;
-
           font-size: 20px;
-
           font-weight: 700;
-
           flex-shrink: 0;
-
         }
-
 
         .editar-card-title {
-
           margin: 0;
-
           color: var(--ep-title);
-
           font-size: 18px;
-
           font-weight: 700;
-
         }
-
 
         .editar-card-subtitle {
-
           margin: 4px 0 0;
-
           color: var(--ep-muted);
-
           font-size: 13px;
-
         }
 
-
-        /* ==================================================
-           SECCIONES
-        ================================================== */
+        /* SECCIONES */
 
         .editar-section {
-
           padding: 25px 30px 5px;
-
         }
-
 
         .editar-section-title {
-
           margin: 0;
-
           color: var(--ep-text);
-
           font-size: 15px;
-
           font-weight: 700;
-
         }
-
 
         .editar-line {
-
           height: 1px;
-
           background: var(--ep-border-light);
-
           margin: 12px 0 20px;
-
         }
 
-
-        /* ==================================================
-           FORMULARIO
-        ================================================== */
+        /* FORMULARIO */
 
         .editar-grid {
-
           display: grid;
-
-          grid-template-columns:
-            1fr 1fr;
-
+          grid-template-columns: 1fr 1fr;
           gap: 18px 22px;
-
         }
-
 
         .editar-field {
-
           display: flex;
-
           flex-direction: column;
-
         }
-
 
         .editar-field-full {
-
           grid-column: 1 / -1;
-
           display: flex;
-
           flex-direction: column;
-
         }
-
 
         .editar-label {
-
           margin-bottom: 7px;
-
           color: var(--ep-secondary);
-
           font-size: 13px;
-
           font-weight: 600;
-
         }
 
-
         .editar-input {
-
           width: 100%;
-
           box-sizing: border-box;
-
           padding: 11px 12px;
-
-          border:
-            1px solid var(--ep-border-input);
-
+          border: 1px solid var(--ep-border-input);
           border-radius: 7px;
-
           background: var(--ep-input);
-
           color: var(--ep-text);
-
           font-size: 14px;
-
           outline: none;
 
           transition:
             border-color 0.18s ease,
             box-shadow 0.18s ease,
             background 0.25s ease;
-
         }
-
 
         .editar-input::placeholder {
-
           color: var(--ep-muted);
-
         }
-
 
         .editar-input:hover {
-
           border-color: #4f63d8;
-
         }
-
 
         .editar-input:focus {
-
           border-color: #4f63d8;
-
-          box-shadow:
-            0 0 0 3px
-            rgba(79, 99, 216, 0.12);
-
+          box-shadow: 0 0 0 3px rgba(79, 99, 216, 0.12);
         }
 
-
-        /* ==================================================
-           ESTADO
-        ================================================== */
+        /* ESTADO */
 
         .editar-estado-container {
-
           display: grid;
-
-          grid-template-columns:
-            1fr 1fr;
-
+          grid-template-columns: 1fr 1fr;
           gap: 15px;
-
         }
 
-
         .editar-estado-option {
-
           display: flex;
-
           align-items: flex-start;
-
           gap: 11px;
-
           padding: 15px;
-
-          border:
-            1px solid var(--ep-border);
-
+          border: 1px solid var(--ep-border);
           border-radius: 9px;
-
           cursor: pointer;
-
           background: var(--ep-card);
-
           color: var(--ep-text);
 
           transition:
             background 0.2s ease,
             border-color 0.2s ease;
-
         }
-
 
         .editar-estado-option strong {
-
           display: block;
-
           color: var(--ep-text);
-
           margin-bottom: 4px;
-
         }
-
 
         .editar-estado-option span {
-
           display: block;
-
           color: var(--ep-secondary);
-
           font-size: 13px;
-
           line-height: 1.4;
-
         }
-
 
         .editar-estado-activo {
-
           border-color: var(--ep-active-border);
-
           background: var(--ep-active-bg);
-
         }
-
 
         .editar-estado-inactivo {
-
           border-color: var(--ep-inactive-border);
-
           background: var(--ep-inactive-bg);
-
         }
 
-
-        /* ==================================================
-           FOOTER
-        ================================================== */
+        /* FOOTER */
 
         .editar-footer {
-
           display: flex;
-
           justify-content: flex-end;
-
           gap: 10px;
-
           padding: 25px 30px;
-
           margin-top: 25px;
-
           background: var(--ep-footer);
-
-          border-top:
-            1px solid var(--ep-border-light);
-
-          transition:
-            background 0.25s ease;
-
+          border-top: 1px solid var(--ep-border-light);
+          transition: background 0.25s ease;
         }
 
-
-        /* ==================================================
-           CANCELAR
-        ================================================== */
+        /* CANCELAR */
 
         .editar-cancel {
-
           padding: 11px 20px;
-
-          border:
-            1px solid var(--ep-border-input);
-
+          border: 1px solid var(--ep-border-input);
           border-radius: 7px;
-
           background: var(--ep-input);
-
           color: var(--ep-secondary);
-
           font-size: 14px;
-
           font-weight: 600;
-
           cursor: pointer;
-
         }
-
 
         .editar-cancel:hover {
-
           border-color: #4f63d8;
-
         }
 
-
-        /* ==================================================
-           GUARDAR
-        ================================================== */
+        /* GUARDAR */
 
         .editar-save {
-
           padding: 11px 22px;
-
           border: none;
-
           border-radius: 7px;
-
           background: var(--ep-button-bg);
-
           color: var(--ep-button-text);
-
           font-size: 14px;
-
           font-weight: 600;
-
           cursor: pointer;
-
           transition: 0.18s ease;
-
         }
-
 
         .editar-save:hover {
-
           background: #4054c4;
-
         }
-
 
         .editar-save:disabled,
-
         .editar-cancel:disabled {
-
           opacity: 0.6;
-
           cursor: not-allowed;
-
         }
 
-
-        /* ==================================================
-           RESPONSIVE
-        ================================================== */
+        /* RESPONSIVE */
 
         @media (max-width: 700px) {
-
           .editar-page {
-
             padding: 22px 18px 40px;
-
           }
-
 
           .editar-header {
-
             align-items: flex-start;
-
             flex-direction: column;
-
           }
-
 
           .editar-back {
-
             width: 100%;
-
           }
-
 
           .editar-grid {
-
             grid-template-columns: 1fr;
-
           }
-
 
           .editar-field-full {
-
             grid-column: auto;
-
           }
-
 
           .editar-section {
-
             padding: 25px 20px 5px;
-
           }
-
 
           .editar-estado-container {
-
             grid-template-columns: 1fr;
-
           }
-
 
           .editar-footer {
-
             padding: 20px;
-
             flex-direction: column-reverse;
-
           }
-
 
           .editar-cancel,
-
           .editar-save {
-
             width: 100%;
-
           }
-
         }
 
       `}</style>
 
-
-      {/* ==================================================
-          PÁGINA
-      ================================================== */}
+      {/* PÁGINA */}
 
       <div className="editar-page">
 
-
-        {/* ==================================================
-            ENCABEZADO
-        ================================================== */}
+        {/* ENCABEZADO */}
 
         <div className="editar-header">
 
@@ -963,7 +653,6 @@ function EditarProveedor() {
 
           </div>
 
-
           <button
             type="button"
             onClick={() => navigate('/proveedores')}
@@ -974,28 +663,19 @@ function EditarProveedor() {
 
         </div>
 
-
-        {/* ==================================================
-            TARJETA
-        ================================================== */}
+        {/* TARJETA */}
 
         <div className="editar-card">
 
-
-          {/* ==================================================
-              CABECERA
-          ================================================== */}
+          {/* CABECERA */}
 
           <div className="editar-card-header">
 
             <div className="editar-avatar">
-
               {proveedor.nombre
                 ? proveedor.nombre.charAt(0).toUpperCase()
                 : 'P'}
-
             </div>
-
 
             <div>
 
@@ -1011,17 +691,11 @@ function EditarProveedor() {
 
           </div>
 
-
-          {/* ==================================================
-              FORMULARIO
-          ================================================== */}
+          {/* FORMULARIO */}
 
           <form onSubmit={guardarCambios}>
 
-
-            {/* ==================================================
-                INFORMACIÓN DEL PROVEEDOR
-            ================================================== */}
+            {/* INFORMACIÓN DEL PROVEEDOR */}
 
             <div className="editar-section">
 
@@ -1031,19 +705,16 @@ function EditarProveedor() {
 
               <div className="editar-line"></div>
 
-
               <div className="editar-grid">
-
-
-                {/* NOMBRE */}
 
                 <div className="editar-field">
 
-                  <label className="editar-label">
+                  <label className="editar-label" htmlFor="nombre">
                     Nombre del proveedor
                   </label>
 
                   <input
+                    id="nombre"
                     type="text"
                     name="nombre"
                     value={proveedor.nombre}
@@ -1055,16 +726,14 @@ function EditarProveedor() {
 
                 </div>
 
-
-                {/* RFC */}
-
                 <div className="editar-field">
 
-                  <label className="editar-label">
+                  <label className="editar-label" htmlFor="rfc">
                     RFC
                   </label>
 
                   <input
+                    id="rfc"
                     type="text"
                     name="rfc"
                     value={proveedor.rfc}
@@ -1076,15 +745,11 @@ function EditarProveedor() {
 
                 </div>
 
-
               </div>
 
             </div>
 
-
-            {/* ==================================================
-                DATOS DE CONTACTO
-            ================================================== */}
+            {/* DATOS DE CONTACTO */}
 
             <div className="editar-section">
 
@@ -1094,19 +759,16 @@ function EditarProveedor() {
 
               <div className="editar-line"></div>
 
-
               <div className="editar-grid">
-
-
-                {/* CONTACTO */}
 
                 <div className="editar-field">
 
-                  <label className="editar-label">
+                  <label className="editar-label" htmlFor="contacto">
                     Persona de contacto
                   </label>
 
                   <input
+                    id="contacto"
                     type="text"
                     name="contacto"
                     value={proveedor.contacto}
@@ -1118,16 +780,14 @@ function EditarProveedor() {
 
                 </div>
 
-
-                {/* TELÉFONO */}
-
                 <div className="editar-field">
 
-                  <label className="editar-label">
+                  <label className="editar-label" htmlFor="telefono">
                     Teléfono
                   </label>
 
                   <input
+                    id="telefono"
                     type="text"
                     name="telefono"
                     value={proveedor.telefono}
@@ -1139,16 +799,14 @@ function EditarProveedor() {
 
                 </div>
 
-
-                {/* CORREO */}
-
                 <div className="editar-field-full">
 
-                  <label className="editar-label">
+                  <label className="editar-label" htmlFor="correo">
                     Correo electrónico
                   </label>
 
                   <input
+                    id="correo"
                     type="email"
                     name="correo"
                     value={proveedor.correo}
@@ -1160,15 +818,11 @@ function EditarProveedor() {
 
                 </div>
 
-
               </div>
 
             </div>
 
-
-            {/* ==================================================
-                ESTADO
-            ================================================== */}
+            {/* ESTADO */}
 
             <div className="editar-section">
 
@@ -1178,19 +832,16 @@ function EditarProveedor() {
 
               <div className="editar-line"></div>
 
-
               <div className="editar-estado-container">
-
 
                 {/* ACTIVO */}
 
                 <label
-                  className={`
-                    editar-estado-option
-                    ${proveedor.estado === 'Activo'
+                  className={`editar-estado-option ${
+                    proveedor.estado === 'Activo'
                       ? 'editar-estado-activo'
-                      : ''}
-                  `}
+                      : ''
+                  }`}
                 >
 
                   <input
@@ -1201,12 +852,9 @@ function EditarProveedor() {
                     onChange={manejarCambio}
                   />
 
-
                   <div>
 
-                    <strong>
-                      Activo
-                    </strong>
+                    <strong>Activo</strong>
 
                     <span>
                       El proveedor puede operar normalmente.
@@ -1216,16 +864,14 @@ function EditarProveedor() {
 
                 </label>
 
-
                 {/* INACTIVO */}
 
                 <label
-                  className={`
-                    editar-estado-option
-                    ${proveedor.estado === 'Inactivo'
+                  className={`editar-estado-option ${
+                    proveedor.estado === 'Inactivo'
                       ? 'editar-estado-inactivo'
-                      : ''}
-                  `}
+                      : ''
+                  }`}
                 >
 
                   <input
@@ -1236,12 +882,9 @@ function EditarProveedor() {
                     onChange={manejarCambio}
                   />
 
-
                   <div>
 
-                    <strong>
-                      Inactivo
-                    </strong>
+                    <strong>Inactivo</strong>
 
                     <span>
                       El proveedor no está operando actualmente.
@@ -1251,18 +894,13 @@ function EditarProveedor() {
 
                 </label>
 
-
               </div>
 
             </div>
 
-
-            {/* ==================================================
-                BOTONES
-            ================================================== */}
+            {/* BOTONES */}
 
             <div className="editar-footer">
-
 
               <button
                 type="button"
@@ -1273,22 +911,17 @@ function EditarProveedor() {
                 Cancelar
               </button>
 
-
               <button
                 type="submit"
                 className="editar-save"
                 disabled={guardando}
               >
-
                 {guardando
                   ? 'Guardando...'
                   : 'Guardar cambios'}
-
               </button>
 
-
             </div>
-
 
           </form>
 
@@ -1296,10 +929,7 @@ function EditarProveedor() {
 
       </div>
 
-
-      {/* ==================================================
-          MODAL
-      ================================================== */}
+      {/* MODAL */}
 
       <ModalMensaje
         abierto={modal.abierto}
@@ -1314,7 +944,6 @@ function EditarProveedor() {
       />
 
     </>
-
   )
 }
 

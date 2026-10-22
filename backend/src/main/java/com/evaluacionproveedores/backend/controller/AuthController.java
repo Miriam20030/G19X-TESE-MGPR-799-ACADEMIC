@@ -3,7 +3,16 @@ package com.evaluacionproveedores.backend.controller;
 
 import com.evaluacionproveedores.backend.model.Usuario;
 import com.evaluacionproveedores.backend.repository.UsuarioRepository;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,7 +21,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(
+    origins = "http://localhost:5173",
+    allowCredentials = "true"
+)
 public class AuthController {
 
     private final UsuarioRepository usuarioRepository;
@@ -30,7 +42,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(
-            @RequestBody Map<String, String> datos) {
+            @RequestBody Map<String, String> datos,
+            HttpServletRequest request) {
 
         String usuario = datos.get("usuario");
         String password = datos.get("password");
@@ -45,10 +58,9 @@ public class AuthController {
                     ));
         }
 
-        Usuario usuarioEncontrado =
-                usuarioRepository
-                        .findByUsuario(usuario)
-                        .orElse(null);
+        Usuario usuarioEncontrado = usuarioRepository
+                .findByUsuario(usuario)
+                .orElse(null);
 
         if (usuarioEncontrado == null) {
             return ResponseEntity.status(401)
@@ -66,11 +78,10 @@ public class AuthController {
                     ));
         }
 
-        boolean passwordCorrecta =
-                passwordEncoder.matches(
-                        password,
-                        usuarioEncontrado.getPassword()
-                );
+        boolean passwordCorrecta = passwordEncoder.matches(
+                password,
+                usuarioEncontrado.getPassword()
+        );
 
         if (!passwordCorrecta) {
             return ResponseEntity.status(401)
@@ -80,29 +91,57 @@ public class AuthController {
                     ));
         }
 
+        // Crear la autenticación reconocida por Spring Security.
+        Authentication autenticacion =
+                UsernamePasswordAuthenticationToken.authenticated(
+                        usuarioEncontrado.getUsuario(),
+                        null,
+                        java.util.Collections.emptyList()
+                );
+
+        SecurityContext contexto =
+                SecurityContextHolder.createEmptyContext();
+
+        contexto.setAuthentication(autenticacion);
+        SecurityContextHolder.setContext(contexto);
+
+        // Guardar el contexto en la sesión HTTP.
+        HttpSession sesion = request.getSession(true);
+
+        sesion.setAttribute(
+                HttpSessionSecurityContextRepository
+                        .SPRING_SECURITY_CONTEXT_KEY,
+                contexto
+        );
+
         Map<String, Object> respuesta = new HashMap<>();
 
-        respuesta.put(
-                "mensaje",
-                "Inicio de sesión correcto"
-        );
-
-        respuesta.put(
-                "idUsuario",
-                usuarioEncontrado.getIdUsuario()
-        );
-
-        respuesta.put(
-                "usuario",
-                usuarioEncontrado.getUsuario()
-        );
-
-        respuesta.put(
-                "nombre",
-                usuarioEncontrado.getNombre()
-        );
+        respuesta.put("mensaje", "Inicio de sesión correcto");
+        respuesta.put("idUsuario", usuarioEncontrado.getIdUsuario());
+        respuesta.put("usuario", usuarioEncontrado.getUsuario());
+        respuesta.put("nombre", usuarioEncontrado.getNombre());
 
         return ResponseEntity.ok(respuesta);
+    }
+
+    // =========================================================
+    // CERRAR SESIÓN
+    // =========================================================
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+
+        HttpSession sesion = request.getSession(false);
+
+        if (sesion != null) {
+            sesion.invalidate();
+        }
+
+        SecurityContextHolder.clearContext();
+
+        return ResponseEntity.ok(
+                Map.of("mensaje", "Sesión cerrada correctamente")
+        );
     }
 
     // =========================================================
@@ -111,18 +150,25 @@ public class AuthController {
 
     @PostMapping("/cambiar-password")
     public ResponseEntity<?> cambiarPassword(
-            @RequestBody Map<String, String> datos) {
+            @RequestBody Map<String, String> datos,
+            Authentication autenticacion) {
 
-        String usuario = datos.get("usuario");
+        // El endpoint requiere una sesión autenticada.
+        if (autenticacion == null ||
+                !autenticacion.isAuthenticated()) {
+
+            return ResponseEntity.status(401)
+                    .body(Map.of(
+                            "mensaje",
+                            "Debes iniciar sesión para cambiar tu contraseña"
+                    ));
+        }
+
         String passwordActual = datos.get("passwordActual");
         String nuevaPassword = datos.get("nuevaPassword");
 
-        // Validar campos obligatorios
-
-        if (usuario == null ||
-                passwordActual == null ||
+        if (passwordActual == null ||
                 nuevaPassword == null ||
-                usuario.isBlank() ||
                 passwordActual.isBlank() ||
                 nuevaPassword.isBlank()) {
 
@@ -133,28 +179,27 @@ public class AuthController {
                     ));
         }
 
-        // Buscar usuario
+        // Obtener el usuario desde la autenticación, no desde el cuerpo.
+        String nombreUsuario = autenticacion.getName();
 
-        Usuario usuarioEncontrado =
-                usuarioRepository
-                        .findByUsuario(usuario)
-                        .orElse(null);
+        Usuario usuarioEncontrado = usuarioRepository
+                .findByUsuario(nombreUsuario)
+                .orElse(null);
 
         if (usuarioEncontrado == null) {
             return ResponseEntity.status(404)
-                    .body(Map.of(
-                            "mensaje",
-                            "Usuario no encontrado"
-                    ));
+                    .body(Map.of("mensaje", "Usuario no encontrado"));
         }
 
-        // Verificar contraseña actual
+        if (!Boolean.TRUE.equals(usuarioEncontrado.getActivo())) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("mensaje", "El usuario está desactivado"));
+        }
 
-        boolean passwordCorrecta =
-                passwordEncoder.matches(
-                        passwordActual,
-                        usuarioEncontrado.getPassword()
-                );
+        boolean passwordCorrecta = passwordEncoder.matches(
+                passwordActual,
+                usuarioEncontrado.getPassword()
+        );
 
         if (!passwordCorrecta) {
             return ResponseEntity.status(401)
@@ -164,8 +209,6 @@ public class AuthController {
                     ));
         }
 
-        // Validar longitud de la nueva contraseña
-
         if (nuevaPassword.length() < 8) {
             return ResponseEntity.badRequest()
                     .body(Map.of(
@@ -174,24 +217,14 @@ public class AuthController {
                     ));
         }
 
-        // Encriptar la nueva contraseña
-
-        String nuevaPasswordEncriptada =
-                passwordEncoder.encode(nuevaPassword);
-
         usuarioEncontrado.setPassword(
-                nuevaPasswordEncriptada
+                passwordEncoder.encode(nuevaPassword)
         );
-
-        // Guardar cambios
 
         usuarioRepository.save(usuarioEncontrado);
 
         return ResponseEntity.ok(
-                Map.of(
-                        "mensaje",
-                        "Contraseña actualizada correctamente"
-                )
+                Map.of("mensaje", "Contraseña actualizada correctamente")
         );
     }
 }

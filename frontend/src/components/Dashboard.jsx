@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 
 export default function Dashboard({ modoOscuro, colorPrincipal }) {
@@ -11,11 +12,17 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
   const obtenerDatos = async () => {
     try {
       const respuestaProveedores = await fetch(
-        'http://localhost:8080/api/proveedores'
+        'http://localhost:8080/api/proveedores',
+        {
+          credentials: 'include'
+        }
       )
 
       const respuestaEvaluaciones = await fetch(
-        'http://localhost:8080/api/evaluaciones'
+        'http://localhost:8080/api/evaluaciones',
+        {
+          credentials: 'include'
+        }
       )
 
       if (!respuestaProveedores.ok || !respuestaEvaluaciones.ok) {
@@ -600,8 +607,7 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
           const ultimasEvaluaciones = Object.values(
             evaluaciones.reduce(
               (acumulador, evaluacion) => {
-                const idProveedor =
-                  evaluacion.idProveedor
+                const idProveedor = evaluacion.idProveedor
 
                 if (
                   !acumulador[idProveedor] ||
@@ -647,166 +653,139 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
                 gap: '10px'
               }}
             >
-              {ultimasEvaluaciones.map(
-                (evaluacion) => {
-                  const proveedor =
-                    proveedores.find(
-                      (p) =>
-                        Number(p.idProveedor) ===
-                        Number(
-                          evaluacion.idProveedor
-                        )
-                    )
+              {ultimasEvaluaciones.map((evaluacion) => {
+                const proveedor = proveedores.find(
+                  (p) =>
+                    Number(p.idProveedor) ===
+                    Number(evaluacion.idProveedor)
+                )
 
-                  return (
-                    <div
-                      key={evaluacion.idEvaluacion}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: '15px',
-                        padding: '16px',
-                        borderRadius: '8px',
-                        backgroundColor:
-                          modoOscuro
-                            ? '#0f172a'
-                            : '#f8fafc',
-                        border:
-                          modoOscuro
-                            ? '1px solid #334155'
-                            : '1px solid #e2e8f0',
-                        flexWrap: 'wrap'
-                      }}
-                    >
-                      <div
+                return (
+                  <div
+                    key={evaluacion.idEvaluacion}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '15px',
+                      padding: '16px',
+                      borderRadius: '8px',
+                      backgroundColor: modoOscuro
+                        ? '#0f172a'
+                        : '#f8fafc',
+                      border: modoOscuro
+                        ? '1px solid #334155'
+                        : '1px solid #e2e8f0',
+                      flexWrap: 'wrap'
+                    }}
+                  >
+                    <div style={{ minWidth: '180px' }}>
+                      <strong
                         style={{
-                          minWidth: '180px'
+                          color: colorTexto,
+                          fontSize: '15px'
                         }}
                       >
-                        <strong
-                          style={{
-                            color: colorTexto,
-                            fontSize: '15px'
-                          }}
-                        >
-                          {proveedor?.nombre ||
-                            'Proveedor desconocido'}
-                        </strong>
+                        {proveedor?.nombre || 'Proveedor desconocido'}
+                      </strong>
 
-                        <div
-                          style={{
-                            marginTop: '5px',
-                            color: colorSecundario,
-                            fontSize: '13px'
-                          }}
-                        >
-                          Evaluación #{evaluacion.idEvaluacion}
-                        </div>
-
-                        <div
-                          style={{
-                            marginTop: '3px',
-                            color: colorSecundario,
-                            fontSize: '13px'
-                          }}
-                        >
-                          {evaluacion.fechaEvaluacion
-                            ? new Date(
-                                evaluacion.fechaEvaluacion
-                              ).toLocaleDateString(
-                                'es-MX'
-                              )
-                            : 'Fecha no disponible'}
-                        </div>
+                      <div
+                        style={{
+                          marginTop: '5px',
+                          color: colorSecundario,
+                          fontSize: '13px'
+                        }}
+                      >
+                        Evaluación #{evaluacion.idEvaluacion}
                       </div>
 
                       <div
                         style={{
-                          textAlign: 'center'
+                          marginTop: '3px',
+                          color: colorSecundario,
+                          fontSize: '13px'
                         }}
                       >
-                        <div
-                          style={{
-                            fontSize: '24px',
-                            fontWeight: '600',
-                            color: colorPrincipal
-                          }}
-                        >
-                          {evaluacion.calificacionFinal || 0}
-                        </div>
-
-                        <span
-                          style={{
-                            fontSize: '12px',
-                            color: colorSecundario
-                          }}
-                        >
-                          {' '}de 100 puntos
-                        </span>
-                      </div>
-
-                      <div
-                        style={{
-                          padding: '6px 13px',
-                          borderRadius: '15px',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          backgroundColor:
-                            evaluacion.clasificacion?.toLowerCase() ===
-                            'excelente'
-                              ? modoOscuro
-                                ? '#193322'
-                                : '#edf4ef'
-                              : evaluacion.clasificacion?.toLowerCase() ===
-                                'bueno'
-                              ? modoOscuro
-                                ? '#1c2d3c'
-                                : '#eef3f7'
-                              : evaluacion.clasificacion?.toLowerCase() ===
-                                'regular'
-                              ? modoOscuro
-                                ? '#332d20'
-                                : '#f5f0e7'
-                              : evaluacion.clasificacion?.toLowerCase() ===
-                                'riesgo'
-                              ? modoOscuro
-                                ? '#3a2222'
-                                : '#f7eeee'
-                              : modoOscuro
-                              ? '#334155'
-                              : '#eef1f3',
-                          color:
-                            evaluacion.clasificacion?.toLowerCase() ===
-                            'excelente'
-                              ? modoOscuro
-                                ? '#86efac'
-                                : '#477255'
-                              : evaluacion.clasificacion?.toLowerCase() ===
-                                'bueno'
-                              ? modoOscuro
-                                ? '#93c5fd'
-                                : '#526f89'
-                              : evaluacion.clasificacion?.toLowerCase() ===
-                                'regular'
-                              ? modoOscuro
-                                ? '#fcd34d'
-                                : '#806c48'
-                              : evaluacion.clasificacion?.toLowerCase() ===
-                                'riesgo'
-                              ? modoOscuro
-                                ? '#fca5a5'
-                                : '#7a4b4b'
-                              : colorSecundario
-                        }}
-                      >
-                        {evaluacion.clasificacion ||
-                          'Sin clasificación'}
+                        {evaluacion.fechaEvaluacion
+                          ? new Date(
+                              evaluacion.fechaEvaluacion
+                            ).toLocaleDateString('es-MX')
+                          : 'Fecha no disponible'}
                       </div>
                     </div>
-                  )
-                }
-              )}
+
+                    <div style={{ textAlign: 'center' }}>
+                      <div
+                        style={{
+                          fontSize: '24px',
+                          fontWeight: '600',
+                          color: colorPrincipal
+                        }}
+                      >
+                        {evaluacion.calificacionFinal || 0}
+                      </div>
+
+                      <span
+                        style={{
+                          fontSize: '12px',
+                          color: colorSecundario
+                        }}
+                      >
+                        de 100 puntos
+                      </span>
+                    </div>
+
+                    <div
+                      style={{
+                        padding: '6px 13px',
+                        borderRadius: '15px',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        backgroundColor:
+                          evaluacion.clasificacion?.toLowerCase() === 'excelente'
+                            ? modoOscuro
+                              ? '#193322'
+                              : '#edf4ef'
+                            : evaluacion.clasificacion?.toLowerCase() === 'bueno'
+                            ? modoOscuro
+                              ? '#1c2d3c'
+                              : '#eef3f7'
+                            : evaluacion.clasificacion?.toLowerCase() === 'regular'
+                            ? modoOscuro
+                              ? '#332d20'
+                              : '#f5f0e7'
+                            : evaluacion.clasificacion?.toLowerCase() === 'riesgo'
+                            ? modoOscuro
+                              ? '#3a2222'
+                              : '#f7eeee'
+                            : modoOscuro
+                            ? '#334155'
+                            : '#eef1f3',
+                        color:
+                          evaluacion.clasificacion?.toLowerCase() === 'excelente'
+                            ? modoOscuro
+                              ? '#86efac'
+                              : '#477255'
+                            : evaluacion.clasificacion?.toLowerCase() === 'bueno'
+                            ? modoOscuro
+                              ? '#93c5fd'
+                              : '#526f89'
+                            : evaluacion.clasificacion?.toLowerCase() === 'regular'
+                            ? modoOscuro
+                              ? '#fcd34d'
+                              : '#806c48'
+                            : evaluacion.clasificacion?.toLowerCase() === 'riesgo'
+                            ? modoOscuro
+                              ? '#fca5a5'
+                              : '#7a4b4b'
+                            : colorSecundario
+                      }}
+                    >
+                      {evaluacion.clasificacion || 'Sin clasificación'}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           )
         })()}
@@ -867,8 +846,7 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns:
-                'repeat(auto-fit, minmax(220px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
               gap: '15px'
             }}
           >
@@ -880,12 +858,11 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
               )
               .slice(0, 3)
               .map((evaluacion) => {
-                const proveedor =
-                  proveedores.find(
-                    (p) =>
-                      Number(p.idProveedor) ===
-                      Number(evaluacion.idProveedor)
-                  )
+                const proveedor = proveedores.find(
+                  (p) =>
+                    Number(p.idProveedor) ===
+                    Number(evaluacion.idProveedor)
+                )
 
                 return (
                   <div
@@ -893,14 +870,12 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
                     style={{
                       padding: '20px',
                       borderRadius: '8px',
-                      backgroundColor:
-                        modoOscuro
-                          ? '#0f172a'
-                          : '#f8fafc',
-                      border:
-                        modoOscuro
-                          ? '1px solid #334155'
-                          : '1px solid #e2e8f0',
+                      backgroundColor: modoOscuro
+                        ? '#0f172a'
+                        : '#f8fafc',
+                      border: modoOscuro
+                        ? '1px solid #334155'
+                        : '1px solid #e2e8f0',
                       textAlign: 'center'
                     }}
                   >
@@ -911,8 +886,7 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
                         fontSize: '16px'
                       }}
                     >
-                      {proveedor?.nombre ||
-                        'Proveedor desconocido'}
+                      {proveedor?.nombre || 'Proveedor desconocido'}
                     </h3>
 
                     <div
@@ -941,13 +915,11 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
                         padding: '5px 12px',
                         borderRadius: '15px',
                         backgroundColor:
-                          evaluacion.clasificacion?.toLowerCase() ===
-                          'excelente'
+                          evaluacion.clasificacion?.toLowerCase() === 'excelente'
                             ? modoOscuro
                               ? '#193322'
                               : '#edf4ef'
-                            : evaluacion.clasificacion?.toLowerCase() ===
-                              'bueno'
+                            : evaluacion.clasificacion?.toLowerCase() === 'bueno'
                             ? modoOscuro
                               ? '#1c2d3c'
                               : '#eef3f7'
@@ -955,13 +927,11 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
                             ? '#332d20'
                             : '#f5f0e7',
                         color:
-                          evaluacion.clasificacion?.toLowerCase() ===
-                          'excelente'
+                          evaluacion.clasificacion?.toLowerCase() === 'excelente'
                             ? modoOscuro
                               ? '#86efac'
                               : '#477255'
-                            : evaluacion.clasificacion?.toLowerCase() ===
-                              'bueno'
+                            : evaluacion.clasificacion?.toLowerCase() === 'bueno'
                             ? modoOscuro
                               ? '#93c5fd'
                               : '#526f89'
@@ -972,8 +942,7 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
                         fontWeight: '600'
                       }}
                     >
-                      {evaluacion.clasificacion ||
-                        'Sin clasificación'}
+                      {evaluacion.clasificacion || 'Sin clasificación'}
                     </div>
                   </div>
                 )
@@ -1020,13 +989,11 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
         </p>
 
         {(() => {
-          const proveedoresEvaluados =
-            new Set(
-              evaluaciones.map(
-                (evaluacion) =>
-                  Number(evaluacion.idProveedor)
-              )
-            ).size
+          const proveedoresEvaluados = new Set(
+            evaluaciones.map(
+              (evaluacion) => Number(evaluacion.idProveedor)
+            )
+          ).size
 
           const proveedoresPendientes = Math.max(
             totalProveedores - proveedoresEvaluados,
@@ -1036,25 +1003,20 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
           const porcentajeEvaluados =
             totalProveedores > 0
               ? Math.round(
-                  (proveedoresEvaluados /
-                    totalProveedores) *
-                    100
+                  (proveedoresEvaluados / totalProveedores) * 100
                 )
               : 0
 
-          const evaluacionesConIA =
-            evaluaciones.filter(
-              (evaluacion) =>
-                evaluacion.recomendacion &&
-                evaluacion.recomendacion.trim() !== ''
-            ).length
+          const evaluacionesConIA = evaluaciones.filter(
+            (evaluacion) =>
+              evaluacion.recomendacion &&
+              evaluacion.recomendacion.trim() !== ''
+          ).length
 
           const porcentajeRiesgo =
             evaluaciones.length > 0
               ? Math.round(
-                  (evaluacionesRiesgo /
-                    evaluaciones.length) *
-                    100
+                  (evaluacionesRiesgo / evaluaciones.length) * 100
                 )
               : 0
 
@@ -1080,8 +1042,7 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
                 ? '#2b1e1e'
                 : '#f7eeee'
             } else if (porcentajeRiesgo >= 25) {
-              estadoGeneral =
-                'Seguimiento recomendado'
+              estadoGeneral = 'Seguimiento recomendado'
 
               colorEstado = modoOscuro
                 ? '#fcd34d'
@@ -1091,8 +1052,7 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
                 ? '#29251d'
                 : '#f5f0e7'
             } else {
-              estadoGeneral =
-                'Desempeño favorable'
+              estadoGeneral = 'Desempeño favorable'
 
               colorEstado = modoOscuro
                 ? '#86efac'
@@ -1111,8 +1071,7 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns:
-                    'repeat(auto-fit, minmax(190px, 1fr))',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
                   gap: '15px'
                 }}
               >
@@ -1350,11 +1309,7 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
                     flexWrap: 'wrap'
                   }}
                 >
-                  <strong
-                    style={{
-                      color: colorTexto
-                    }}
-                  >
+                  <strong style={{ color: colorTexto }}>
                     Proveedores evaluados
                   </strong>
 
@@ -1399,13 +1354,8 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
                     color: colorSecundario
                   }}
                 >
-                  <span>
-                    {proveedoresEvaluados} evaluados
-                  </span>
-
-                  <span>
-                    {proveedoresPendientes} pendientes
-                  </span>
+                  <span>{proveedoresEvaluados} evaluados</span>
+                  <span>{proveedoresPendientes} pendientes</span>
                 </div>
               </div>
 
@@ -1453,13 +1403,8 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
                     fontSize: '13px'
                   }}
                 >
-                  <div>
-                    {porcentajeRiesgo}% de las evaluaciones
-                  </div>
-
-                  <div>
-                    corresponden a riesgo
-                  </div>
+                  <div>{porcentajeRiesgo}% de las evaluaciones</div>
+                  <div>corresponden a riesgo</div>
                 </div>
               </div>
             </>
