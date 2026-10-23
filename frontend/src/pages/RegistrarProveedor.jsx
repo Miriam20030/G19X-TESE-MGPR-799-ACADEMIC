@@ -66,11 +66,19 @@ function RegistrarProveedor() {
       return
     }
 
+    if (vistaPrevia) {
+      URL.revokeObjectURL(vistaPrevia)
+    }
+
     setFoto(archivo)
     setVistaPrevia(URL.createObjectURL(archivo))
   }
 
   const quitarFoto = () => {
+    if (vistaPrevia) {
+      URL.revokeObjectURL(vistaPrevia)
+    }
+
     setFoto(null)
     setVistaPrevia(null)
   }
@@ -79,6 +87,7 @@ function RegistrarProveedor() {
     e.preventDefault()
 
     try {
+      // Registrar proveedor
       const respuesta = await fetch(`${API_URL}/api/proveedores`, {
         method: 'POST',
         headers: {
@@ -89,11 +98,16 @@ function RegistrarProveedor() {
       })
 
       if (!respuesta.ok) {
-        throw new Error('No se pudo registrar el proveedor.')
+        const mensajeError = await respuesta.text()
+
+        throw new Error(
+          mensajeError || 'No se pudo registrar el proveedor.'
+        )
       }
 
       const proveedorGuardado = await respuesta.json()
 
+      // Subir fotografía si se seleccionó una
       if (foto) {
         const formularioFoto = new FormData()
         formularioFoto.append('foto', foto)
@@ -114,6 +128,7 @@ function RegistrarProveedor() {
         }
       }
 
+      // Mostrar confirmación
       setModal({
         abierto: true,
         tipo: 'exito',

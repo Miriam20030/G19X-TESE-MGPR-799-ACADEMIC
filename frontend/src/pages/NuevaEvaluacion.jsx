@@ -8,7 +8,6 @@ function NuevaEvaluacion({
     onCancelar,
     onGuardado
 }) {
-
     const [idProveedor, setIdProveedor] = useState('')
     const [busquedaProveedor, setBusquedaProveedor] = useState('')
     const [mostrarProveedores, setMostrarProveedores] = useState(false)
@@ -22,12 +21,7 @@ function NuevaEvaluacion({
     const [calificacionFinal, setCalificacionFinal] = useState(0)
     const [clasificacion, setClasificacion] = useState('Riesgo')
     const [recomendacion, setRecomendacion] = useState('')
-
     const [guardando, setGuardando] = useState(false)
-
-    // =========================================================
-    // MODAL
-    // =========================================================
 
     const [modal, setModal] = useState({
         abierto: false,
@@ -54,7 +48,27 @@ function NuevaEvaluacion({
     }
 
     // =========================================================
-    // CALCULAR CALIFICACIÓN
+    // RECOMENDACIONES
+    // =========================================================
+
+    const obtenerRecomendacion = (clasificacionActual) => {
+        if (clasificacionActual === 'Excelente') {
+            return 'El proveedor presenta un desempeño excelente. Se recomienda mantener la relación comercial y continuar con el seguimiento periódico.'
+        }
+
+        if (clasificacionActual === 'Bueno') {
+            return 'El proveedor presenta un buen desempeño. Se recomienda mantener el seguimiento para conservar y mejorar sus resultados.'
+        }
+
+        if (clasificacionActual === 'Regular') {
+            return 'El proveedor presenta áreas de oportunidad. Se recomienda establecer acciones de mejora y realizar un seguimiento más frecuente.'
+        }
+
+        return 'El proveedor presenta un nivel de riesgo. Se recomienda revisar los principales indicadores y establecer acciones correctivas.'
+    }
+
+    // =========================================================
+    // CALCULAR CALIFICACIÓN Y CLASIFICACIÓN
     // =========================================================
 
     useEffect(() => {
@@ -67,17 +81,19 @@ function NuevaEvaluacion({
 
         const resultadoFinal = Number(resultado.toFixed(2))
 
-        setCalificacionFinal(resultadoFinal)
+        let nuevaClasificacion = 'Riesgo'
 
         if (resultadoFinal >= 90) {
-            setClasificacion('Excelente')
+            nuevaClasificacion = 'Excelente'
         } else if (resultadoFinal >= 80) {
-            setClasificacion('Bueno')
+            nuevaClasificacion = 'Bueno'
         } else if (resultadoFinal >= 70) {
-            setClasificacion('Regular')
-        } else {
-            setClasificacion('Riesgo')
+            nuevaClasificacion = 'Regular'
         }
+
+        setCalificacionFinal(resultadoFinal)
+        setClasificacion(nuevaClasificacion)
+        setRecomendacion(obtenerRecomendacion(nuevaClasificacion))
     }, [
         cumplimientoEntregas,
         calidad,
@@ -103,7 +119,7 @@ function NuevaEvaluacion({
 
     const seleccionarProveedor = (proveedor) => {
         setIdProveedor(proveedor.idProveedor)
-        setBusquedaProveedor(proveedor.nombre)
+        setBusquedaProveedor(proveedor.nombre || '')
         setMostrarProveedores(false)
         cerrarModal()
     }
@@ -113,39 +129,33 @@ function NuevaEvaluacion({
     // =========================================================
 
     const cambiarBusquedaProveedor = (e) => {
-        const valor = e.target.value
-
-        setBusquedaProveedor(valor)
+        setBusquedaProveedor(e.target.value)
         setIdProveedor('')
         setMostrarProveedores(true)
     }
-
-    // =========================================================
-    // MOSTRAR PROVEEDORES
-    // =========================================================
 
     const abrirListaProveedores = () => {
         setMostrarProveedores(true)
     }
 
     // =========================================================
-    // RECOMENDACIÓN LOCAL
+    // CLASE VISUAL DEL VALOR
     // =========================================================
 
-    const obtenerRecomendacion = (clasificacionActual) => {
-        if (clasificacionActual === 'Excelente') {
-            return 'El proveedor presenta un desempeño excelente. Se recomienda mantener la relación comercial y continuar con el seguimiento periódico.'
+    const obtenerClaseValor = (valor) => {
+        if (valor >= 90) {
+            return 'valor-excelente'
         }
 
-        if (clasificacionActual === 'Bueno') {
-            return 'El proveedor presenta un buen desempeño. Se recomienda mantener el seguimiento para conservar y mejorar sus resultados.'
+        if (valor >= 80) {
+            return 'valor-bueno'
         }
 
-        if (clasificacionActual === 'Regular') {
-            return 'El proveedor presenta áreas de oportunidad. Se recomienda establecer acciones de mejora y realizar un seguimiento más frecuente.'
+        if (valor >= 70) {
+            return 'valor-regular'
         }
 
-        return 'El proveedor presenta un nivel de riesgo. Se recomienda revisar los principales indicadores y establecer acciones correctivas.'
+        return 'valor-riesgo'
     }
 
     // =========================================================
@@ -155,6 +165,10 @@ function NuevaEvaluacion({
     const guardarEvaluacion = async (e) => {
         e.preventDefault()
 
+        if (guardando) {
+            return
+        }
+
         if (!idProveedor) {
             setModal({
                 abierto: true,
@@ -162,11 +176,41 @@ function NuevaEvaluacion({
                 titulo: 'Selecciona un proveedor',
                 mensaje: 'Debes seleccionar un proveedor de la lista antes de guardar la evaluación.',
                 mostrarCancelar: false,
+                textoCancelar: 'Cancelar',
                 textoAceptar: 'Aceptar',
                 onAceptar: cerrarModal
             })
 
             setMostrarProveedores(true)
+            return
+        }
+
+        const indicadores = [
+            cumplimientoEntregas,
+            calidad,
+            costos,
+            tiempoRespuesta,
+            incidencias
+        ]
+
+        const valoresValidos = indicadores.every(
+            valor => Number.isFinite(Number(valor)) &&
+                Number(valor) >= 0 &&
+                Number(valor) <= 100
+        )
+
+        if (!valoresValidos) {
+            setModal({
+                abierto: true,
+                tipo: 'advertencia',
+                titulo: 'Calificaciones inválidas',
+                mensaje: 'Todos los indicadores deben tener valores entre 0 y 100.',
+                mostrarCancelar: false,
+                textoCancelar: 'Cancelar',
+                textoAceptar: 'Aceptar',
+                onAceptar: cerrarModal
+            })
+
             return
         }
 
@@ -177,7 +221,7 @@ function NuevaEvaluacion({
             // ANALIZAR CON IA
             // =====================================================
 
-            let recomendacionIA = ''
+            let recomendacionIA = obtenerRecomendacion(clasificacion)
             let riesgoIA = null
             let probabilidadRiesgoAlto = null
 
@@ -206,24 +250,22 @@ function NuevaEvaluacion({
                         datosIA.recomendacion ||
                         obtenerRecomendacion(clasificacion)
 
-                    riesgoIA = datosIA.riesgoIA || null
+                    riesgoIA = datosIA.riesgoIA ?? null
 
                     probabilidadRiesgoAlto =
                         datosIA.probabilidadRiesgoAlto ?? null
                 } else {
-                    recomendacionIA = obtenerRecomendacion(clasificacion)
+                    console.warn(
+                        'El servicio de IA respondió con el estado:',
+                        respuestaIA.status
+                    )
                 }
             } catch (errorIA) {
-                console.warn(
-                    'No se pudo consultar la IA:',
-                    errorIA
-                )
-
-                recomendacionIA = obtenerRecomendacion(clasificacion)
+                console.warn('No se pudo consultar la IA:', errorIA)
             }
 
             // =====================================================
-            // DATOS PARA BACKEND
+            // DATOS PARA SPRING BOOT
             // =====================================================
 
             const datosEvaluacion = {
@@ -257,11 +299,29 @@ function NuevaEvaluacion({
             )
 
             if (!respuesta.ok) {
-                const textoError = await respuesta.text()
+                let mensajeError = ''
+
+                try {
+                    const contenidoTipo = respuesta.headers.get('content-type') || ''
+
+                    if (contenidoTipo.includes('application/json')) {
+                        const errorJson = await respuesta.json()
+
+                        mensajeError =
+                            errorJson.message ||
+                            errorJson.mensaje ||
+                            errorJson.error ||
+                            ''
+                    } else {
+                        mensajeError = await respuesta.text()
+                    }
+                } catch {
+                    mensajeError = ''
+                }
 
                 throw new Error(
-                    textoError ||
-                    'No se pudo guardar la evaluación.'
+                    mensajeError ||
+                    `No se pudo guardar la evaluación. Código HTTP: ${respuesta.status}.`
                 )
             }
 
@@ -275,9 +335,10 @@ function NuevaEvaluacion({
                 titulo: 'Evaluación registrada',
                 mensaje:
                     `La evaluación del proveedor se registró correctamente. ` +
-                    `Calificación final: ${calificacionFinal.toFixed(1)} puntos. ` +
+                    `Calificación final: ${Number(calificacionFinal).toFixed(1)} puntos. ` +
                     `Clasificación: ${clasificacion}.`,
                 mostrarCancelar: false,
+                textoCancelar: 'Cancelar',
                 textoAceptar: 'Continuar',
                 onAceptar: () => {
                     cerrarModal()
@@ -288,11 +349,7 @@ function NuevaEvaluacion({
                 }
             })
         } catch (error) {
-            console.error('Error al guardar:', error)
-
-            // =====================================================
-            // MODAL DE ERROR
-            // =====================================================
+            console.error('Error al guardar la evaluación:', error)
 
             setModal({
                 abierto: true,
@@ -302,6 +359,7 @@ function NuevaEvaluacion({
                     error.message ||
                     'No se pudo guardar la evaluación. Verifica que el backend esté funcionando.',
                 mostrarCancelar: false,
+                textoCancelar: 'Cancelar',
                 textoAceptar: 'Aceptar',
                 onAceptar: cerrarModal
             })
@@ -311,38 +369,15 @@ function NuevaEvaluacion({
     }
 
     // =========================================================
-    // CLASE VISUAL DEL VALOR
-    // =========================================================
-
-    const obtenerClaseValor = (valor) => {
-        if (valor >= 90) {
-            return 'valor-excelente'
-        }
-
-        if (valor >= 80) {
-            return 'valor-bueno'
-        }
-
-        if (valor >= 70) {
-            return 'valor-regular'
-        }
-
-        return 'valor-riesgo'
-    }
-
-    // =========================================================
     // INTERFAZ
     // =========================================================
 
     return (
         <div className="nueva-evaluacion-page">
 
-            {/* ENCABEZADO */}
-
             <div className="nueva-evaluacion-header">
                 <div>
                     <h1>Nueva evaluación</h1>
-
                     <p>
                         Evalúa el desempeño del proveedor mediante los indicadores establecidos.
                     </p>
@@ -359,7 +394,6 @@ function NuevaEvaluacion({
                 <div className="seccion-formulario">
                     <div className="seccion-titulo">
                         <h2>Proveedor</h2>
-
                         <p>
                             Escribe el nombre o selecciona un proveedor registrado.
                         </p>
@@ -397,8 +431,6 @@ function NuevaEvaluacion({
                             )}
                         </div>
 
-                        {/* LISTA DE PROVEEDORES */}
-
                         {mostrarProveedores &&
                             proveedoresFiltrados.length > 0 && (
                                 <div className="resultados-proveedores">
@@ -429,8 +461,6 @@ function NuevaEvaluacion({
                                 </div>
                             )}
 
-                        {/* SIN RESULTADOS */}
-
                         {mostrarProveedores &&
                             busquedaProveedor &&
                             proveedoresFiltrados.length === 0 && (
@@ -439,12 +469,9 @@ function NuevaEvaluacion({
                                 </div>
                             )}
 
-                        {/* PROVEEDOR SELECCIONADO */}
-
                         {idProveedor && (
                             <div className="proveedor-seleccionado">
                                 <span>Proveedor seleccionado:</span>
-
                                 <strong>{busquedaProveedor}</strong>
                             </div>
                         )}
@@ -456,7 +483,6 @@ function NuevaEvaluacion({
                 <div className="seccion-formulario">
                     <div className="seccion-titulo">
                         <h2>Indicadores de desempeño</h2>
-
                         <p>
                             Asigna una calificación de 0 a 100 para cada indicador.
                         </p>
@@ -464,17 +490,13 @@ function NuevaEvaluacion({
 
                     <div className="indicadores-formulario">
 
-                        {/* ENTREGAS */}
-
                         <div className="indicador-formulario">
                             <div className="indicador-formulario-header">
                                 <label htmlFor="cumplimientoEntregas">
                                     Cumplimiento de entregas
                                 </label>
 
-                                <span
-                                    className={`valor-indicador ${obtenerClaseValor(cumplimientoEntregas)}`}
-                                >
+                                <span className={`valor-indicador ${obtenerClaseValor(cumplimientoEntregas)}`}>
                                     {cumplimientoEntregas}
                                 </span>
                             </div>
@@ -496,15 +518,11 @@ function NuevaEvaluacion({
                             </div>
                         </div>
 
-                        {/* CALIDAD */}
-
                         <div className="indicador-formulario">
                             <div className="indicador-formulario-header">
                                 <label htmlFor="calidad">Calidad</label>
 
-                                <span
-                                    className={`valor-indicador ${obtenerClaseValor(calidad)}`}
-                                >
+                                <span className={`valor-indicador ${obtenerClaseValor(calidad)}`}>
                                     {calidad}
                                 </span>
                             </div>
@@ -515,9 +533,7 @@ function NuevaEvaluacion({
                                 min="0"
                                 max="100"
                                 value={calidad}
-                                onChange={e =>
-                                    setCalidad(Number(e.target.value))
-                                }
+                                onChange={e => setCalidad(Number(e.target.value))}
                             />
 
                             <div className="rango-labels">
@@ -526,15 +542,11 @@ function NuevaEvaluacion({
                             </div>
                         </div>
 
-                        {/* COSTOS */}
-
                         <div className="indicador-formulario">
                             <div className="indicador-formulario-header">
                                 <label htmlFor="costos">Costos</label>
 
-                                <span
-                                    className={`valor-indicador ${obtenerClaseValor(costos)}`}
-                                >
+                                <span className={`valor-indicador ${obtenerClaseValor(costos)}`}>
                                     {costos}
                                 </span>
                             </div>
@@ -545,9 +557,7 @@ function NuevaEvaluacion({
                                 min="0"
                                 max="100"
                                 value={costos}
-                                onChange={e =>
-                                    setCostos(Number(e.target.value))
-                                }
+                                onChange={e => setCostos(Number(e.target.value))}
                             />
 
                             <div className="rango-labels">
@@ -556,17 +566,13 @@ function NuevaEvaluacion({
                             </div>
                         </div>
 
-                        {/* TIEMPO DE RESPUESTA */}
-
                         <div className="indicador-formulario">
                             <div className="indicador-formulario-header">
                                 <label htmlFor="tiempoRespuesta">
                                     Tiempo de respuesta
                                 </label>
 
-                                <span
-                                    className={`valor-indicador ${obtenerClaseValor(tiempoRespuesta)}`}
-                                >
+                                <span className={`valor-indicador ${obtenerClaseValor(tiempoRespuesta)}`}>
                                     {tiempoRespuesta}
                                 </span>
                             </div>
@@ -588,15 +594,11 @@ function NuevaEvaluacion({
                             </div>
                         </div>
 
-                        {/* INCIDENCIAS */}
-
                         <div className="indicador-formulario">
                             <div className="indicador-formulario-header">
                                 <label htmlFor="incidencias">Incidencias</label>
 
-                                <span
-                                    className={`valor-indicador ${obtenerClaseValor(incidencias)}`}
-                                >
+                                <span className={`valor-indicador ${obtenerClaseValor(incidencias)}`}>
                                     {incidencias}
                                 </span>
                             </div>
@@ -650,10 +652,8 @@ function NuevaEvaluacion({
                 <div className="recomendacion-preview">
                     <div>
                         <h3>Recomendación</h3>
-
                         <p>
-                            {recomendacion ||
-                                obtenerRecomendacion(clasificacion)}
+                            {recomendacion || obtenerRecomendacion(clasificacion)}
                         </p>
                     </div>
                 </div>
@@ -675,9 +675,7 @@ function NuevaEvaluacion({
                         className="btn-guardar"
                         disabled={guardando}
                     >
-                        {guardando
-                            ? 'Guardando...'
-                            : 'Guardar evaluación'}
+                        {guardando ? 'Guardando...' : 'Guardar evaluación'}
                     </button>
                 </div>
             </form>
@@ -729,8 +727,6 @@ function NuevaEvaluacion({
                     box-sizing: border-box;
                 }
 
-                /* MODO OSCURO */
-
                 body.dark .nueva-evaluacion-page,
                 body.dark-mode .nueva-evaluacion-page,
                 body[data-theme="dark"] .nueva-evaluacion-page {
@@ -754,8 +750,6 @@ function NuevaEvaluacion({
                     --ne-riesgo-text: #fecaca;
                 }
 
-                /* ENCABEZADO */
-
                 .nueva-evaluacion-header {
                     padding-right: 35px;
                     margin-bottom: 20px;
@@ -773,8 +767,6 @@ function NuevaEvaluacion({
                     color: var(--ne-muted);
                     line-height: 1.5;
                 }
-
-                /* FORMULARIO */
 
                 .formulario-evaluacion {
                     display: flex;
@@ -804,8 +796,6 @@ function NuevaEvaluacion({
                     font-size: 10px;
                     color: var(--ne-muted);
                 }
-
-                /* CAMPOS */
 
                 .campo {
                     position: relative;
@@ -866,8 +856,6 @@ function NuevaEvaluacion({
                     background: var(--ne-border);
                     color: var(--ne-text);
                 }
-
-                /* RESULTADOS */
 
                 .resultados-proveedores {
                     position: absolute;
@@ -961,8 +949,6 @@ function NuevaEvaluacion({
                     font-size: 10px;
                 }
 
-                /* INDICADORES */
-
                 .indicadores-formulario {
                     display: grid;
                     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1028,8 +1014,6 @@ function NuevaEvaluacion({
                     color: var(--ne-muted);
                 }
 
-                /* RESULTADO */
-
                 .resultado-evaluacion {
                     display: grid;
                     grid-template-columns: 1fr 1fr;
@@ -1088,8 +1072,6 @@ function NuevaEvaluacion({
                     color: var(--ne-red);
                 }
 
-                /* RECOMENDACIÓN */
-
                 .recomendacion-preview {
                     padding: 10px 12px;
                     border: 1px solid var(--ne-border);
@@ -1109,8 +1091,6 @@ function NuevaEvaluacion({
                     line-height: 1.45;
                     color: var(--ne-text);
                 }
-
-                /* BOTONES */
 
                 .acciones-formulario {
                     display: flex;
@@ -1154,8 +1134,6 @@ function NuevaEvaluacion({
                     opacity: 0.6;
                     cursor: not-allowed;
                 }
-
-                /* RESPONSIVE */
 
                 @media (max-width: 700px) {
                     .nueva-evaluacion-page {
