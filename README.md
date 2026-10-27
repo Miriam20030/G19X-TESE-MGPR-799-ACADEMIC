@@ -26,6 +26,7 @@ La aplicación está integrada por tres componentes principales: frontend, backe
 | Frontend | React, JavaScript y Vite |
 | Backend | Java y Spring Boot |
 | Acceso a datos | Spring Data JPA |
+| Seguridad | Spring Security y BCrypt |
 | Base de datos | Microsoft SQL Server |
 | Inteligencia artificial | Python, FastAPI y scikit-learn |
 | Comunicación | API REST |
@@ -72,6 +73,8 @@ SistemaEvaluacionProveedores/
 └── README.md
 ```
 
+La estructura puede incluir archivos adicionales de configuración, dependencias y recursos necesarios para ejecutar el sistema.
+
 ## 6. Instalación y configuración
 
 ### 6.1. Descargar el proyecto
@@ -79,8 +82,8 @@ SistemaEvaluacionProveedores/
 Si todavía no se tiene el proyecto descargado, abrir una terminal y ejecutar:
 
 ```bash
-git clone https://github.com/Miriam20030/SistemaEvaluacionProveedores.git
-cd SistemaEvaluacionProveedores
+git clone https://github.com/Miriam20030/G19X-TESE-MGPR-799-ACADEMIC.git
+cd G19X-TESE-MGPR-799-ACADEMIC
 ```
 
 Si el proyecto ya está descargado, abrir directamente su carpeta principal en Visual Studio Code.
@@ -98,6 +101,8 @@ Antes de iniciar los servicios, se debe preparar la base de datos.
 El script contiene la estructura de la base de datos y el registro inicial del administrador. Está preparado para evitar duplicaciones de los objetos y del registro inicial cuando se ejecuta nuevamente, según las condiciones definidas en el propio script.
 
 La configuración predeterminada del backend utiliza SQL Server en `localhost`, puerto `1433`. Si la instancia utiliza otro nombre o puerto, será necesario ajustar la URL de conexión.
+
+**Importante:** si ya existe una base de datos con información, se debe realizar una copia de seguridad antes de ejecutar scripts que puedan modificarla. No se debe sobrescribir ni eliminar una base de datos existente sin verificar previamente el contenido del script.
 
 ### 6.3. Configurar las credenciales de SQL Server y ejecutar el backend
 
@@ -222,13 +227,35 @@ Desde la carpeta principal del proyecto, ejecutar:
 cd frontend
 ```
 
-**Paso 3. Instalar las dependencias**
+**Paso 3. Configurar la URL del backend**
+
+El frontend permite configurar la dirección del backend mediante la variable de entorno `VITE_API_URL`.
+
+Por defecto, el sistema utiliza la siguiente dirección:
+
+```env
+VITE_API_URL=http://localhost:8080
+```
+
+Si se necesita utilizar otra dirección, se debe crear un archivo `.env` dentro de la carpeta `frontend` y definir la variable `VITE_API_URL` con la URL correspondiente.
+
+El repositorio incluye el archivo `frontend/.env.example` como plantilla de configuración. Este archivo sirve como referencia y no debe contener credenciales privadas.
+
+El servicio de inteligencia artificial también se puede configurar mediante la variable `VITE_IA_URL`. Su valor predeterminado es:
+
+```env
+VITE_IA_URL=http://localhost:8000/ia/analizar
+```
+
+Si se modifican las variables de entorno, es necesario reiniciar el servidor de desarrollo de Vite para que los cambios surtan efecto.
+
+**Paso 4. Instalar las dependencias**
 
 ```powershell
 npm install
 ```
 
-**Paso 4. Iniciar la aplicación**
+**Paso 5. Iniciar la aplicación**
 
 ```powershell
 npm run dev
@@ -266,17 +293,26 @@ Después de iniciar sesión, se recomienda cambiar la contraseña inicial por un
 
 ## 9. Seguridad y limitaciones conocidas
 
-El proyecto incorpora medidas de seguridad, entre ellas:
+El sistema incorpora medidas de seguridad para proteger el acceso a la aplicación y la información almacenada en la base de datos.
+
+Entre las medidas implementadas se encuentran:
 
 - Uso de variables de entorno para configurar las credenciales de SQL Server.
 - Verificación de contraseñas mediante BCrypt.
+- Protección del backend mediante Spring Security.
+- Requerimiento de una sesión autenticada para acceder a las operaciones protegidas de proveedores y evaluaciones.
+- Manejo de respuestas de autenticación no autorizada para controlar las sesiones vencidas.
 - Restricción de los orígenes permitidos mediante la configuración de CORS.
 - Validaciones de datos en los procesos de autenticación.
 - Validación de extensión y ruta de las fotografías de proveedores.
 
-**Limitación pendiente:** las operaciones de proveedores y evaluaciones deben contar con autenticación y autorización verificadas en el backend. Mientras no se compruebe que estas rutas rechazan las peticiones sin credenciales válidas, el inicio de sesión del frontend no debe considerarse suficiente para proteger la API.
+**Limitación pendiente: comunicación con el servicio de inteligencia artificial.**
 
-Antes de desplegar el sistema en un entorno de producción, se debe completar y probar la protección de las rutas, gestionar adecuadamente los secretos y revisar la configuración de acceso a la base de datos.
+El backend exige una sesión autenticada para acceder a las operaciones protegidas por Spring Security. Sin embargo, el servicio de inteligencia artificial implementado con FastAPI se ejecuta de manera independiente en el puerto `8000`. La autenticación del backend no protege automáticamente los endpoints de este servicio.
+
+Por ello, se debe revisar y, si corresponde, implementar autenticación o restricciones de acceso para el servicio de IA, además de mantener una configuración adecuada de CORS y evitar la exposición innecesaria del servicio a redes externas.
+
+Antes de desplegar el sistema en un entorno de producción, se recomienda verificar la protección de todos los endpoints, gestionar adecuadamente los secretos, revisar los permisos de acceso a la base de datos y validar la configuración de red de los servicios.
 
 La configuración descrita en este documento está orientada al desarrollo local.
 
@@ -294,6 +330,7 @@ Las herramientas de inteligencia artificial se utilizaron como apoyo al proceso 
 - `backend/src/main/resources/application.properties.example`: ejemplo de configuración de conexión.
 - `ia/requirements.txt`: dependencias del servicio de inteligencia artificial.
 - `ia/main.py`: implementación de la API de análisis inteligente.
+- `frontend/.env.example`: plantilla para configurar las direcciones del backend y del servicio de inteligencia artificial.
 
 ## 12. Información del proyecto
 
