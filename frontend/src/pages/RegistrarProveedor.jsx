@@ -1,3 +1,4 @@
+﻿import { apiFetch } from '../utils/apiFetch'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import ModalMensaje from '../components/ModalMensaje'
@@ -56,8 +57,8 @@ function RegistrarProveedor() {
       setModal({
         abierto: true,
         tipo: 'error',
-        titulo: 'Archivo no válido',
-        mensaje: 'Selecciona un archivo de imagen válido.',
+        titulo: 'Archivo no vÃ¡lido',
+        mensaje: 'Selecciona un archivo de imagen vÃ¡lido.',
         mostrarCancelar: false,
         onAceptar: null
       })
@@ -88,7 +89,7 @@ function RegistrarProveedor() {
 
     try {
       // Registrar proveedor
-      const respuesta = await fetch(`${API_URL}/api/proveedores`, {
+      const respuesta = await apiFetch(`${API_URL}/api/proveedores`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -107,12 +108,12 @@ function RegistrarProveedor() {
 
       const proveedorGuardado = await respuesta.json()
 
-      // Subir fotografía si se seleccionó una
+      // Subir fotografÃ­a si se seleccionÃ³ una
       if (foto) {
         const formularioFoto = new FormData()
         formularioFoto.append('foto', foto)
 
-        const respuestaFoto = await fetch(
+        const respuestaFoto = await apiFetch(
           `${API_URL}/api/proveedores/${proveedorGuardado.idProveedor}/foto`,
           {
             method: 'POST',
@@ -123,17 +124,17 @@ function RegistrarProveedor() {
 
         if (!respuestaFoto.ok) {
           throw new Error(
-            'El proveedor se registró, pero no se pudo subir la fotografía.'
+            'El proveedor se registrÃ³, pero no se pudo subir la fotografÃ­a.'
           )
         }
       }
 
-      // Mostrar confirmación
+      // Mostrar confirmaciÃ³n
       setModal({
         abierto: true,
         tipo: 'exito',
-        titulo: '¡Proveedor registrado!',
-        mensaje: 'El proveedor se registró correctamente.',
+        titulo: 'Â¡Proveedor registrado!',
+        mensaje: 'El proveedor se registrÃ³ correctamente.',
         mostrarCancelar: false,
         onAceptar: () => {
           cerrarModal()
@@ -149,7 +150,7 @@ function RegistrarProveedor() {
         titulo: 'Error al registrar',
         mensaje:
           error.message ||
-          'Ocurrió un error al registrar el proveedor. Inténtalo nuevamente.',
+          'OcurriÃ³ un error al registrar el proveedor. IntÃ©ntalo nuevamente.',
         mostrarCancelar: false,
         onAceptar: null
       })
@@ -612,14 +613,14 @@ function RegistrarProveedor() {
         <header className="rp-header">
           <h1>Registrar proveedor</h1>
           <p>
-            Registra un nuevo proveedor para mantener actualizada la información
-            y facilitar el seguimiento de su desempeño.
+            Registra un nuevo proveedor para mantener actualizada la informaciÃ³n
+            y facilitar el seguimiento de su desempeÃ±o.
           </p>
         </header>
 
         <div className="rp-card">
           <div className="rp-card-heading">
-            <h2>Información del proveedor</h2>
+            <h2>InformaciÃ³n del proveedor</h2>
             <p>
               Completa los campos necesarios para dar de alta al proveedor en el
               sistema.
@@ -629,7 +630,7 @@ function RegistrarProveedor() {
           <form className="rp-form" onSubmit={guardarProveedor}>
             <section className="rp-section">
               <h3 className="rp-section-title">
-                <span className="rp-section-icon">▤</span>
+                <span className="rp-section-icon">â–¤</span>
                 Datos generales
               </h3>
 
@@ -670,7 +671,7 @@ function RegistrarProveedor() {
 
                 <div className="rp-form-field">
                   <label htmlFor="correo">
-                    Correo electrónico
+                    Correo electrÃ³nico
                     <span className="rp-required">*</span>
                   </label>
 
@@ -687,7 +688,7 @@ function RegistrarProveedor() {
 
                 <div className="rp-form-field">
                   <label htmlFor="telefono">
-                    Teléfono
+                    TelÃ©fono
                     <span className="rp-required">*</span>
                   </label>
 
@@ -697,7 +698,7 @@ function RegistrarProveedor() {
                     name="telefono"
                     value={proveedor.telefono}
                     onChange={manejarCambio}
-                    placeholder="Número de teléfono"
+                    placeholder="NÃºmero de telÃ©fono"
                     required
                   />
                 </div>
@@ -741,16 +742,16 @@ function RegistrarProveedor() {
 
             <section className="rp-section">
               <h3 className="rp-section-title">
-                <span className="rp-section-icon">▧</span>
-                Fotografía del proveedor
+                <span className="rp-section-icon">â–§</span>
+                FotografÃ­a del proveedor
               </h3>
 
               <div className="rp-photo-area">
                 <div className="rp-photo-description">
-                  <div className="rp-photo-icon">▧</div>
+                  <div className="rp-photo-icon">â–§</div>
 
                   <div>
-                    <h3>Agrega una fotografía</h3>
+                    <h3>Agrega una fotografÃ­a</h3>
                     <p>
                       Puedes seleccionar una imagen para identificar al
                       proveedor. Este campo es opcional.
@@ -763,24 +764,24 @@ function RegistrarProveedor() {
                     <div className="rp-photo-preview">
                       <img
                         src={vistaPrevia}
-                        alt="Vista previa de la fotografía del proveedor"
+                        alt="Vista previa de la fotografÃ­a del proveedor"
                       />
 
                       <button
                         type="button"
                         className="rp-remove-photo"
                         onClick={quitarFoto}
-                        aria-label="Quitar fotografía"
-                        title="Quitar fotografía"
+                        aria-label="Quitar fotografÃ­a"
+                        title="Quitar fotografÃ­a"
                       >
-                        ×
+                        Ã—
                       </button>
                     </div>
                   )}
 
                   <label className="rp-upload-button">
-                    <span>↑</span>
-                    {foto ? 'Cambiar fotografía' : 'Seleccionar imagen'}
+                    <span>â†‘</span>
+                    {foto ? 'Cambiar fotografÃ­a' : 'Seleccionar imagen'}
 
                     <input
                       type="file"
@@ -810,7 +811,7 @@ function RegistrarProveedor() {
                 type="submit"
                 className="rp-button rp-button-primary"
               >
-                <span>✓</span>
+                <span>âœ“</span>
                 Guardar proveedor
               </button>
             </div>
@@ -832,3 +833,4 @@ function RegistrarProveedor() {
 }
 
 export default RegistrarProveedor
+

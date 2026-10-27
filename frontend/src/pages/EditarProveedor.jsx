@@ -1,3 +1,4 @@
+﻿import { apiFetch } from '../utils/apiFetch'
 
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -51,7 +52,7 @@ function EditarProveedor() {
   useEffect(() => {
     const obtenerProveedor = async () => {
       try {
-        const respuesta = await fetch(
+        const respuesta = await apiFetch(
           `${API_URL}/api/proveedores/${id}`,
           {
             credentials: 'include'
@@ -79,7 +80,7 @@ function EditarProveedor() {
           abierto: true,
           tipo: 'error',
           titulo: 'No se pudo cargar',
-          mensaje: 'Ocurrió un error al cargar la información del proveedor.',
+          mensaje: 'OcurriÃ³ un error al cargar la informaciÃ³n del proveedor.',
           mostrarCancelar: false,
           textoAceptar: 'Aceptar',
           onAceptar: cerrarModal
@@ -112,7 +113,7 @@ function EditarProveedor() {
     setGuardando(true)
 
     try {
-      const respuesta = await fetch(
+      const respuesta = await apiFetch(
         `${API_URL}/api/proveedores/${id}`,
         {
           method: 'PUT',
@@ -136,7 +137,7 @@ function EditarProveedor() {
         abierto: true,
         tipo: 'exito',
         titulo: 'Proveedor actualizado',
-        mensaje: 'La información del proveedor se actualizó correctamente.',
+        mensaje: 'La informaciÃ³n del proveedor se actualizÃ³ correctamente.',
         mostrarCancelar: false,
         textoAceptar: 'Continuar',
         onAceptar: () => {
@@ -151,7 +152,7 @@ function EditarProveedor() {
         abierto: true,
         tipo: 'error',
         titulo: 'No se pudo actualizar',
-        mensaje: error.message || 'Ocurrió un error al actualizar el proveedor.',
+        mensaje: error.message || 'OcurriÃ³ un error al actualizar el proveedor.',
         mostrarCancelar: false,
         textoAceptar: 'Aceptar',
         onAceptar: cerrarModal
@@ -188,7 +189,7 @@ function EditarProveedor() {
         `}</style>
 
         <div className="editar-loading">
-          Cargando información del proveedor...
+          Cargando informaciÃ³n del proveedor...
         </div>
       </>
     )
@@ -305,7 +306,7 @@ function EditarProveedor() {
           font-size: 14px;
         }
 
-        /* BOTÓN REGRESAR */
+        /* BOTÃ“N REGRESAR */
 
         .editar-back {
           padding: 10px 17px;
@@ -609,7 +610,7 @@ function EditarProveedor() {
             </h1>
 
             <p className="editar-subtitle">
-              Actualiza la información registrada del proveedor.
+              Actualiza la informaciÃ³n registrada del proveedor.
             </p>
           </div>
 
@@ -618,7 +619,7 @@ function EditarProveedor() {
             onClick={() => navigate('/proveedores')}
             className="editar-back"
           >
-            ← Regresar
+            â† Regresar
           </button>
         </div>
 
@@ -644,7 +645,7 @@ function EditarProveedor() {
           <form onSubmit={guardarCambios}>
             <div className="editar-section">
               <h3 className="editar-section-title">
-                Información del proveedor
+                InformaciÃ³n del proveedor
               </h3>
 
               <div className="editar-line"></div>
@@ -713,7 +714,7 @@ function EditarProveedor() {
 
                 <div className="editar-field">
                   <label className="editar-label" htmlFor="telefono">
-                    Teléfono
+                    TelÃ©fono
                   </label>
 
                   <input
@@ -724,13 +725,13 @@ function EditarProveedor() {
                     onChange={manejarCambio}
                     required
                     className="editar-input"
-                    placeholder="Teléfono"
+                    placeholder="TelÃ©fono"
                   />
                 </div>
 
                 <div className="editar-field-full">
                   <label className="editar-label" htmlFor="correo">
-                    Correo electrónico
+                    Correo electrÃ³nico
                   </label>
 
                   <input
@@ -796,7 +797,7 @@ function EditarProveedor() {
                   <div>
                     <strong>Inactivo</strong>
                     <span>
-                      El proveedor no está operando actualmente.
+                      El proveedor no estÃ¡ operando actualmente.
                     </span>
                   </div>
                 </label>
@@ -841,3 +842,5 @@ function EditarProveedor() {
 }
 
 export default EditarProveedor
+
+

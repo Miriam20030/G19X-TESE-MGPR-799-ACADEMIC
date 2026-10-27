@@ -1,3 +1,4 @@
+﻿import { apiFetch } from '../utils/apiFetch'
 
 import { useEffect, useState } from 'react'
 import API_URL from '../config/api'
@@ -27,14 +28,14 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
   useEffect(() => {
     const obtenerDatos = async () => {
       try {
-        const respuestaProveedores = await fetch(
+        const respuestaProveedores = await apiFetch(
           `${API_URL}/api/proveedores`,
           {
             credentials: 'include'
           }
         )
 
-        const respuestaEvaluaciones = await fetch(
+        const respuestaEvaluaciones = await apiFetch(
           `${API_URL}/api/evaluaciones`,
           {
             credentials: 'include'
@@ -61,7 +62,7 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
     obtenerDatos()
   }, [])
 
-  // Estadísticas principales
+  // EstadÃ­sticas principales
   const totalProveedores = proveedores.length
 
   const proveedoresActivos = proveedores.filter(
@@ -92,7 +93,7 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
         color: colorTexto
       }}
     >
-      {/* TÍTULO */}
+      {/* TÃTULO */}
 
       <div
         style={{
@@ -124,7 +125,7 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
             lineHeight: '1.6'
           }}
         >
-          Visión general del desempeño y gestión de proveedores.
+          VisiÃ³n general del desempeÃ±o y gestiÃ³n de proveedores.
         </p>
       </div>
 
@@ -160,7 +161,7 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
         </div>
 
         <div className="card">
-          <span>Evaluación promedio</span>
+          <span>EvaluaciÃ³n promedio</span>
 
           <strong style={{ color: colorPrincipal }}>
             {promedioEvaluacion}%
@@ -168,7 +169,7 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
         </div>
       </div>
 
-      {/* GRÁFICA DE CLASIFICACIÓN */}
+      {/* GRÃFICA DE CLASIFICACIÃ“N */}
 
       <GraficaClasificacion
         evaluaciones={evaluaciones}
@@ -188,7 +189,7 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
         colorTarjeta={colorTarjeta}
       />
 
-      {/* ÚLTIMAS EVALUACIONES */}
+      {/* ÃšLTIMAS EVALUACIONES */}
 
       <UltimasEvaluaciones
         evaluaciones={evaluaciones}
@@ -223,3 +224,5 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
     </div>
   )
 }
+
+

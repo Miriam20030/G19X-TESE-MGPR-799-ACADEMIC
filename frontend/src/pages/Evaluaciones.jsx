@@ -1,3 +1,4 @@
+﻿import { apiFetch } from '../utils/apiFetch'
 
 import { useEffect, useMemo, useState } from 'react'
 import NuevaEvaluacion from './NuevaEvaluacion'
@@ -31,14 +32,14 @@ function Evaluaciones() {
                 respuestaProveedores
             ] = await Promise.all([
 
-                fetch(
+                apiFetch(
                     `${API_URL}/api/evaluaciones`,
                     {
                         credentials: 'include'
                     }
                 ),
 
-                fetch(
+                apiFetch(
                     `${API_URL}/api/proveedores`,
                     {
                         credentials: 'include'
@@ -99,7 +100,7 @@ function Evaluaciones() {
     }
 
     // =========================================================
-    // ESTILO DE CLASIFICACIÓN
+    // ESTILO DE CLASIFICACIÃ“N
     // =========================================================
 
     const obtenerEstiloClasificacion = (clasificacion) => {
@@ -200,7 +201,7 @@ function Evaluaciones() {
     }
 
     // =========================================================
-    // ESTADÍSTICAS
+    // ESTADÃSTICAS
     // =========================================================
 
     const estadisticas = useMemo(() => {
@@ -305,7 +306,7 @@ function Evaluaciones() {
     }
 
     // =========================================================
-    // CERRAR NUEVA EVALUACIÓN
+    // CERRAR NUEVA EVALUACIÃ“N
     // =========================================================
 
     const cerrarNuevaEvaluacion = () => {
@@ -313,7 +314,7 @@ function Evaluaciones() {
     }
 
     // =========================================================
-    // EVALUACIÓN GUARDADA
+    // EVALUACIÃ“N GUARDADA
     // =========================================================
 
     const evaluacionGuardada = async () => {
@@ -402,7 +403,7 @@ function Evaluaciones() {
                     </h1>
 
                     <p>
-                        Consulta el desempeño y las evaluaciones realizadas a cada proveedor.
+                        Consulta el desempeÃ±o y las evaluaciones realizadas a cada proveedor.
                     </p>
 
                 </div>
@@ -411,12 +412,12 @@ function Evaluaciones() {
                     className="btn-nueva-evaluacion-top"
                     onClick={() => setMostrarNuevaEvaluacion(true)}
                 >
-                    Nueva evaluación
+                    Nueva evaluaciÃ³n
                 </button>
 
             </div>
 
-            {/* ESTADÍSTICAS */}
+            {/* ESTADÃSTICAS */}
 
             <div className="estadisticas-grid">
 
@@ -511,7 +512,7 @@ function Evaluaciones() {
                 <div className="filtro-grupo">
 
                     <label>
-                        Clasificación
+                        ClasificaciÃ³n
                     </label>
 
                     <select
@@ -572,7 +573,7 @@ function Evaluaciones() {
                         )
 
                         const riesgoIA =
-                            evaluacion.riesgoIA || 'Sin análisis'
+                            evaluacion.riesgoIA || 'Sin anÃ¡lisis'
 
                         const probabilidadRiesgoAlto =
                             evaluacion.probabilidadRiesgoAlto ?? null
@@ -600,7 +601,7 @@ function Evaluaciones() {
                                         </h3>
 
                                         <span className="evaluacion-fecha">
-                                            Evaluación realizada el{' '}
+                                            EvaluaciÃ³n realizada el{' '}
                                             {formatearFecha(evaluacion.fechaEvaluacion)}
                                         </span>
 
@@ -627,7 +628,7 @@ function Evaluaciones() {
                                         </span>
 
                                         <span className="texto">
-                                            Calificación final
+                                            CalificaciÃ³n final
                                         </span>
 
                                     </div>
@@ -663,14 +664,14 @@ function Evaluaciones() {
 
                                 </div>
 
-                                {/* ANÁLISIS IA */}
+                                {/* ANÃLISIS IA */}
 
                                 <div className="analisis-ia">
 
                                     <div className="analisis-ia-header">
 
                                         <h4>
-                                            Análisis de Inteligencia Artificial
+                                            AnÃ¡lisis de Inteligencia Artificial
                                         </h4>
 
                                     </div>
@@ -717,7 +718,7 @@ function Evaluaciones() {
                                         <div className="recomendacion-ia">
 
                                             <h4>
-                                                Recomendación de IA
+                                                RecomendaciÃ³n de IA
                                             </h4>
 
                                             <p>
@@ -740,7 +741,7 @@ function Evaluaciones() {
 
             </div>
 
-            {/* MODAL NUEVA EVALUACIÓN */}
+            {/* MODAL NUEVA EVALUACIÃ“N */}
 
             {mostrarNuevaEvaluacion && (
 
@@ -760,7 +761,7 @@ function Evaluaciones() {
                             onClick={cerrarNuevaEvaluacion}
                             aria-label="Cerrar"
                         >
-                            ×
+                            Ã—
                         </button>
 
                         <NuevaEvaluacion
@@ -1235,8 +1236,8 @@ function Evaluaciones() {
                     border-color: #fecaca;
                 }
 
-                .riesgo-ia-sin-análisis,
-                .riesgo-ia-sin-análisis {
+                .riesgo-ia-sin-anÃ¡lisis,
+                .riesgo-ia-sin-anÃ¡lisis {
                     background: var(--ev-soft);
                     color: var(--ev-muted);
                     border-color: var(--ev-border);
@@ -1428,3 +1429,5 @@ function Evaluaciones() {
 }
 
 export default Evaluaciones
+
+

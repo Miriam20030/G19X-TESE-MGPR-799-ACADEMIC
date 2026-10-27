@@ -1,3 +1,4 @@
+﻿import { apiFetch } from '../utils/apiFetch'
 
 import { useEffect, useState } from 'react'
 import API_URL from '../config/api'
@@ -17,14 +18,14 @@ function Alertas() {
 
         try {
 
-            const respuestaEvaluaciones = await fetch(
+            const respuestaEvaluaciones = await apiFetch(
                 `${API_URL}/api/evaluaciones`,
                 {
                     credentials: 'include'
                 }
             )
 
-            const respuestaProveedores = await fetch(
+            const respuestaProveedores = await apiFetch(
                 `${API_URL}/api/proveedores`,
                 {
                     credentials: 'include'
@@ -134,7 +135,7 @@ function Alertas() {
                 <div className="titulo-linea"></div>
 
                 <p>
-                    Proveedores que requieren atención según los resultados
+                    Proveedores que requieren atenciÃ³n segÃºn los resultados
                     de sus evaluaciones.
                 </p>
 
@@ -189,7 +190,7 @@ function Alertas() {
 
                         {busqueda
                             ? 'No se encontraron resultados'
-                            : 'Todo está en orden'
+                            : 'Todo estÃ¡ en orden'
                         }
 
                     </h2>
@@ -197,7 +198,7 @@ function Alertas() {
                     <p>
 
                         {busqueda
-                            ? 'No existe una alerta para el proveedor que estás buscando.'
+                            ? 'No existe una alerta para el proveedor que estÃ¡s buscando.'
                             : 'Actualmente no existen proveedores con evaluaciones clasificadas como Riesgo o Regular.'
                         }
 
@@ -233,7 +234,7 @@ function Alertas() {
 
                                     <span className="evaluacion-id">
 
-                                        Evaluación #
+                                        EvaluaciÃ³n #
                                         {evaluacion.idEvaluacion}
 
                                     </span>
@@ -270,14 +271,14 @@ function Alertas() {
 
                                 </div>
 
-                                {/* INFORMACIÓN */}
+                                {/* INFORMACIÃ“N */}
 
                                 <div className="datos-alerta">
 
                                     <div>
 
                                         <span>
-                                            CALIFICACIÓN
+                                            CALIFICACIÃ“N
                                         </span>
 
                                         <strong>
@@ -295,7 +296,7 @@ function Alertas() {
                                     <div>
 
                                         <span>
-                                            FECHA DE EVALUACIÓN
+                                            FECHA DE EVALUACIÃ“N
                                         </span>
 
                                         <p>
@@ -308,7 +309,7 @@ function Alertas() {
 
                                 </div>
 
-                                {/* BARRA DE CALIFICACIÓN */}
+                                {/* BARRA DE CALIFICACIÃ“N */}
 
                                 <div className="barra-calificacion">
 
@@ -343,7 +344,7 @@ function Alertas() {
                                     </strong>
 
                                     <p>
-                                        Se recomienda revisar el desempeño
+                                        Se recomienda revisar el desempeÃ±o
                                         de este proveedor.
                                     </p>
 
@@ -365,3 +366,5 @@ function Alertas() {
 }
 
 export default Alertas
+
+

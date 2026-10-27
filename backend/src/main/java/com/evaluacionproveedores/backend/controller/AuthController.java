@@ -16,6 +16,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,8 +49,8 @@ public class AuthController {
         String usuario = datos.get("usuario");
         String password = datos.get("password");
 
-        if (usuario == null || password == null ||
-                usuario.isBlank() || password.isBlank()) {
+        if (usuario == null || password == null
+                || usuario.isBlank() || password.isBlank()) {
 
             return ResponseEntity.badRequest()
                     .body(Map.of(
@@ -96,7 +97,7 @@ public class AuthController {
                 UsernamePasswordAuthenticationToken.authenticated(
                         usuarioEncontrado.getUsuario(),
                         null,
-                        java.util.Collections.emptyList()
+                        Collections.emptyList()
                 );
 
         SecurityContext contexto =
@@ -105,7 +106,7 @@ public class AuthController {
         contexto.setAuthentication(autenticacion);
         SecurityContextHolder.setContext(contexto);
 
-        // Guardar el contexto en la sesión HTTP.
+        // Guardar el contexto autenticado en la sesión HTTP.
         HttpSession sesion = request.getSession(true);
 
         sesion.setAttribute(
@@ -125,26 +126,6 @@ public class AuthController {
     }
 
     // =========================================================
-    // CERRAR SESIÓN
-    // =========================================================
-
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request) {
-
-        HttpSession sesion = request.getSession(false);
-
-        if (sesion != null) {
-            sesion.invalidate();
-        }
-
-        SecurityContextHolder.clearContext();
-
-        return ResponseEntity.ok(
-                Map.of("mensaje", "Sesión cerrada correctamente")
-        );
-    }
-
-    // =========================================================
     // CAMBIAR CONTRASEÑA
     // =========================================================
 
@@ -153,9 +134,9 @@ public class AuthController {
             @RequestBody Map<String, String> datos,
             Authentication autenticacion) {
 
-        // El endpoint requiere una sesión autenticada.
-        if (autenticacion == null ||
-                !autenticacion.isAuthenticated()) {
+        // Verificar que exista una sesión autenticada.
+        if (autenticacion == null
+                || !autenticacion.isAuthenticated()) {
 
             return ResponseEntity.status(401)
                     .body(Map.of(
@@ -167,10 +148,9 @@ public class AuthController {
         String passwordActual = datos.get("passwordActual");
         String nuevaPassword = datos.get("nuevaPassword");
 
-        if (passwordActual == null ||
-                nuevaPassword == null ||
-                passwordActual.isBlank() ||
-                nuevaPassword.isBlank()) {
+        if (passwordActual == null || nuevaPassword == null
+                || passwordActual.isBlank()
+                || nuevaPassword.isBlank()) {
 
             return ResponseEntity.badRequest()
                     .body(Map.of(
@@ -179,7 +159,7 @@ public class AuthController {
                     ));
         }
 
-        // Obtener el usuario desde la autenticación, no desde el cuerpo.
+        // Obtener el usuario desde la autenticación.
         String nombreUsuario = autenticacion.getName();
 
         Usuario usuarioEncontrado = usuarioRepository
@@ -193,7 +173,10 @@ public class AuthController {
 
         if (!Boolean.TRUE.equals(usuarioEncontrado.getActivo())) {
             return ResponseEntity.status(401)
-                    .body(Map.of("mensaje", "El usuario está desactivado"));
+                    .body(Map.of(
+                            "mensaje",
+                            "El usuario está desactivado"
+                    ));
         }
 
         boolean passwordCorrecta = passwordEncoder.matches(
@@ -224,7 +207,10 @@ public class AuthController {
         usuarioRepository.save(usuarioEncontrado);
 
         return ResponseEntity.ok(
-                Map.of("mensaje", "Contraseña actualizada correctamente")
+                Map.of(
+                        "mensaje",
+                        "Contraseña actualizada correctamente"
+                )
         );
     }
 }

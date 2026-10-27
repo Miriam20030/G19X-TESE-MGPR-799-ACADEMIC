@@ -15,11 +15,30 @@ import Configuracion from './pages/Configuracion'
 import Reportes from './pages/Reportes'
 import Login from './components/Login'
 
+
+import { configurarSesionExpirada } from './utils/apiFetch'
+
+import API_URL from './config/api'
+
 /* =====================================================
    APLICACIÓN PRINCIPAL
    ===================================================== */
 
 function App() {
+
+
+useEffect(() => {
+  configurarSesionExpirada(() => {
+    localStorage.removeItem('usuario')
+    setUsuario(null)
+    window.history.replaceState(null, '', '/')
+  })
+
+  return () => configurarSesionExpirada(null)
+}, [])
+
+
+
   // ==============================
   // USUARIO LOGUEADO
   // ==============================
@@ -115,10 +134,31 @@ function App() {
   // CERRAR SESIÓN
   // ==============================
 
-  const cerrarSesion = () => {
-    localStorage.removeItem('usuario')
-    setUsuario(null)
+  const cerrarSesion = async () => {
+    try {
+      const respuesta = await fetch(
+         `${API_URL}/api/auth/logout`,
+        {
+          method: 'POST',
+          credentials: 'include'
+        }
+      )
+
+      if (!respuesta.ok) {
+        console.error('El servidor no confirmó el cierre de sesión.')
+      }
+    } catch (error) {
+      console.error(
+        'Error al cerrar la sesión en el servidor:',
+        error
+      )
+    } finally {
+      localStorage.removeItem('usuario')
+      setUsuario(null)
+      window.history.replaceState(null, '', '/')
+    }
   }
+
 
   return (
     <BrowserRouter>

@@ -1,3 +1,4 @@
+﻿import { apiFetch } from '../utils/apiFetch'
 
 import { useEffect, useState } from 'react'
 import ModalMensaje from '../components/ModalMensaje'
@@ -53,22 +54,22 @@ function NuevaEvaluacion({
 
     const obtenerRecomendacion = (clasificacionActual) => {
         if (clasificacionActual === 'Excelente') {
-            return 'El proveedor presenta un desempeño excelente. Se recomienda mantener la relación comercial y continuar con el seguimiento periódico.'
+            return 'El proveedor presenta un desempeÃ±o excelente. Se recomienda mantener la relaciÃ³n comercial y continuar con el seguimiento periÃ³dico.'
         }
 
         if (clasificacionActual === 'Bueno') {
-            return 'El proveedor presenta un buen desempeño. Se recomienda mantener el seguimiento para conservar y mejorar sus resultados.'
+            return 'El proveedor presenta un buen desempeÃ±o. Se recomienda mantener el seguimiento para conservar y mejorar sus resultados.'
         }
 
         if (clasificacionActual === 'Regular') {
-            return 'El proveedor presenta áreas de oportunidad. Se recomienda establecer acciones de mejora y realizar un seguimiento más frecuente.'
+            return 'El proveedor presenta Ã¡reas de oportunidad. Se recomienda establecer acciones de mejora y realizar un seguimiento mÃ¡s frecuente.'
         }
 
         return 'El proveedor presenta un nivel de riesgo. Se recomienda revisar los principales indicadores y establecer acciones correctivas.'
     }
 
     // =========================================================
-    // CALCULAR CALIFICACIÓN Y CLASIFICACIÓN
+    // CALCULAR CALIFICACIÃ“N Y CLASIFICACIÃ“N
     // =========================================================
 
     useEffect(() => {
@@ -125,7 +126,7 @@ function NuevaEvaluacion({
     }
 
     // =========================================================
-    // CAMBIAR BÚSQUEDA
+    // CAMBIAR BÃšSQUEDA
     // =========================================================
 
     const cambiarBusquedaProveedor = (e) => {
@@ -159,7 +160,7 @@ function NuevaEvaluacion({
     }
 
     // =========================================================
-    // GUARDAR EVALUACIÓN
+    // GUARDAR EVALUACIÃ“N
     // =========================================================
 
     const guardarEvaluacion = async (e) => {
@@ -174,7 +175,7 @@ function NuevaEvaluacion({
                 abierto: true,
                 tipo: 'advertencia',
                 titulo: 'Selecciona un proveedor',
-                mensaje: 'Debes seleccionar un proveedor de la lista antes de guardar la evaluación.',
+                mensaje: 'Debes seleccionar un proveedor de la lista antes de guardar la evaluaciÃ³n.',
                 mostrarCancelar: false,
                 textoCancelar: 'Cancelar',
                 textoAceptar: 'Aceptar',
@@ -203,7 +204,7 @@ function NuevaEvaluacion({
             setModal({
                 abierto: true,
                 tipo: 'advertencia',
-                titulo: 'Calificaciones inválidas',
+                titulo: 'Calificaciones invÃ¡lidas',
                 mensaje: 'Todos los indicadores deben tener valores entre 0 y 100.',
                 mostrarCancelar: false,
                 textoCancelar: 'Cancelar',
@@ -226,7 +227,7 @@ function NuevaEvaluacion({
             let probabilidadRiesgoAlto = null
 
             try {
-                const respuestaIA = await fetch(
+                const respuestaIA = await apiFetch(
                     'http://localhost:8000/ia/analizar',
                     {
                         method: 'POST',
@@ -256,7 +257,7 @@ function NuevaEvaluacion({
                         datosIA.probabilidadRiesgoAlto ?? null
                 } else {
                     console.warn(
-                        'El servicio de IA respondió con el estado:',
+                        'El servicio de IA respondiÃ³ con el estado:',
                         respuestaIA.status
                     )
                 }
@@ -286,7 +287,7 @@ function NuevaEvaluacion({
             // GUARDAR EN SPRING BOOT
             // =====================================================
 
-            const respuesta = await fetch(
+            const respuesta = await apiFetch(
                 `${API_URL}/api/evaluaciones`,
                 {
                     method: 'POST',
@@ -321,22 +322,22 @@ function NuevaEvaluacion({
 
                 throw new Error(
                     mensajeError ||
-                    `No se pudo guardar la evaluación. Código HTTP: ${respuesta.status}.`
+                    `No se pudo guardar la evaluaciÃ³n. CÃ³digo HTTP: ${respuesta.status}.`
                 )
             }
 
             // =====================================================
-            // MODAL DE ÉXITO
+            // MODAL DE Ã‰XITO
             // =====================================================
 
             setModal({
                 abierto: true,
                 tipo: 'exito',
-                titulo: 'Evaluación registrada',
+                titulo: 'EvaluaciÃ³n registrada',
                 mensaje:
-                    `La evaluación del proveedor se registró correctamente. ` +
-                    `Calificación final: ${Number(calificacionFinal).toFixed(1)} puntos. ` +
-                    `Clasificación: ${clasificacion}.`,
+                    `La evaluaciÃ³n del proveedor se registrÃ³ correctamente. ` +
+                    `CalificaciÃ³n final: ${Number(calificacionFinal).toFixed(1)} puntos. ` +
+                    `ClasificaciÃ³n: ${clasificacion}.`,
                 mostrarCancelar: false,
                 textoCancelar: 'Cancelar',
                 textoAceptar: 'Continuar',
@@ -349,7 +350,7 @@ function NuevaEvaluacion({
                 }
             })
         } catch (error) {
-            console.error('Error al guardar la evaluación:', error)
+            console.error('Error al guardar la evaluaciÃ³n:', error)
 
             setModal({
                 abierto: true,
@@ -357,7 +358,7 @@ function NuevaEvaluacion({
                 titulo: 'No se pudo registrar',
                 mensaje:
                     error.message ||
-                    'No se pudo guardar la evaluación. Verifica que el backend esté funcionando.',
+                    'No se pudo guardar la evaluaciÃ³n. Verifica que el backend estÃ© funcionando.',
                 mostrarCancelar: false,
                 textoCancelar: 'Cancelar',
                 textoAceptar: 'Aceptar',
@@ -377,9 +378,9 @@ function NuevaEvaluacion({
 
             <div className="nueva-evaluacion-header">
                 <div>
-                    <h1>Nueva evaluación</h1>
+                    <h1>Nueva evaluaciÃ³n</h1>
                     <p>
-                        Evalúa el desempeño del proveedor mediante los indicadores establecidos.
+                        EvalÃºa el desempeÃ±o del proveedor mediante los indicadores establecidos.
                     </p>
                 </div>
             </div>
@@ -426,7 +427,7 @@ function NuevaEvaluacion({
                                     }}
                                     aria-label="Limpiar proveedor"
                                 >
-                                    ×
+                                    Ã—
                                 </button>
                             )}
                         </div>
@@ -465,7 +466,7 @@ function NuevaEvaluacion({
                             busquedaProveedor &&
                             proveedoresFiltrados.length === 0 && (
                                 <div className="sin-resultados">
-                                    No se encontró ningún proveedor con ese nombre.
+                                    No se encontrÃ³ ningÃºn proveedor con ese nombre.
                                 </div>
                             )}
 
@@ -482,9 +483,9 @@ function NuevaEvaluacion({
 
                 <div className="seccion-formulario">
                     <div className="seccion-titulo">
-                        <h2>Indicadores de desempeño</h2>
+                        <h2>Indicadores de desempeÃ±o</h2>
                         <p>
-                            Asigna una calificación de 0 a 100 para cada indicador.
+                            Asigna una calificaciÃ³n de 0 a 100 para cada indicador.
                         </p>
                     </div>
 
@@ -628,7 +629,7 @@ function NuevaEvaluacion({
                 <div className="resultado-evaluacion">
                     <div className="resultado-calificacion">
                         <span className="resultado-label">
-                            Calificación final
+                            CalificaciÃ³n final
                         </span>
 
                         <strong>{calificacionFinal.toFixed(1)}</strong>
@@ -637,21 +638,21 @@ function NuevaEvaluacion({
                     </div>
 
                     <div
-                        className={`resultado-clasificacion ${clasificacion.toLowerCase().replace('í', 'i')}`}
+                        className={`resultado-clasificacion ${clasificacion.toLowerCase().replace('Ã­', 'i')}`}
                     >
                         <span className="resultado-label">
-                            Clasificación
+                            ClasificaciÃ³n
                         </span>
 
                         <strong>{clasificacion}</strong>
                     </div>
                 </div>
 
-                {/* RECOMENDACIÓN */}
+                {/* RECOMENDACIÃ“N */}
 
                 <div className="recomendacion-preview">
                     <div>
-                        <h3>Recomendación</h3>
+                        <h3>RecomendaciÃ³n</h3>
                         <p>
                             {recomendacion || obtenerRecomendacion(clasificacion)}
                         </p>
@@ -675,7 +676,7 @@ function NuevaEvaluacion({
                         className="btn-guardar"
                         disabled={guardando}
                     >
-                        {guardando ? 'Guardando...' : 'Guardar evaluación'}
+                        {guardando ? 'Guardando...' : 'Guardar evaluaciÃ³n'}
                     </button>
                 </div>
             </form>
@@ -1154,3 +1155,5 @@ function NuevaEvaluacion({
 }
 
 export default NuevaEvaluacion
+
+

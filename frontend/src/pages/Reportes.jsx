@@ -1,3 +1,4 @@
+﻿import { apiFetch } from '../utils/apiFetch'
 
 import { useEffect, useState } from 'react'
 import jsPDF from 'jspdf'
@@ -16,14 +17,14 @@ function Reportes() {
 
     const obtenerDatos = async () => {
         try {
-            const respuestaProveedores = await fetch(
+            const respuestaProveedores = await apiFetch(
                 `${API_URL}/api/proveedores`,
                 {
                     credentials: 'include'
                 }
             )
 
-            const respuestaEvaluaciones = await fetch(
+            const respuestaEvaluaciones = await apiFetch(
                 `${API_URL}/api/evaluaciones`,
                 {
                     credentials: 'include'
@@ -152,7 +153,7 @@ function Reportes() {
         const documento = new jsPDF()
 
         documento.setFontSize(20)
-        documento.text('Reporte de Evaluación de Proveedores', 14, 20)
+        documento.text('Reporte de EvaluaciÃ³n de Proveedores', 14, 20)
 
         documento.setFontSize(10)
         documento.text(
@@ -180,7 +181,7 @@ function Reportes() {
             return [
                 item.nombre,
                 item.promedio,
-                evaluacion?.clasificacion || 'Sin clasificación',
+                evaluacion?.clasificacion || 'Sin clasificaciÃ³n',
                 formatearFecha(evaluacion?.fechaEvaluacion)
             ]
         })
@@ -189,8 +190,8 @@ function Reportes() {
             startY: 58,
             head: [[
                 'Proveedor',
-                'Calificación',
-                'Clasificación',
+                'CalificaciÃ³n',
+                'ClasificaciÃ³n',
                 'Fecha'
             ]],
             body: filas,
@@ -218,8 +219,8 @@ function Reportes() {
                 startY: posicionFinal + 6,
                 head: [[
                     'Proveedor',
-                    'Calificación',
-                    'Recomendación'
+                    'CalificaciÃ³n',
+                    'RecomendaciÃ³n'
                 ]],
                 body: riesgos,
                 styles: {
@@ -247,7 +248,7 @@ function Reportes() {
         return (
             <div className="reportes-loading">
                 <div className="reportes-spinner"></div>
-                <span>Generando información del reporte...</span>
+                <span>Generando informaciÃ³n del reporte...</span>
             </div>
         )
     }
@@ -257,7 +258,7 @@ function Reportes() {
             <header className="reportes-header">
                 <div>
                     <span className="reportes-subtitulo">
-                        ANÁLISIS DE DESEMPEÑO
+                        ANÃLISIS DE DESEMPEÃ‘O
                     </span>
 
                     <h1>Reportes</h1>
@@ -265,7 +266,7 @@ function Reportes() {
                     <div className="reportes-linea"></div>
 
                     <p>
-                        Consulta el comportamiento y desempeño
+                        Consulta el comportamiento y desempeÃ±o
                         general de los proveedores evaluados.
                     </p>
                 </div>
@@ -309,12 +310,12 @@ function Reportes() {
             <section className="reportes-panel">
                 <div className="panel-header">
                     <div>
-                        <span className="panel-etiqueta">DESEMPEÑO</span>
-                        <h2>Calificación por proveedor</h2>
+                        <span className="panel-etiqueta">DESEMPEÃ‘O</span>
+                        <h2>CalificaciÃ³n por proveedor</h2>
                     </div>
 
                     <span className="panel-descripcion">
-                        Última evaluación registrada
+                        Ãšltima evaluaciÃ³n registrada
                     </span>
                 </div>
 
@@ -362,14 +363,14 @@ function Reportes() {
             </section>
 
             <div className="reportes-dos-columnas">
-                {/* GRÁFICA CIRCULAR */}
+                {/* GRÃFICA CIRCULAR */}
                 <section className="reportes-panel">
                     <div className="panel-header">
                         <div>
                             <span className="panel-etiqueta">
-                                DISTRIBUCIÓN
+                                DISTRIBUCIÃ“N
                             </span>
-                            <h2>Resultados de evaluación</h2>
+                            <h2>Resultados de evaluaciÃ³n</h2>
                         </div>
                     </div>
 
@@ -454,7 +455,7 @@ function Reportes() {
                             <span className="panel-etiqueta">
                                 EVALUACIONES
                             </span>
-                            <h2>Últimos resultados</h2>
+                            <h2>Ãšltimos resultados</h2>
                         </div>
                     </div>
 
@@ -463,7 +464,7 @@ function Reportes() {
                             <thead>
                                 <tr>
                                     <th>Proveedor</th>
-                                    <th>Calificación</th>
+                                    <th>CalificaciÃ³n</th>
                                     <th>Estado</th>
                                 </tr>
                             </thead>
@@ -508,7 +509,7 @@ function Reportes() {
                 <div className="panel-header">
                     <div>
                         <span className="panel-etiqueta">SEGUIMIENTO</span>
-                        <h2>Proveedores que requieren atención</h2>
+                        <h2>Proveedores que requieren atenciÃ³n</h2>
                     </div>
 
                     <span className="riesgo-contador">
@@ -538,7 +539,7 @@ function Reportes() {
                                 <div>
                                     <strong>{item.proveedor.nombre}</strong>
                                     <span>
-                                        Evaluación del{' '}
+                                        EvaluaciÃ³n del{' '}
                                         {formatearFecha(
                                             item.evaluacion.fechaEvaluacion
                                         )}
@@ -561,3 +562,5 @@ function Reportes() {
 }
 
 export default Reportes
+
+
