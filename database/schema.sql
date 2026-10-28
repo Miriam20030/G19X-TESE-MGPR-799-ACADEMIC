@@ -103,7 +103,7 @@ BEGIN
     (
         N'admin',
         N'admin@evaluacion.com',
-        '$2a$10$RZ7rLzdFgKvSAYV43A1TOukbKpVcNeYWfcRUOT.eezU9ukjT0Sv/y',
+        '$2a$10$cow55yfRHQ0ZJXHnvPFAMej6kNk8bvN72fLw7NpfbPy8tvum/GJfW',
         N'Administrador',
         1
     );

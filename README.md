@@ -282,14 +282,16 @@ Las terminales que ejecutan el backend, la IA y el frontend deben permanecer abi
 
 ## 8. Primer inicio de sesión
 
-El script `database/schema.sql` incluye un registro inicial de administrador.
+El archivo `database/schema.sql` incluye un registro inicial de administrador para facilitar las pruebas de desarrollo.
 
 - **Usuario:** `admin`
-- **Correo:** `admin@evaluacion.com`
+- **Contraseña inicial de desarrollo:** `InicioDev2026!`
 
-La contraseña inicial debe verificarse con la configuración de la versión entregada del proyecto. El script almacena la contraseña mediante un hash BCrypt, por lo que no se debe asumir una contraseña que no haya sido comprobada.
+La contraseña se almacena en la base de datos mediante un hash BCrypt; no se guarda como texto plano.
 
-Después de iniciar sesión, se recomienda cambiar la contraseña inicial por una propia y segura desde la sección de configuración, si esta funcionalidad está disponible.
+**Importante:** esta contraseña es temporal y se proporciona exclusivamente para el entorno de desarrollo. Después del primer inicio de sesión, se debe cambiar desde **Configuración → Seguridad**, utilizando la opción para cambiar la contraseña. Se recomienda establecer una contraseña propia y segura.
+
+El registro inicial se crea únicamente si el usuario `admin` o el correo `admin@evaluacion.com` no existen. Si el administrador ya está registrado en una base de datos existente, modificar `database/schema.sql` no cambia automáticamente su contraseña.
 
 ## 9. Seguridad y limitaciones conocidas
 
