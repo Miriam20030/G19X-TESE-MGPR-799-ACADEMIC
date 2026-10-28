@@ -1,9 +1,11 @@
+
 package com.evaluacionproveedores.backend.controller;
 
 import com.evaluacionproveedores.backend.model.Evaluacion;
 import com.evaluacionproveedores.backend.repository.EvaluacionRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,8 +34,12 @@ public class EvaluacionController {
     // ==========================================
 
     @GetMapping("/{id}")
-    public Evaluacion obtenerEvaluacion(@PathVariable Integer id) {
-        return evaluacionRepository.findById(id).orElse(null);
+    public ResponseEntity<Evaluacion> obtenerEvaluacion(
+            @PathVariable Integer id) {
+
+        return evaluacionRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 
