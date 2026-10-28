@@ -1,4 +1,4 @@
-﻿import { apiFetch } from '../utils/apiFetch'
+import { apiFetch } from '../utils/apiFetch'
 
 import { useEffect, useState } from 'react'
 import API_URL from '../config/api'
@@ -62,7 +62,7 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
     obtenerDatos()
   }, [])
 
-  // EstadÃ­sticas principales
+  // Estadísticas principales
   const totalProveedores = proveedores.length
 
   const proveedoresActivos = proveedores.filter(
@@ -93,7 +93,7 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
         color: colorTexto
       }}
     >
-      {/* TÃTULO */}
+      {/* TÍTULO */}
 
       <div
         style={{
@@ -125,7 +125,7 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
             lineHeight: '1.6'
           }}
         >
-          VisiÃ³n general del desempeÃ±o y gestiÃ³n de proveedores.
+          Visión general del desempeño y gestión de proveedores.
         </p>
       </div>
 
@@ -161,7 +161,7 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
         </div>
 
         <div className="card">
-          <span>EvaluaciÃ³n promedio</span>
+          <span>Evaluación promedio</span>
 
           <strong style={{ color: colorPrincipal }}>
             {promedioEvaluacion}%
@@ -169,7 +169,7 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
         </div>
       </div>
 
-      {/* GRÃFICA DE CLASIFICACIÃ“N */}
+      {/* GRÁFICA DE CLASIFICACIÓN */}
 
       <GraficaClasificacion
         evaluaciones={evaluaciones}
@@ -189,7 +189,7 @@ export default function Dashboard({ modoOscuro, colorPrincipal }) {
         colorTarjeta={colorTarjeta}
       />
 
-      {/* ÃšLTIMAS EVALUACIONES */}
+      {/* ÚLTIMAS EVALUACIONES */}
 
       <UltimasEvaluaciones
         evaluaciones={evaluaciones}

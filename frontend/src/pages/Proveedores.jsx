@@ -1,4 +1,4 @@
-﻿import { apiFetch } from '../utils/apiFetch'
+import { apiFetch } from '../utils/apiFetch'
 
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -72,7 +72,7 @@ function Proveedores() {
         abierto: true,
         tipo: 'error',
         titulo: 'Error al cargar proveedores',
-        mensaje: 'No fue posible obtener la informaciÃ³n de los proveedores.',
+        mensaje: 'No fue posible obtener la información de los proveedores.',
         mostrarCancelar: false,
         onAceptar: cerrarModal
       })
@@ -104,8 +104,8 @@ function Proveedores() {
     setModal({
       abierto: true,
       tipo: 'eliminar',
-      titulo: 'Â¿Deseas eliminar este proveedor?',
-      mensaje: 'Esta acciÃ³n no se puede deshacer. El proveedor serÃ¡ eliminado del sistema.',
+      titulo: '¿Deseas eliminar este proveedor?',
+      mensaje: 'Esta acción no se puede deshacer. El proveedor será eliminado del sistema.',
       mostrarCancelar: true,
 
       onAceptar: async () => {
@@ -135,7 +135,7 @@ function Proveedores() {
             abierto: true,
             tipo: 'exito',
             titulo: 'Proveedor eliminado',
-            mensaje: 'El proveedor se eliminÃ³ correctamente del sistema.',
+            mensaje: 'El proveedor se eliminó correctamente del sistema.',
             mostrarCancelar: false,
             onAceptar: cerrarModal
           })
@@ -148,7 +148,7 @@ function Proveedores() {
             abierto: true,
             tipo: 'error',
             titulo: 'Error al eliminar',
-            mensaje: 'No fue posible eliminar el proveedor. IntÃ©ntalo nuevamente.',
+            mensaje: 'No fue posible eliminar el proveedor. Inténtalo nuevamente.',
             mostrarCancelar: false,
             onAceptar: cerrarModal
           })
@@ -199,7 +199,7 @@ function Proveedores() {
         <div className="proveedores-header-content">
 
           <span className="proveedores-subtitulo">
-            ADMINISTRACIÃ“N DE PROVEEDORES
+            ADMINISTRACIÓN DE PROVEEDORES
           </span>
 
           <h1>
@@ -209,7 +209,7 @@ function Proveedores() {
           <div className="proveedores-titulo-linea"></div>
 
           <p>
-            Administra y consulta la informaciÃ³n de los proveedores registrados.
+            Administra y consulta la información de los proveedores registrados.
           </p>
 
         </div>
@@ -293,7 +293,7 @@ function Proveedores() {
           </h2>
 
           <p>
-            Registra un proveedor para comenzar a administrar tu informaciÃ³n.
+            Registra un proveedor para comenzar a administrar tu información.
           </p>
 
           <Link
@@ -328,7 +328,7 @@ function Proveedores() {
 
                   <img
                     src={`${API_URL}${proveedor.fotoUrl}`}
-                    alt={`FotografÃ­a de ${proveedor.nombre}`}
+                    alt={`Fotografía de ${proveedor.nombre}`}
                     className="proveedor-foto"
                   />
 
@@ -347,7 +347,7 @@ function Proveedores() {
               </div>
 
               {/* =========================================
-                  INFORMACIÃ“N
+                  INFORMACIÓN
               ========================================= */}
 
               <div className="proveedor-main">
@@ -403,7 +403,7 @@ function Proveedores() {
                   <div className="proveedor-info-item">
 
                     <span className="info-label">
-                      Correo electrÃ³nico
+                      Correo electrónico
                     </span>
 
                     <span
@@ -420,7 +420,7 @@ function Proveedores() {
                   <div className="proveedor-info-item">
 
                     <span className="info-label">
-                      TelÃ©fono
+                      Teléfono
                     </span>
 
                     <span className="info-value">

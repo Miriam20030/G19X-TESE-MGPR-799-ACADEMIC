@@ -1,4 +1,4 @@
-﻿import { apiFetch } from '../utils/apiFetch'
+import { apiFetch } from '../utils/apiFetch'
 
 import { useEffect, useState } from 'react'
 import API_URL from '../config/api'
@@ -135,7 +135,7 @@ function Alertas() {
                 <div className="titulo-linea"></div>
 
                 <p>
-                    Proveedores que requieren atenciÃ³n segÃºn los resultados
+                    Proveedores que requieren atención según los resultados
                     de sus evaluaciones.
                 </p>
 
@@ -190,7 +190,7 @@ function Alertas() {
 
                         {busqueda
                             ? 'No se encontraron resultados'
-                            : 'Todo estÃ¡ en orden'
+                            : 'Todo está en orden'
                         }
 
                     </h2>
@@ -198,7 +198,7 @@ function Alertas() {
                     <p>
 
                         {busqueda
-                            ? 'No existe una alerta para el proveedor que estÃ¡s buscando.'
+                            ? 'No existe una alerta para el proveedor que estás buscando.'
                             : 'Actualmente no existen proveedores con evaluaciones clasificadas como Riesgo o Regular.'
                         }
 
@@ -234,7 +234,7 @@ function Alertas() {
 
                                     <span className="evaluacion-id">
 
-                                        EvaluaciÃ³n #
+                                        Evaluación #
                                         {evaluacion.idEvaluacion}
 
                                     </span>
@@ -271,14 +271,14 @@ function Alertas() {
 
                                 </div>
 
-                                {/* INFORMACIÃ“N */}
+                                {/* INFORMACIÓN */}
 
                                 <div className="datos-alerta">
 
                                     <div>
 
                                         <span>
-                                            CALIFICACIÃ“N
+                                            CALIFICACIÓN
                                         </span>
 
                                         <strong>
@@ -296,7 +296,7 @@ function Alertas() {
                                     <div>
 
                                         <span>
-                                            FECHA DE EVALUACIÃ“N
+                                            FECHA DE EVALUACIÓN
                                         </span>
 
                                         <p>
@@ -309,7 +309,7 @@ function Alertas() {
 
                                 </div>
 
-                                {/* BARRA DE CALIFICACIÃ“N */}
+                                {/* BARRA DE CALIFICACIÓN */}
 
                                 <div className="barra-calificacion">
 
@@ -344,7 +344,7 @@ function Alertas() {
                                     </strong>
 
                                     <p>
-                                        Se recomienda revisar el desempeÃ±o
+                                        Se recomienda revisar el desempeño
                                         de este proveedor.
                                     </p>
 

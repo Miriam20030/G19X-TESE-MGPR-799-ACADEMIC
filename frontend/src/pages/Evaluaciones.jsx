@@ -1,4 +1,4 @@
-﻿import { apiFetch } from '../utils/apiFetch'
+import { apiFetch } from '../utils/apiFetch'
 
 import { useEffect, useMemo, useState } from 'react'
 import NuevaEvaluacion from './NuevaEvaluacion'
@@ -100,7 +100,7 @@ function Evaluaciones() {
     }
 
     // =========================================================
-    // ESTILO DE CLASIFICACIÃ“N
+    // ESTILO DE CLASIFICACIÓN
     // =========================================================
 
     const obtenerEstiloClasificacion = (clasificacion) => {
@@ -201,7 +201,7 @@ function Evaluaciones() {
     }
 
     // =========================================================
-    // ESTADÃSTICAS
+    // ESTADÍSTICAS
     // =========================================================
 
     const estadisticas = useMemo(() => {
@@ -306,7 +306,7 @@ function Evaluaciones() {
     }
 
     // =========================================================
-    // CERRAR NUEVA EVALUACIÃ“N
+    // CERRAR NUEVA EVALUACIÓN
     // =========================================================
 
     const cerrarNuevaEvaluacion = () => {
@@ -314,7 +314,7 @@ function Evaluaciones() {
     }
 
     // =========================================================
-    // EVALUACIÃ“N GUARDADA
+    // EVALUACIÓN GUARDADA
     // =========================================================
 
     const evaluacionGuardada = async () => {
@@ -403,7 +403,7 @@ function Evaluaciones() {
                     </h1>
 
                     <p>
-                        Consulta el desempeÃ±o y las evaluaciones realizadas a cada proveedor.
+                        Consulta el desempeño y las evaluaciones realizadas a cada proveedor.
                     </p>
 
                 </div>
@@ -412,12 +412,12 @@ function Evaluaciones() {
                     className="btn-nueva-evaluacion-top"
                     onClick={() => setMostrarNuevaEvaluacion(true)}
                 >
-                    Nueva evaluaciÃ³n
+                    Nueva evaluación
                 </button>
 
             </div>
 
-            {/* ESTADÃSTICAS */}
+            {/* ESTADÍSTICAS */}
 
             <div className="estadisticas-grid">
 
@@ -512,7 +512,7 @@ function Evaluaciones() {
                 <div className="filtro-grupo">
 
                     <label>
-                        ClasificaciÃ³n
+                        Clasificación
                     </label>
 
                     <select
@@ -573,7 +573,7 @@ function Evaluaciones() {
                         )
 
                         const riesgoIA =
-                            evaluacion.riesgoIA || 'Sin anÃ¡lisis'
+                            evaluacion.riesgoIA || 'Sin análisis'
 
                         const probabilidadRiesgoAlto =
                             evaluacion.probabilidadRiesgoAlto ?? null
@@ -601,7 +601,7 @@ function Evaluaciones() {
                                         </h3>
 
                                         <span className="evaluacion-fecha">
-                                            EvaluaciÃ³n realizada el{' '}
+                                            Evaluación realizada el{' '}
                                             {formatearFecha(evaluacion.fechaEvaluacion)}
                                         </span>
 
@@ -628,7 +628,7 @@ function Evaluaciones() {
                                         </span>
 
                                         <span className="texto">
-                                            CalificaciÃ³n final
+                                            Calificación final
                                         </span>
 
                                     </div>
@@ -664,14 +664,14 @@ function Evaluaciones() {
 
                                 </div>
 
-                                {/* ANÃLISIS IA */}
+                                {/* ANÁLISIS IA */}
 
                                 <div className="analisis-ia">
 
                                     <div className="analisis-ia-header">
 
                                         <h4>
-                                            AnÃ¡lisis de Inteligencia Artificial
+                                            Análisis de Inteligencia Artificial
                                         </h4>
 
                                     </div>
@@ -718,7 +718,7 @@ function Evaluaciones() {
                                         <div className="recomendacion-ia">
 
                                             <h4>
-                                                RecomendaciÃ³n de IA
+                                                Recomendación de IA
                                             </h4>
 
                                             <p>
@@ -741,7 +741,7 @@ function Evaluaciones() {
 
             </div>
 
-            {/* MODAL NUEVA EVALUACIÃ“N */}
+            {/* MODAL NUEVA EVALUACIÓN */}
 
             {mostrarNuevaEvaluacion && (
 
@@ -761,7 +761,7 @@ function Evaluaciones() {
                             onClick={cerrarNuevaEvaluacion}
                             aria-label="Cerrar"
                         >
-                            Ã—
+                            ×
                         </button>
 
                         <NuevaEvaluacion
@@ -1236,8 +1236,8 @@ function Evaluaciones() {
                     border-color: #fecaca;
                 }
 
-                .riesgo-ia-sin-anÃ¡lisis,
-                .riesgo-ia-sin-anÃ¡lisis {
+                .riesgo-ia-sin-análisis,
+                .riesgo-ia-sin-análisis {
                     background: var(--ev-soft);
                     color: var(--ev-muted);
                     border-color: var(--ev-border);
