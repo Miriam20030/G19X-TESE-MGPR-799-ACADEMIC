@@ -3,6 +3,9 @@ package com.evaluacionproveedores.backend.controller;
 
 import com.evaluacionproveedores.backend.model.Evaluacion;
 import com.evaluacionproveedores.backend.repository.EvaluacionRepository;
+import com.evaluacionproveedores.backend.repository.ProveedorRepository;
+
+import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +20,9 @@ public class EvaluacionController {
 
     @Autowired
     private EvaluacionRepository evaluacionRepository;
+
+    @Autowired
+    private ProveedorRepository proveedorRepository;
 
 
     // ==========================================
@@ -48,16 +54,25 @@ public class EvaluacionController {
     // ==========================================
 
     @PostMapping
-    public Evaluacion crearEvaluacion(
-            @RequestBody Evaluacion evaluacion) {
+    public ResponseEntity<?> crearEvaluacion(
+            @Valid @RequestBody Evaluacion evaluacion) {
 
-        // La fecha se genera automáticamente
-        // al momento de guardar la evaluación.
+        // Verificar que exista el proveedor
+        if (evaluacion.getIdProveedor() == null ||
+                !proveedorRepository.existsById(evaluacion.getIdProveedor())) {
+
+            return ResponseEntity.badRequest()
+                    .body("El proveedor indicado no existe.");
+        }
+
+        // Generar fecha automáticamente
         evaluacion.setFechaEvaluacion(
                 java.time.LocalDateTime.now()
         );
 
-        return evaluacionRepository.save(evaluacion);
+        Evaluacion nuevaEvaluacion = evaluacionRepository.save(evaluacion);
+
+        return ResponseEntity.ok(nuevaEvaluacion);
     }
 
 
@@ -66,13 +81,29 @@ public class EvaluacionController {
     // ==========================================
 
     @PutMapping("/{id}")
-    public Evaluacion actualizarEvaluacion(
+    public ResponseEntity<?> actualizarEvaluacion(
             @PathVariable Integer id,
-            @RequestBody Evaluacion evaluacion) {
+            @Valid @RequestBody Evaluacion evaluacion) {
+
+        // Verificar que exista la evaluación
+        if (!evaluacionRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Verificar que exista el proveedor
+        if (evaluacion.getIdProveedor() == null ||
+                !proveedorRepository.existsById(evaluacion.getIdProveedor())) {
+
+            return ResponseEntity.badRequest()
+                    .body("El proveedor indicado no existe.");
+        }
 
         evaluacion.setIdEvaluacion(id);
 
-        return evaluacionRepository.save(evaluacion);
+        Evaluacion evaluacionActualizada =
+                evaluacionRepository.save(evaluacion);
+
+        return ResponseEntity.ok(evaluacionActualizada);
     }
 
 
@@ -81,9 +112,16 @@ public class EvaluacionController {
     // ==========================================
 
     @DeleteMapping("/{id}")
-    public void eliminarEvaluacion(
+    public ResponseEntity<Void> eliminarEvaluacion(
             @PathVariable Integer id) {
 
+        // Verificar que exista la evaluación
+        if (!evaluacionRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
         evaluacionRepository.deleteById(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,6 +1,10 @@
+
 package com.evaluacionproveedores.backend.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.DecimalMax;
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,18 +19,33 @@ public class Evaluacion {
     @Column(name = "idProveedor", nullable = false)
     private Integer idProveedor;
 
+    @NotNull(message = "El cumplimiento de entregas es obligatorio")
+    @DecimalMin(value = "0", message = "El cumplimiento de entregas no puede ser menor a 0")
+    @DecimalMax(value = "100", message = "El cumplimiento de entregas no puede ser mayor a 100")
     @Column(name = "cumplimientoEntregas", nullable = false)
     private Double cumplimientoEntregas;
 
+    @NotNull(message = "La calidad es obligatoria")
+    @DecimalMin(value = "0", message = "La calidad no puede ser menor a 0")
+    @DecimalMax(value = "100", message = "La calidad no puede ser mayor a 100")
     @Column(name = "calidad", nullable = false)
     private Double calidad;
 
+    @NotNull(message = "Los costos son obligatorios")
+    @DecimalMin(value = "0", message = "Los costos no pueden ser menores a 0")
+    @DecimalMax(value = "100", message = "Los costos no pueden ser mayores a 100")
     @Column(name = "costos", nullable = false)
     private Double costos;
 
+    @NotNull(message = "El tiempo de respuesta es obligatorio")
+    @DecimalMin(value = "0", message = "El tiempo de respuesta no puede ser menor a 0")
+    @DecimalMax(value = "100", message = "El tiempo de respuesta no puede ser mayor a 100")
     @Column(name = "tiempoRespuesta", nullable = false)
     private Double tiempoRespuesta;
 
+    @NotNull(message = "Las incidencias son obligatorias")
+    @DecimalMin(value = "0", message = "Las incidencias no pueden ser menores a 0")
+    @DecimalMax(value = "100", message = "Las incidencias no pueden ser mayores a 100")
     @Column(name = "incidencias", nullable = false)
     private Double incidencias;
 
@@ -36,31 +55,23 @@ public class Evaluacion {
     @Column(name = "clasificacion")
     private String clasificacion;
 
-@Column(name = "recomendacion")
-private String recomendacion;
+    @Column(name = "recomendacion")
+    private String recomendacion;
 
-@Column(name = "riesgoIA")
-private String riesgoIA;
+    @Column(name = "riesgoIA")
+    private String riesgoIA;
 
-@Column(name = "probabilidadRiesgoAlto")
-private Double probabilidadRiesgoAlto;
-
+    @Column(name = "probabilidadRiesgoAlto")
+    private Double probabilidadRiesgoAlto;
 
     @Column(name = "fechaEvaluacion")
     private LocalDateTime fechaEvaluacion;
 
-
-    // ==========================================
     // CONSTRUCTOR VACÍO
-    // ==========================================
-
     public Evaluacion() {
     }
 
-
-    // ==========================================
     // GETTERS Y SETTERS
-    // ==========================================
 
     public Integer getIdEvaluacion() {
         return idEvaluacion;
@@ -70,7 +81,6 @@ private Double probabilidadRiesgoAlto;
         this.idEvaluacion = idEvaluacion;
     }
 
-
     public Integer getIdProveedor() {
         return idProveedor;
     }
@@ -78,7 +88,6 @@ private Double probabilidadRiesgoAlto;
     public void setIdProveedor(Integer idProveedor) {
         this.idProveedor = idProveedor;
     }
-
 
     public Double getCumplimientoEntregas() {
         return cumplimientoEntregas;
@@ -88,7 +97,6 @@ private Double probabilidadRiesgoAlto;
         this.cumplimientoEntregas = cumplimientoEntregas;
     }
 
-
     public Double getCalidad() {
         return calidad;
     }
@@ -96,7 +104,6 @@ private Double probabilidadRiesgoAlto;
     public void setCalidad(Double calidad) {
         this.calidad = calidad;
     }
-
 
     public Double getCostos() {
         return costos;
@@ -106,7 +113,6 @@ private Double probabilidadRiesgoAlto;
         this.costos = costos;
     }
 
-
     public Double getTiempoRespuesta() {
         return tiempoRespuesta;
     }
@@ -114,7 +120,6 @@ private Double probabilidadRiesgoAlto;
     public void setTiempoRespuesta(Double tiempoRespuesta) {
         this.tiempoRespuesta = tiempoRespuesta;
     }
-
 
     public Double getIncidencias() {
         return incidencias;
@@ -124,7 +129,6 @@ private Double probabilidadRiesgoAlto;
         this.incidencias = incidencias;
     }
 
-
     public Double getCalificacionFinal() {
         return calificacionFinal;
     }
@@ -132,7 +136,6 @@ private Double probabilidadRiesgoAlto;
     public void setCalificacionFinal(Double calificacionFinal) {
         this.calificacionFinal = calificacionFinal;
     }
-
 
     public String getClasificacion() {
         return clasificacion;
@@ -143,12 +146,12 @@ private Double probabilidadRiesgoAlto;
     }
 
     public String getRecomendacion() {
-    return recomendacion;
-}
+        return recomendacion;
+    }
 
-public void setRecomendacion(String recomendacion) {
-    this.recomendacion = recomendacion;
-}
+    public void setRecomendacion(String recomendacion) {
+        this.recomendacion = recomendacion;
+    }
 
     public LocalDateTime getFechaEvaluacion() {
         return fechaEvaluacion;
@@ -158,22 +161,19 @@ public void setRecomendacion(String recomendacion) {
         this.fechaEvaluacion = fechaEvaluacion;
     }
 
+    public String getRiesgoIA() {
+        return riesgoIA;
+    }
 
-public String getRiesgoIA() {
-    return riesgoIA;
-}
+    public void setRiesgoIA(String riesgoIA) {
+        this.riesgoIA = riesgoIA;
+    }
 
-public void setRiesgoIA(String riesgoIA) {
-    this.riesgoIA = riesgoIA;
-}
+    public Double getProbabilidadRiesgoAlto() {
+        return probabilidadRiesgoAlto;
+    }
 
-public Double getProbabilidadRiesgoAlto() {
-    return probabilidadRiesgoAlto;
-}
-
-public void setProbabilidadRiesgoAlto(Double probabilidadRiesgoAlto) {
-    this.probabilidadRiesgoAlto = probabilidadRiesgoAlto;
-}
-
-
+    public void setProbabilidadRiesgoAlto(Double probabilidadRiesgoAlto) {
+        this.probabilidadRiesgoAlto = probabilidadRiesgoAlto;
+    }
 }
