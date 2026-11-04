@@ -14,6 +14,7 @@ backend/.env
 # Variables de entorno
 .env
 .env.*
+!.env.example
 
 # IDE
 .vscode/
