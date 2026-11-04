@@ -1,6 +1,6 @@
 ﻿
 import { apiFetch } from '../utils/apiFetch'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import ModalMensaje from '../components/ModalMensaje'
 import API_URL, { IA_URL } from '../config/api'
 
@@ -19,8 +19,8 @@ function NuevaEvaluacion({
     const [tiempoRespuesta, setTiempoRespuesta] = useState(0)
     const [incidencias, setIncidencias] = useState(0)
 
-    const [calificacionFinal, setCalificacionFinal] = useState(0)
-    const [clasificacion, setClasificacion] = useState('Riesgo')
+    const [calificacionFinal, setCalificacionFinal] = useState(null)
+    const [clasificacion, setClasificacion] = useState('')
     const [recomendacion, setRecomendacion] = useState('')
     const [guardando, setGuardando] = useState(false)
 
@@ -67,41 +67,6 @@ function NuevaEvaluacion({
 
         return 'El proveedor presenta un nivel de riesgo. Se recomienda revisar los principales indicadores y establecer acciones correctivas.'
     }
-
-    // =========================================================
-    // CALCULAR CALIFICACIÓN Y CLASIFICACIÓN
-    // =========================================================
-
-    useEffect(() => {
-        const resultado =
-            Number(cumplimientoEntregas) * 0.25 +
-            Number(calidad) * 0.25 +
-            Number(costos) * 0.20 +
-            Number(tiempoRespuesta) * 0.15 +
-            Number(incidencias) * 0.15
-
-        const resultadoFinal = Number(resultado.toFixed(2))
-
-        let nuevaClasificacion = 'Riesgo'
-
-        if (resultadoFinal >= 90) {
-            nuevaClasificacion = 'Excelente'
-        } else if (resultadoFinal >= 80) {
-            nuevaClasificacion = 'Bueno'
-        } else if (resultadoFinal >= 70) {
-            nuevaClasificacion = 'Regular'
-        }
-
-        setCalificacionFinal(resultadoFinal)
-        setClasificacion(nuevaClasificacion)
-        setRecomendacion(obtenerRecomendacion(nuevaClasificacion))
-    }, [
-        cumplimientoEntregas,
-        calidad,
-        costos,
-        tiempoRespuesta,
-        incidencias
-    ])
 
     // =========================================================
     // PROVEEDORES FILTRADOS
@@ -223,7 +188,7 @@ function NuevaEvaluacion({
             // ANALIZAR CON IA
             // =====================================================
 
-            let recomendacionIA = obtenerRecomendacion(clasificacion)
+            let recomendacionIA = null
             let riesgoIA = null
             let probabilidadRiesgoAlto = null
 
@@ -249,8 +214,7 @@ function NuevaEvaluacion({
                     const datosIA = await respuestaIA.json()
 
                     recomendacionIA =
-                        datosIA.recomendacion ||
-                        obtenerRecomendacion(clasificacion)
+                        datosIA.recomendacion || null
 
                     riesgoIA = datosIA.riesgoIA ?? null
 
@@ -277,8 +241,6 @@ function NuevaEvaluacion({
                 costos: Number(costos),
                 tiempoRespuesta: Number(tiempoRespuesta),
                 incidencias: Number(incidencias),
-                calificacionFinal: Number(calificacionFinal),
-                clasificacion,
                 recomendacion: recomendacionIA,
                 riesgoIA,
                 probabilidadRiesgoAlto
@@ -329,6 +291,38 @@ function NuevaEvaluacion({
             }
 
             // =====================================================
+            // OBTENER RESULTADOS CALCULADOS POR EL SERVIDOR
+            // =====================================================
+
+            const evaluacionGuardada = await respuesta.json()
+
+            const calificacionServidor = Number(
+                evaluacionGuardada.calificacionFinal
+            )
+
+            const clasificacionServidor =
+                evaluacionGuardada.clasificacion
+
+            if (
+                !Number.isFinite(calificacionServidor) ||
+                !clasificacionServidor
+            ) {
+                throw new Error(
+                    'La evaluación se guardó, pero el servidor no devolvió una calificación o clasificación válida.'
+                )
+            }
+
+            setCalificacionFinal(calificacionServidor)
+            setClasificacion(clasificacionServidor)
+
+            const recomendacionFinal =
+                evaluacionGuardada.recomendacion ||
+                recomendacionIA ||
+                obtenerRecomendacion(clasificacionServidor)
+
+            setRecomendacion(recomendacionFinal)
+
+            // =====================================================
             // MODAL DE ÉXITO
             // =====================================================
 
@@ -338,8 +332,8 @@ function NuevaEvaluacion({
                 titulo: 'Evaluación registrada',
                 mensaje:
                     `La evaluación del proveedor se registró correctamente. ` +
-                    `Calificación final: ${Number(calificacionFinal).toFixed(1)} puntos. ` +
-                    `Clasificación: ${clasificacion}.`,
+                    `Calificación final: ${calificacionServidor.toFixed(2)} puntos. ` +
+                    `Clasificación: ${clasificacionServidor}.`,
                 mostrarCancelar: false,
                 textoCancelar: 'Cancelar',
                 textoAceptar: 'Continuar',
@@ -634,19 +628,29 @@ function NuevaEvaluacion({
                             Calificación final
                         </span>
 
-                        <strong>{calificacionFinal.toFixed(1)}</strong>
+                        <strong>
+                            {calificacionFinal !== null
+                                ? calificacionFinal.toFixed(2)
+                                : '--'}
+                        </strong>
 
                         <span>sobre 100</span>
                     </div>
 
                     <div
-                        className={`resultado-clasificacion ${clasificacion.toLowerCase()}`}
+                        className={`resultado-clasificacion ${
+                            clasificacion
+                                ? clasificacion.toLowerCase()
+                                : ''
+                        }`}
                     >
                         <span className="resultado-label">
                             Clasificación
                         </span>
 
-                        <strong>{clasificacion}</strong>
+                        <strong>
+                            {clasificacion || 'Pendiente'}
+                        </strong>
                     </div>
                 </div>
 
@@ -656,7 +660,8 @@ function NuevaEvaluacion({
                     <div>
                         <h3>Recomendación</h3>
                         <p>
-                            {recomendacion || obtenerRecomendacion(clasificacion)}
+                            {recomendacion ||
+                                'La recomendación se mostrará después de registrar la evaluación.'}
                         </p>
                     </div>
                 </div>

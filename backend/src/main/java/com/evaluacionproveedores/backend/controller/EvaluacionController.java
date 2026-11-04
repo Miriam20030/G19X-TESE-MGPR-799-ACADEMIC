@@ -4,6 +4,7 @@ package com.evaluacionproveedores.backend.controller;
 import com.evaluacionproveedores.backend.model.Evaluacion;
 import com.evaluacionproveedores.backend.repository.EvaluacionRepository;
 import com.evaluacionproveedores.backend.repository.ProveedorRepository;
+import com.evaluacionproveedores.backend.service.EvaluacionService;
 
 import jakarta.validation.Valid;
 
@@ -24,6 +25,8 @@ public class EvaluacionController {
     @Autowired
     private ProveedorRepository proveedorRepository;
 
+    @Autowired
+    private EvaluacionService evaluacionService;
 
     // ==========================================
     // OBTENER TODAS LAS EVALUACIONES
@@ -33,7 +36,6 @@ public class EvaluacionController {
     public List<Evaluacion> obtenerEvaluaciones() {
         return evaluacionRepository.findAll();
     }
-
 
     // ==========================================
     // OBTENER UNA EVALUACIÓN POR ID
@@ -47,7 +49,6 @@ public class EvaluacionController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
-
 
     // ==========================================
     // CREAR UNA EVALUACIÓN
@@ -65,16 +66,20 @@ public class EvaluacionController {
                     .body("El proveedor indicado no existe.");
         }
 
+        // Calcular calificación y clasificación en el servidor
+        evaluacionService.calcularCalificacion(evaluacion);
+
         // Generar fecha automáticamente
         evaluacion.setFechaEvaluacion(
                 java.time.LocalDateTime.now()
         );
 
-        Evaluacion nuevaEvaluacion = evaluacionRepository.save(evaluacion);
+        // Guardar evaluación con los resultados calculados
+        Evaluacion nuevaEvaluacion =
+                evaluacionRepository.save(evaluacion);
 
         return ResponseEntity.ok(nuevaEvaluacion);
     }
-
 
     // ==========================================
     // ACTUALIZAR UNA EVALUACIÓN
@@ -105,7 +110,6 @@ public class EvaluacionController {
 
         return ResponseEntity.ok(evaluacionActualizada);
     }
-
 
     // ==========================================
     // ELIMINAR UNA EVALUACIÓN
