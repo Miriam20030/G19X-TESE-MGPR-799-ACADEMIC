@@ -103,8 +103,13 @@ public class EvaluacionController {
                     .body("El proveedor indicado no existe.");
         }
 
+        // Asignar el ID de la evaluación
         evaluacion.setIdEvaluacion(id);
 
+        // Recalcular calificación y clasificación
+        evaluacionService.calcularCalificacion(evaluacion);
+
+        // Guardar evaluación actualizada
         Evaluacion evaluacionActualizada =
                 evaluacionRepository.save(evaluacion);
 
